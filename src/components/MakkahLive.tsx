@@ -15,9 +15,10 @@ interface StreamChannel {
 }
 
 export default function MakkahLive() {
-  const [activeStreamId, setActiveStreamId] = useState('makkah-quran');
+  const [activeStreamId, setActiveStreamId] = useState('makkah-alternative');
   const [ksaTimeStr, setKsaTimeStr] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [availableStreamIds, setAvailableStreamIds] = useState<string[]>(['makkah-alternative', 'madinah-sunnah']);
 
   // Saudi Al Quran TV channel (Makkah) and Saudi Sunnah TV channel (Madinah)
   // We use YouTube dynamic live_stream endpoint which automatically grabs the latest/active stream of the channel!
@@ -44,6 +45,67 @@ export default function MakkahLive() {
       location: 'Masjidil Nabawi, Madinah'
     }
   ];
+
+  // Dynamic check for offline YouTube channels
+  useEffect(() => {
+    const verifyStreams = async () => {
+      const activeIds: string[] = ['makkah-alternative', 'madinah-sunnah']; // Safe verified defaults because channel live_stream redirects automaticially
+      
+      const checkOne = async (st: StreamChannel): Promise<boolean> => {
+        let videoId = '';
+        const embedParts = st.embedUrl.split('/embed/');
+        if (embedParts[1]) {
+          videoId = embedParts[1].split('?')[0];
+        }
+
+        if (!videoId) return true;
+
+        return new Promise<boolean>((resolve) => {
+          const img = new Image();
+          const timeout = setTimeout(() => {
+            img.src = '';
+            resolve(false);
+          }, 3500);
+
+          img.onload = () => {
+            clearTimeout(timeout);
+            // YouTube serves a default 120x90 image if the video is offline or invalid
+            if (img.naturalWidth === 120 && img.naturalHeight === 90) {
+              resolve(false);
+            } else {
+              resolve(true);
+            }
+          };
+
+          img.onerror = () => {
+            clearTimeout(timeout);
+            resolve(false);
+          };
+
+          img.src = `https://img.youtube.com/vi/${videoId}/mqdefault.jpg`;
+        });
+      };
+
+      try {
+        const isMakkahQuranOnline = await checkOne(streams[0]);
+        if (isMakkahQuranOnline) {
+          // Put the premium main feed at the top and activate it
+          setAvailableStreamIds(['makkah-quran', 'makkah-alternative', 'madinah-sunnah']);
+          setActiveStreamId('makkah-quran');
+        } else {
+          // Otherwise, only list the alternative and madinah feeds, and choose the alternative
+          setAvailableStreamIds(['makkah-alternative', 'madinah-sunnah']);
+          setActiveStreamId('makkah-alternative');
+        }
+      } catch (e) {
+        console.warn("Failed checking main stream status, defaulting to safe feeds", e);
+        setAvailableStreamIds(['makkah-alternative', 'madinah-sunnah']);
+        setActiveStreamId('makkah-alternative');
+      }
+    };
+
+    verifyStreams();
+  }, []);
 
   // Calculate live Saudi Arabian Standard Time (GMT+3)
   useEffect(() => {
@@ -215,7 +277,7 @@ export default function MakkahLive() {
             </h3>
 
             <div className="space-y-2.5">
-              {streams.map((st) => {
+              {streams.filter(st => availableStreamIds.includes(st.id)).map((st) => {
                 const isSelected = activeStreamId === st.id;
                 return (
                   <button

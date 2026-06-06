@@ -14,7 +14,7 @@ interface PrayerTimeRow {
 }
 
 // Surabaya Default Timings Fallback
-const STATIC_FALLBACK_TIMES: { [key: string]: string } = {
+const KEMENAG_FALLBACK_TIMES: { [key: string]: string } = {
   imsak: "04:09",
   subuh: "04:19",
   terbit: "05:36",
@@ -23,6 +23,18 @@ const STATIC_FALLBACK_TIMES: { [key: string]: string } = {
   maghrib: "17:29",
   isya: "18:43"
 };
+
+const MUHAMMADIYAH_FALLBACK_TIMES: { [key: string]: string } = {
+  imsak: "04:17", // Subuh is calculated 8-9 mins later because Fajr is -18 degrees (compared to -20 degrees of Kemenag)
+  subuh: "04:27",
+  terbit: "05:36",
+  dzuhur: "11:35",
+  ashar: "14:54",
+  maghrib: "17:29",
+  isya: "18:43"
+};
+
+const STATIC_FALLBACK_TIMES = KEMENAG_FALLBACK_TIMES;
 
 const MAJOR_CITIES = [
   { name: "Surabaya", lat: -7.2575, lng: 112.7521 },
@@ -112,8 +124,14 @@ export default function PrayerSchedule() {
     return localStorage.getItem('pr_detectedCity') || null;
   });
   const [timings, setTimings] = useState<{ [key: string]: string }>(() => {
-    const saved = localStorage.getItem('pr_timings');
-    return saved ? JSON.parse(saved) : STATIC_FALLBACK_TIMES;
+    const savedMethod = (localStorage.getItem('pr_calcMethod') as 'kemenag' | 'muhammadiyah') || 'kemenag';
+    const saved = localStorage.getItem(`pr_timings_${savedMethod}`) || localStorage.getItem('pr_timings');
+    if (saved) {
+      try {
+        return JSON.parse(saved);
+      } catch (e) {}
+    }
+    return savedMethod === 'muhammadiyah' ? MUHAMMADIYAH_FALLBACK_TIMES : KEMENAG_FALLBACK_TIMES;
   });
   const [hijriDate, setHijriDate] = useState<string>(() => {
     return localStorage.getItem('pr_hijriDate') || getCalculatedHijriDate(new Date());
@@ -154,6 +172,17 @@ export default function PrayerSchedule() {
   const handleCalcMethodChange = (method: 'kemenag' | 'muhammadiyah') => {
     setCalcMethod(method);
     localStorage.setItem('pr_calcMethod', method);
+    
+    // Swap timing lists instantly so countdown adjusts immediately!
+    const cachedForMethod = localStorage.getItem(`pr_timings_${method}`);
+    if (cachedForMethod) {
+      try {
+        setTimings(JSON.parse(cachedForMethod));
+      } catch (e) {}
+    } else {
+      setTimings(method === 'muhammadiyah' ? MUHAMMADIYAH_FALLBACK_TIMES : KEMENAG_FALLBACK_TIMES);
+    }
+    
     fetchPrayerTimes(lat, lng, locationName, method);
   };
 
@@ -214,12 +243,13 @@ export default function PrayerSchedule() {
     const dateStr = `${dayStr}-${monthStr}-${yearStr}`;
 
     const cacheKey = `${latitude.toFixed(4)}_${longitude.toFixed(4)}_${dateStr}_${activeMethod}`;
-    const storedCacheKey = localStorage.getItem('pr_timings_cache_key');
+    const storedCacheKey = localStorage.getItem(`pr_timings_cache_key_${activeMethod}`) || localStorage.getItem('pr_timings_cache_key');
+    const cachedTimingsForMethod = localStorage.getItem(`pr_timings_${activeMethod}`);
     
     // If the cache matches today's date, same location and same calculation method, skip network and render instantly!
-    if (storedCacheKey === cacheKey && localStorage.getItem('pr_timings')) {
+    if (storedCacheKey === cacheKey && cachedTimingsForMethod) {
       try {
-        const cached = JSON.parse(localStorage.getItem('pr_timings') || '{}');
+        const cached = JSON.parse(cachedTimingsForMethod);
         setTimings(cached);
         const cachedHijri = localStorage.getItem('pr_hijriDate');
         if (cachedHijri) setHijriDate(cachedHijri);
@@ -265,14 +295,20 @@ export default function PrayerSchedule() {
         localStorage.setItem('pr_lng', longitude.toString());
         localStorage.setItem('pr_locationName', name);
         localStorage.setItem('pr_timings', JSON.stringify(cleaned));
+        localStorage.setItem(`pr_timings_${activeMethod}`, JSON.stringify(cleaned));
         localStorage.setItem('pr_hijriDate', mappedHijri);
         localStorage.setItem('pr_calcMethod', activeMethod);
-        localStorage.setItem('pr_timings_cache_key', cacheKey);
+        localStorage.setItem(`pr_timings_cache_key_${activeMethod}`, cacheKey);
       }
     } catch (err) {
       console.warn("Using local calculation fallbacks for prayer times", err);
-      if (!localStorage.getItem('pr_timings')) {
-        setTimings(STATIC_FALLBACK_TIMES);
+      const savedForMethod = localStorage.getItem(`pr_timings_${activeMethod}`);
+      if (savedForMethod) {
+        try {
+          setTimings(JSON.parse(savedForMethod));
+        } catch (e) {}
+      } else {
+        setTimings(activeMethod === 'muhammadiyah' ? MUHAMMADIYAH_FALLBACK_TIMES : KEMENAG_FALLBACK_TIMES);
         setHijriDate(getCalculatedHijriDate(new Date()));
       }
     } finally {
@@ -322,8 +358,9 @@ export default function PrayerSchedule() {
     const currentSec = systemTime.getSeconds();
     const currentTotalMinutes = currentHour * 60 + currentMin;
 
+    const defaultSubuh = calcMethod === 'muhammadiyah' ? "04:27" : "04:19";
     const schedules = [
-      { id: 'subuh', nama: 'Subuh', waktu: timings.subuh || "04:19" },
+      { id: 'subuh', nama: 'Subuh', waktu: timings.subuh || defaultSubuh },
       { id: 'dzuhur', nama: 'Dzuhur', waktu: timings.dzuhur || "11:35" },
       { id: 'ashar', nama: 'Ashar', waktu: timings.ashar || "14:54" },
       { id: 'maghrib', nama: 'Maghrib', waktu: timings.maghrib || "17:29" },

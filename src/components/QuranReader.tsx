@@ -52,6 +52,14 @@ const OFFLINE_LIST: Surah[] = [
   { nomor: 112, nama: "الاخلاص", namaLatin: "Al-Ikhlas", jumlahAyat: 4, tempatTurun: "Mekah", arti: "Ikhlas", deskripsi: "Surat Al-Ikhlas", audioFull: { "01": "" } }
 ];
 
+const AVAILABLE_QORIS = [
+  { id: 'Abdurrahman-as-Sudais', name: 'Syaikh Abdurrahman as-Sudais', desc: 'Imam Masjidil Haram Makkah' },
+  { id: 'Mishary-Rashid-Al-Afasy', name: 'Syaikh Mishary Rashid Al-Afasy', desc: 'Lantunan indah, merdu, & berirama' },
+  { id: 'Maher-Al-Muaiqly', name: 'Syaikh Maher Al-Muaiqly', desc: 'Suara tenang, mendalam & bersih' },
+  { id: 'Abdul-Basit-Abd-us-Samad', name: 'Syaikh Abdul Basit Abdus Samad', desc: 'Gaya klasik emosional legendaris' },
+  { id: 'Muhammad-Ayyub', name: 'Syaikh Muhammad Ayyub', desc: 'Khas Nabawi Madinah yang jernih' }
+];
+
 interface QuranReaderProps {
   globalAudioState: GlobalAudioState;
   playGlobalAudio: (ayat: Ayat, surahNum: number, surahName: string, surahAyats: Ayat[]) => void;
@@ -59,6 +67,8 @@ interface QuranReaderProps {
   stopGlobalAudio: () => void;
   activeSurahNum: number | null;
   setActiveSurahNum: React.Dispatch<React.SetStateAction<number | null>>;
+  selectedQori: string;
+  setSelectedQori: (qori: string) => void;
 }
 
 export default function QuranReader({
@@ -67,7 +77,9 @@ export default function QuranReader({
   pauseGlobalAudio,
   stopGlobalAudio,
   activeSurahNum,
-  setActiveSurahNum
+  setActiveSurahNum,
+  selectedQori,
+  setSelectedQori
 }: QuranReaderProps) {
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [searchQuery, setSearchQuery] = useState("");

@@ -391,7 +391,7 @@ export default function TasbihCounter() {
                   }`}
                   title={soundEnabled ? "Suara Ketukan Aktif" : "Suara Ketukan Mati"}
                 >
-                  <Volume2 className={`w-3.5 h-3.5 ${soundEnabled ? 'scale-110 animate-pulse' : 'opacity-60'}`} />
+                  <Volume2 className={`w-3.5 h-3.5 ${soundEnabled ? 'scale-110' : 'opacity-60'}`} />
                   <span className="ml-1 text-[10px] font-bold">{soundEnabled ? 'Suara' : 'Mute'}</span>
                 </button>
                 <button
@@ -404,7 +404,7 @@ export default function TasbihCounter() {
                   }`}
                   title={vibrateEnabled ? "Getar HP Aktif" : "Getar HP Mati"}
                 >
-                  <Smartphone className={`w-3.5 h-3.5 ${vibrateEnabled ? 'scale-110 animate-pulse' : 'opacity-60'}`} />
+                  <Smartphone className={`w-3.5 h-3.5 ${vibrateEnabled ? 'scale-110' : 'opacity-60'}`} />
                   <span className="ml-1 text-[10px] font-bold">{vibrateEnabled ? 'Getar' : 'Off'}</span>
                 </button>
               </div>
@@ -414,102 +414,33 @@ export default function TasbihCounter() {
           {/* LARGE INTERACTIVE BEAD STRING AND TAP CONTAINER */}
           <div className="my-5 relative flex flex-col items-center justify-center select-none w-64 h-64 overflow-visible">
             
-            {/* Pure Vector Dynamic Animated Tasbih Illustration with 33 beads */}
+            {/* Elegant, clean circular progress ring */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-0">
-              <svg viewBox="0 0 256 256" className="w-68 h-68 overflow-visible selection:bg-transparent">
-                {/* Glow ring background */}
+              <svg viewBox="0 0 256 256" className="w-60 h-60 overflow-visible selection:bg-transparent">
+                {/* Outer ring track */}
                 <circle
                   cx="128"
                   cy="128"
                   r="92"
-                  className="fill-none stroke-emerald-500/5 dark:stroke-emerald-400/5"
-                  strokeWidth="14"
+                  className="fill-none stroke-slate-100 dark:stroke-emerald-950/40"
+                  strokeWidth="8"
                 />
                 
-                {/* Decorative Sufi string trace */}
+                {/* Active progress segment (Circumference = 2 * PI * 92 ≈ 578) */}
                 <circle
                   cx="128"
                   cy="128"
                   r="92"
-                  className="stroke-amber-600/15 dark:stroke-amber-500/10 fill-none"
-                  strokeWidth="2"
-                  strokeDasharray="4,4"
+                  className="fill-none stroke-sky-400 dark:stroke-emerald-400 transition-all duration-300"
+                  strokeWidth="8"
+                  strokeDasharray={`${progressRatio * 578} 578`}
+                  strokeDashoffset="0"
+                  strokeLinecap="round"
+                  transform="rotate(-90 128 128)" // Start progress from top (12 o'clock)
                 />
 
-                {/* Animated g container grouping 33 beads that spin on counts! */}
-                <g 
-                  transform={`rotate(${tasbihRotationAngle}, 128, 128)`} 
-                  className="transition-transform duration-500 origin-[128px_128px]" 
-                  style={{ transitionTimingFunction: 'cubic-bezier(0.34, 1.56, 0.64, 1)' }}
-                >
-                  {/* Rendering 33 beads evenly spaced around the circle */}
-                  {Array.from({ length: NUM_BEADS }).map((_, i) => {
-                    const angle = (i * 360) / NUM_BEADS;
-                    const rad = (angle * Math.PI) / 180;
-                    const radius = 92;
-                    const x = 128 + radius * Math.cos(rad);
-                    const y = 128 + radius * Math.sin(rad);
-
-                    // Bead progress calculation
-                    const progressVal = (currentCount % activeTarget) / activeTarget;
-                    const beadProgressThreshold = i / NUM_BEADS;
-                    const isLit = progressVal > beadProgressThreshold && currentCount > 0;
-
-                    return (
-                      <g key={i}>
-                        {/* Bead shadow floor */}
-                        <circle
-                          cx={x}
-                          cy={y + 1.5}
-                          r={isLit ? "7.5" : "5.5"}
-                          fill="#000000"
-                          opacity={isLit ? "0.15" : "0.08"}
-                        />
-                        {/* Pearlescent bead */}
-                        <circle
-                          cx={x}
-                          cy={y}
-                          r={isLit ? "7" : "5.5"}
-                          className={`transition-all duration-300 ${
-                            isLit
-                              ? 'fill-amber-400 stroke-amber-500 dark:stroke-amber-300 drop-shadow-[0_0_5px_rgba(245,158,11,0.6)] scale-110'
-                              : 'fill-slate-100 dark:fill-slate-800 stroke-slate-300/80 dark:stroke-emerald-900/60'
-                          }`}
-                          strokeWidth={isLit ? "1.5" : "1"}
-                        />
-                        {/* Pearl reflection gloss dot */}
-                        <circle
-                          cx={x - 1.8}
-                          cy={y - 1.8}
-                          r={isLit ? "2" : "1"}
-                          fill="#ffffff"
-                          opacity={isLit ? "0.9" : "0.5"}
-                        />
-                      </g>
-                    );
-                  })}
-
-                  {/* Traditional Imamah guide bead + Elegant hanging silk tassel at angle 0 */}
-                  <g transform={`translate(${128 + 92} , 128)`}>
-                    {/* Imamah centerpiece structure */}
-                    <rect x="-4.5" y="-9" width="9" height="18" rx="2.5" fill="#ca8a04" stroke="#eab308" strokeWidth="1" />
-                    {/* Decorative golden separator ornament */}
-                    <circle cx="0" cy="0" r="4.5" fill="#15803d" />
-                    <circle cx="0" cy="-4" r="2.5" fill="#facc15" />
-                    
-                    {/* Silk hanging threads / Ribbon Tassel */}
-                    <path 
-                      d="M 0 9 Q -4 19 -7 25 M 0 9 L 0 28 M 0 9 Q 4 19 7 25" 
-                      stroke="#fbbf24" 
-                      strokeWidth="1.75" 
-                      strokeLinecap="round" 
-                      fill="none"
-                    />
-                    
-                    {/* Golden tie knot of the tassel thread */}
-                    <circle cx="0" cy="11" r="3.5" fill="#f59e0b" />
-                  </g>
-                </g>
+                {/* Sparkling decorative dots at milestones */}
+                <circle cx="128" cy="36" r="3" fill="#fbbf24" className="animate-pulse" />
               </svg>
             </div>
 
@@ -517,19 +448,19 @@ export default function TasbihCounter() {
             <button
               id="tasbih-tap-button"
               onClick={handleIncrement}
-              className="absolute w-36 h-36 rounded-full bg-gradient-to-br from-emerald-50/90 to-white dark:from-slate-900 dark:to-emerald-950/80 border-2 border-emerald-100 dark:border-emerald-900/50 shadow-lg active:scale-95 transition-all text-center flex flex-col items-center justify-center cursor-pointer group z-10"
+              className="absolute w-38 h-38 rounded-full bg-white dark:bg-slate-900 border border-sky-100 dark:border-emerald-905 shadow-md hover:shadow-lg active:scale-95 transition-all text-center flex flex-col items-center justify-center cursor-pointer group z-10"
               title="Ketuk untuk berdzikir"
             >
-              <span className="text-[9px] uppercase font-extrabold tracking-wider text-emerald-600 dark:text-emerald-400 mb-0.5 max-w-[100px] truncate block">
+              <span className="text-[10px] uppercase font-extrabold tracking-widest text-sky-600 dark:text-emerald-400 mb-1 max-w-[110px] truncate block">
                 {activeDzikir.latin}
               </span>
               <span className="text-4xl font-extrabold text-slate-800 dark:text-emerald-50 font-mono tracking-tight my-0.5">
                 {currentCount}
               </span>
-              <span className="text-xs text-slate-400 dark:text-emerald-300/50 font-serif font-bold max-w-[110px] truncate block">
+              <span className="text-xs text-slate-400 dark:text-emerald-305 font-serif font-bold max-w-[110px] truncate block">
                 {activeDzikir.arab}
               </span>
-              <div className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-2 animate-ping" />
+              <div className="w-1.5 h-1.5 bg-yellow-400 rounded-full mt-2 animate-ping" />
             </button>
           </div>
 
