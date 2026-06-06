@@ -5,7 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Search, BookOpen, Bookmark, Play, Pause, ChevronLeft, Volume2, Sparkles, BookMarked, RefreshCw, AlertTriangle, ExternalLink, HelpCircle } from 'lucide-react';
-import { Surah, SurahDetail, Ayat } from '../types';
+import { Surah, SurahDetail, Ayat, GlobalAudioState } from '../types';
 
 // Let's bundle Al-Fatihah, Al-Ikhlas, Al-Falaq, An-Nas as robust offline backends
 const OFFLINE_RESOURCES: any = {
@@ -17,15 +17,15 @@ const OFFLINE_RESOURCES: any = {
     tempatTurun: "Mekah",
     arti: "Pembukaan",
     deskripsi: "Surat Al Fatihah (Pembukaan) yang diturunkan di Mekah dan terdiri dari 7 ayat. Al Fatihah merupakan surat yang pertama-tama diturunkan secara lengkap di antara surat-surat yang ada dalam Al-Qur'an.",
-    audioFull: { "01": "https://media.equran.id/audio-full/Abdurrahman-As-Sudais/001.mp3" },
+    audioFull: { "01": "https://cdn.equran.id/audio-full/Abdurrahman-as-Sudais/001.mp3" },
     ayat: [
-      { nomorAyat: 1, teksArab: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", teksLatin: "Bismillāhir-rahmānir-rahīm(i).", teksIndonesia: "Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/001001.mp3" } },
-      { nomorAyat: 2, teksArab: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", teksLatin: "Al-hamdu lillāhi rabbil-'ālamīn(a).", teksIndonesia: "Segala puji bagi Allah, Tuhan seluruh alam,", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/001002.mp3" } },
-      { nomorAyat: 3, teksArab: "الرَّحْمَٰنِ الرَّحِيمِ", teksLatin: "Ar-rahmānir-rahīm(i).", teksIndonesia: "Yang Maha Pengasih, Maha Penyayang,", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/001003.mp3" } },
-      { nomorAyat: 4, teksArab: "مَالِكِ يَوْمِ الدِّينِ", teksLatin: "Māliki yaumid-dīn(i).", teksIndonesia: "Pemilik hari pembalasan.", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/001004.mp3" } },
-      { nomorAyat: 5, teksArab: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ", teksLatin: "Iyyāka na'budu wa iyyāka nasta'īn(u).", teksIndonesia: "Hanya kepada-Mu lah kami menyembah dan hanya kepada-Mu lah kami memohon pertolongan.", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/001005.mp3" } },
-      { nomorAyat: 6, teksArab: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ", teksLatin: "Ihdināṣ-ṣirāṭal-mustaqīm(a).", teksIndonesia: "Tunjukkanlah kami jalan yang lurus,", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/001006.mp3" } },
-      { nomorAyat: 7, teksArab: "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ", teksLatin: "Ṣirāṭal-lażīna an'amta 'alayhim gairil-magḍūbi 'alayhim wa laḍ-ḍāllīn(a).", teksIndonesia: "(yaitu) jalan orang-orang yang telah Engkau beri nikmat kepadanya; bukan (jalan) mereka yang dimurkai, dan bukan (pula jalan) mereka yang sesat.", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/001007.mp3" } }
+      { nomorAyat: 1, teksArab: "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ", teksLatin: "Bismillāhir-rahmānir-rahīm(i).", teksIndonesia: "Dengan nama Allah Yang Maha Pengasih, Maha Penyayang.", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/001001.mp3" } },
+      { nomorAyat: 2, teksArab: "الْحَمْدُ لِلَّهِ رَبِّ الْعَالَمِينَ", teksLatin: "Al-hamdu lillāhi rabbil-'ālamīn(a).", teksIndonesia: "Segala puji bagi Allah, Tuhan seluruh alam,", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/001002.mp3" } },
+      { nomorAyat: 3, teksArab: "الرَّحْمَٰنِ الرَّحِيمِ", teksLatin: "Ar-rahmānir-rahīm(i).", teksIndonesia: "Yang Maha Pengasih, Maha Penyayang,", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/001003.mp3" } },
+      { nomorAyat: 4, teksArab: "مَالِكِ يَوْمِ الدِّينِ", teksLatin: "Māliki yaumid-dīn(i).", teksIndonesia: "Pemilik hari pembalasan.", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/001004.mp3" } },
+      { nomorAyat: 5, teksArab: "إِيَّاكَ نَعْبُدُ وَإِيَّاكَ نَسْتَعِينُ", teksLatin: "Iyyāka na'budu wa iyyāka nasta'īn(u).", teksIndonesia: "Hanya kepada-Mu lah kami menyembah dan hanya kepada-Mu lah kami memohon pertolongan.", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/001005.mp3" } },
+      { nomorAyat: 6, teksArab: "اهْدِنَا الصِّرَاطَ الْمُسْتَقِيمَ", teksLatin: "Ihdināṣ-ṣirāṭal-mustaqīm(a).", teksIndonesia: "Tunjukkanlah kami jalan yang lurus,", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/001006.mp3" } },
+      { nomorAyat: 7, teksArab: "صِرَاطَ الَّذِينَ أَنْعَمْتَ عَلَيْهِمْ غَيْرِ الْمَغْضُوبِ عَلَيْهِمْ وَلَا الضَّالِّينَ", teksLatin: "Ṣirāṭal-lażīna an'amta 'alayhim gairil-magḍūbi 'alayhim wa laḍ-ḍāllīn(a).", teksIndonesia: "(yaitu) jalan orang-orang yang telah Engkau beri nikmat kepadanya; bukan (jalan) mereka yang dimurkai, dan bukan (pula jalan) mereka yang sesat.", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/001007.mp3" } }
     ]
   },
   112: {
@@ -36,12 +36,12 @@ const OFFLINE_RESOURCES: any = {
     tempatTurun: "Mekah",
     arti: "Ikhlas",
     deskripsi: "Surat Al Ikhlas (Keesaan Allah)",
-    audioFull: { "01": "https://media.equran.id/audio-full/Abdurrahman-As-Sudais/112.mp3" },
+    audioFull: { "01": "https://cdn.equran.id/audio-full/Abdurrahman-as-Sudais/112.mp3" },
     ayat: [
-      { nomorAyat: 1, teksArab: "قُلْ هُوَ اللَّهُ أَحَدٌ", teksLatin: "Qul huwallāhu aḥad(un).", teksIndonesia: "Katakanlah (Muhammad), \"Dialah Allah Yang Maha Esa.", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/112001.mp3" } },
-      { nomorAyat: 2, teksArab: "اللَّهُ الصَّمَدُ", teksLatin: "Allāhuṣ-ṣamad(u).", teksIndonesia: "Allah tempat meminta segala sesuatu.", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/112002.mp3" } },
-      { nomorAyat: 3, teksArab: "لَمْ يَلِدْ وَلَمْ يُولَدْ", teksLatin: "Lam yalid wa lam yūlad.", teksIndonesia: "Dia tidak beranak dan tidak pula diperanakkan,", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/112003.mp3" } },
-      { nomorAyat: 4, teksArab: "وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ", teksLatin: "Wa lam yakul-lahū kufuwan ahad(un).", teksIndonesia: "dan tidak ada sesuatu yang setara dengan Dia.\"", audio: { "01": "https://media.equran.id/audio-ayat/Abdurrahman-As-Sudais/112004.mp3" } }
+      { nomorAyat: 1, teksArab: "قُلْ هُوَ اللَّهُ أَحَدٌ", teksLatin: "Qul huwallāhu aḥad(un).", teksIndonesia: "Katakanlah (Muhammad), \"Dialah Allah Yang Maha Esa.", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/112001.mp3" } },
+      { nomorAyat: 2, teksArab: "اللَّهُ الصَّمَدُ", teksLatin: "Allāhuṣ-ṣamad(u).", teksIndonesia: "Allah tempat meminta segala sesuatu.", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/112002.mp3" } },
+      { nomorAyat: 3, teksArab: "لَمْ يَلِدْ وَلَمْ يُولَدْ", teksLatin: "Lam yalid wa lam yūlad.", teksIndonesia: "Dia tidak beranak dan tidak pula diperanakkan,", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/112003.mp3" } },
+      { nomorAyat: 4, teksArab: "وَلَمْ يَكُن لَّهُ كُفُوًا أَحَدٌ", teksLatin: "Wa lam yakul-lahū kufuwan ahad(un).", teksIndonesia: "dan tidak ada sesuatu yang setara dengan Dia.\"", audio: { "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/112004.mp3" } }
     ]
   }
 };
@@ -51,26 +51,68 @@ const OFFLINE_LIST: Surah[] = [
   { nomor: 112, nama: "الاخلاص", namaLatin: "Al-Ikhlas", jumlahAyat: 4, tempatTurun: "Mekah", arti: "Ikhlas", deskripsi: "Surat Al-Ikhlas", audioFull: { "01": "" } }
 ];
 
-export default function QuranReader() {
+interface QuranReaderProps {
+  globalAudioState: GlobalAudioState;
+  playGlobalAudio: (ayat: Ayat, surahNum: number, surahName: string, surahAyats: Ayat[]) => void;
+  pauseGlobalAudio: () => void;
+  stopGlobalAudio: () => void;
+  activeSurahNum: number | null;
+  setActiveSurahNum: React.Dispatch<React.SetStateAction<number | null>>;
+}
+
+export default function QuranReader({
+  globalAudioState,
+  playGlobalAudio,
+  pauseGlobalAudio,
+  stopGlobalAudio,
+  activeSurahNum,
+  setActiveSurahNum
+}: QuranReaderProps) {
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeSurahNum, setActiveSurahNum] = useState<number | null>(null);
   const [surahDetail, setSurahDetail] = useState<SurahDetail | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [errorDetailMsg, setErrorDetailMsg] = useState<string | null>(null);
 
-  // Audio state
-  const [playingAudioUrl, setPlayingAudioUrl] = useState<string | null>(null);
-  const [playingAyatNum, setPlayingAyatNum] = useState<number | null>(null);
-  const [isAudioLoading, setIsAudioLoading] = useState(false);
+  // Derived global audio states mapping to old internal names
+  const playingAudioUrl = globalAudioState.playingAudioUrl;
+  const playingAyatNum = globalAudioState.playingSurahNum === surahDetail?.nomor ? globalAudioState.playingAyatNum : null;
+  const isAudioLoading = globalAudioState.isAudioLoading;
   
   // Bookmarks / Last Read (localStorage keys)
   const [bookmark, setBookmark] = useState<{ surahNum: number; surahName: string; ayatNum: number } | null>(null);
   const [lastRead, setLastRead] = useState<{ surahNum: number; surahName: string; timestamp: string } | null>(null);
 
-  const audioRef = useRef<HTMLAudioElement | null>(null);
+  // Scroll active ayat block into view if viewing that surah
+  useEffect(() => {
+    if (surahDetail && globalAudioState.playingSurahNum === surahDetail.nomor && globalAudioState.playingAyatNum !== null && globalAudioState.playingAyatNum !== undefined) {
+      const timer = setTimeout(() => {
+        if (globalAudioState.playingAyatNum === 0) {
+          const bannerEl = document.getElementById('surah-banner-card');
+          if (bannerEl) {
+            bannerEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        } else {
+          const el = document.getElementById(`ayat-block-${globalAudioState.playingAyatNum}`);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          }
+        }
+      }, 500);
+      return () => clearTimeout(timer);
+    }
+  }, [surahDetail, globalAudioState.playingSurahNum, globalAudioState.playingAyatNum]);
+
+  // Load surah detail if activeSurahNum changes externally
+  useEffect(() => {
+    if (activeSurahNum) {
+      loadSurahDetail(activeSurahNum);
+    } else {
+      setSurahDetail(null);
+    }
+  }, [activeSurahNum]);
 
   // Load Bookmarks and list on startup
   useEffect(() => {
@@ -115,7 +157,6 @@ export default function QuranReader() {
   const loadSurahDetail = async (nomor: number) => {
     setIsLoadingDetail(true);
     setErrorDetailMsg(null);
-    stopAudio();
 
     // Check if offline resource exists first
     if (OFFLINE_RESOURCES[nomor]) {
@@ -182,68 +223,16 @@ export default function QuranReader() {
   const handleBackToList = () => {
     setActiveSurahNum(null);
     setSurahDetail(null);
-    stopAudio();
   };
 
-  // Audio Playback Engine
+  // Audio Playback Engine mapped to global audio player
   const playAudioAyat = (ayat: Ayat) => {
-    const audioUrl = ayat.audio["01"] || Object.values(ayat.audio)[0];
-    if (!audioUrl) return;
-
-    if (playingAudioUrl === audioUrl) {
-      // Toggle play/pause
-      if (audioRef.current?.paused) {
-        audioRef.current.play();
-        setPlayingAyatNum(ayat.nomorAyat);
-      } else {
-        audioRef.current?.pause();
-        setPlayingAyatNum(null);
-      }
-      return;
-    }
-
-    stopAudio();
-    setIsAudioLoading(true);
-    setPlayingAudioUrl(audioUrl);
-    setPlayingAyatNum(ayat.nomorAyat);
-
-    const audio = new Audio(audioUrl);
-    audioRef.current = audio;
-
-    audio.oncanplaythrough = () => {
-      setIsAudioLoading(false);
-      audio.play().catch(e => console.warn("Audio autoplay blocked", e));
-    };
-
-    audio.onended = () => {
-      setPlayingAudioUrl(null);
-      setPlayingAyatNum(null);
-      
-      // Auto-play next verse if available
-      if (surahDetail && ayat.nomorAyat < surahDetail.ayat.length) {
-        const nextAyat = surahDetail.ayat.find(v => v.nomorAyat === ayat.nomorAyat + 1);
-        if (nextAyat) {
-          playAudioAyat(nextAyat);
-        }
-      }
-    };
-
-    audio.onerror = () => {
-      setIsAudioLoading(false);
-      setPlayingAudioUrl(null);
-      setPlayingAyatNum(null);
-      alert("Gagal memutar audio Murottal. Periksa koneksi internet.");
-    };
+    if (!surahDetail) return;
+    playGlobalAudio(ayat, surahDetail.nomor, surahDetail.namaLatin, surahDetail.ayat);
   };
 
   const stopAudio = () => {
-    if (audioRef.current) {
-      audioRef.current.pause();
-      audioRef.current = null;
-    }
-    setPlayingAudioUrl(null);
-    setPlayingAyatNum(null);
-    setIsAudioLoading(false);
+    stopGlobalAudio();
   };
 
   const filteredSurahs = surahs.filter((s) => {
@@ -432,7 +421,7 @@ export default function QuranReader() {
               {surahDetail && (
                 <div>
                   {/* Surah Banner Card */}
-                  <div className="relative text-center p-6 bg-gradient-to-r from-emerald-700 to-emerald-900 rounded-2xl text-white shadow-md mb-8 overflow-hidden">
+                  <div id="surah-banner-card" className="relative text-center p-6 bg-gradient-to-r from-emerald-700 to-emerald-900 rounded-2xl text-white shadow-md mb-8 overflow-hidden">
                     <div className="absolute right-0 bottom-0 opacity-10 font-serif text-9xl pointer-events-none transform translate-y-12 translate-x-12">
                       {surahDetail.nama}
                     </div>
@@ -447,7 +436,11 @@ export default function QuranReader() {
                     
                     {/* Bismillah Header (Don't show for Al-Fatihah or Al-Tawbah, since Al-Fatihah includes it as verse 1) */}
                     {surahDetail.nomor !== 1 && surahDetail.nomor !== 9 && (
-                      <p className="text-xl font-serif mt-2 tracking-wide text-amber-200">
+                      <p className={`text-xl font-serif mt-2 tracking-wide transition-all duration-300 ${
+                        globalAudioState.playingSurahNum === surahDetail.nomor && globalAudioState.playingAyatNum === 0
+                          ? 'text-amber-300 font-bold scale-105 animate-pulse drop-shadow-[0_0_8px_rgba(252,211,77,0.5)]'
+                          : 'text-amber-200'
+                      }`}>
                         بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
                       </p>
                     )}

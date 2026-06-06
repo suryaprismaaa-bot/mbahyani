@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Clock, Calendar, MapPin, RefreshCw, AlertCircle, Sparkles, Volume2, MoveRight, HelpCircle } from 'lucide-react';
+import { Clock, Calendar, MapPin, RefreshCw, AlertCircle, Sparkles, Volume2, MoveRight, HelpCircle, Info } from 'lucide-react';
 
 interface PrayerTimeRow {
   id: string;
@@ -13,23 +13,93 @@ interface PrayerTimeRow {
   deskripsi: string;
 }
 
-// Solid Indonesian local prayer times database fallback (Yogyakarta / East Java coordinates)
+// Surabaya Default Timings Fallback
 const STATIC_FALLBACK_TIMES: { [key: string]: string } = {
-  imsak: "04:08",
-  subuh: "04:18",
-  terbit: "05:35",
-  dzuhur: "11:34",
-  ashar: "14:53",
-  maghrib: "17:28",
-  isya: "18:42"
+  imsak: "04:09",
+  subuh: "04:19",
+  terbit: "05:36",
+  dzuhur: "11:35",
+  ashar: "14:54",
+  maghrib: "17:29",
+  isya: "18:43"
+};
+
+const MAJOR_CITIES = [
+  { name: "Surabaya", lat: -7.2575, lng: 112.7521 },
+  { name: "DKI Jakarta", lat: -6.2088, lng: 106.8456 },
+  { name: "Yogyakarta", lat: -7.7956, lng: 110.3695 },
+  { name: "Bandung", lat: -6.9175, lng: 107.6191 },
+  { name: "Semarang", lat: -6.9667, lng: 110.4167 },
+  { name: "Medan", lat: 3.5952, lng: 98.6722 },
+  { name: "Makassar", lat: -5.1477, lng: 119.4327 },
+  { name: "Denpasar", lat: -8.6705, lng: 115.2126 },
+  { name: "Balikpapan", lat: -1.2654, lng: 116.8312 },
+  { name: "Palembang", lat: -2.9911, lng: 104.7567 }
+];
+
+const getClosestMajorCity = (lat: number, lng: number): string => {
+  let closest = MAJOR_CITIES[0];
+  let minDist = Infinity;
+  for (const city of MAJOR_CITIES) {
+    const d = Math.sqrt(Math.pow(lat - city.lat, 2) + Math.pow(lng - city.lng, 2));
+    if (d < minDist) {
+      minDist = d;
+      closest = city;
+    }
+  }
+  return closest.name;
+};
+
+const fetchCityName = async (latitude: number, longitude: number): Promise<string> => {
+  try {
+    const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&zoom=10`, {
+      headers: { 'Accept-Language': 'id-ID,id;q=0.9' }
+    });
+    if (response.ok) {
+      const data = await response.json();
+      if (data && data.address) {
+        return data.address.city || data.address.town || data.address.municipality || data.address.suburb || data.address.state || getClosestMajorCity(latitude, longitude);
+      }
+    }
+  } catch (e) {
+    console.warn("Geocoding failed, using distance fallback", e);
+  }
+  return getClosestMajorCity(latitude, longitude);
+};
+
+// Helper to get calculated Hijri date using native Intl
+const getCalculatedHijriDate = (d: Date = new Date()): string => {
+  try {
+    const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', {
+      day: 'numeric',
+      month: 'numeric',
+      year: 'numeric'
+    });
+    const parts = formatter.formatToParts(d);
+    const day = parts.find(p => p.type === 'day')?.value || '1';
+    const monthNum = parseInt(parts.find(p => p.type === 'month')?.value || '1', 10);
+    const year = parts.find(p => p.type === 'year')?.value || '1447';
+    
+    const hijriMonths = [
+      "Muharram", "Safar", "Rabi'ul Awwal", "Rabi'ul Akhir",
+      "Jumadil Awwal", "Jumadil Akhir", "Rajab", "Sya'ban",
+      "Ramadhan", "Syawwal", "Dzulqa'dah", "Dzulhijjah"
+    ];
+    
+    const monthName = hijriMonths[monthNum - 1] || "Dzulhijjah";
+    return `${day} ${monthName} ${year} H`;
+  } catch (e) {
+    return "20 Dzulhijjah 1447 H"; // Accurate lock fallback for June 6, 2026
+  }
 };
 
 export default function PrayerSchedule() {
-  const [lat, setLat] = useState<number>(-8.0827); // Default (Keluarga Besar Mbah Yani area, Jawa Timur)
-  const [lng, setLng] = useState<number>(111.8021);
-  const [locationName, setLocationName] = useState<string>("Trenggalek / Durenan (Kediaman Mbah Yani)");
+  const [lat, setLat] = useState<number>(-7.2575); // Surabaya Default
+  const [lng, setLng] = useState<number>(112.7521);
+  const [locationName, setLocationName] = useState<string>("Surabaya (Default)");
+  const [detectedCity, setDetectedCity] = useState<string | null>(null);
   const [timings, setTimings] = useState<{ [key: string]: string }>(STATIC_FALLBACK_TIMES);
-  const [hijriDate, setHijriDate] = useState<string>("Safar 1448 H");
+  const [hijriDate, setHijriDate] = useState<string>(getCalculatedHijriDate(new Date()));
   const [gregorianDate, setGregorianDate] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isGpsLoading, setIsGpsLoading] = useState<boolean>(false);
@@ -37,6 +107,29 @@ export default function PrayerSchedule() {
   
   // Audio state
   const [showAzzanNote, setShowAzzanNote] = useState<boolean>(false);
+
+  // Timezone label helper based on longitude
+  const getTzLabel = () => {
+    try {
+      const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+      if (tz.includes("Jakarta") || tz.includes("Bangkok") || lng < 115) {
+        return "WIB";
+      } else if (tz.includes("Makassar") || tz.includes("Singapore") || (lng >= 115 && lng < 135)) {
+        return "WITA";
+      } else if (tz.includes("Jayapura") || lng >= 135) {
+        return "WIT";
+      }
+    } catch (e) {}
+    return "WIB";
+  };
+
+  // Manual reset back to Surabaya
+  const handleRestoreSurabaya = () => {
+    setLat(-7.2575);
+    setLng(112.7521);
+    setDetectedCity(null);
+    fetchPrayerTimes(-7.2575, 112.7521, "Surabaya (Waktu Setempat)");
+  };
 
   // Load times and update system watch
   useEffect(() => {
@@ -49,8 +142,27 @@ export default function PrayerSchedule() {
       setSystemTime(new Date());
     }, 1000);
 
-    // Initial load
-    fetchPrayerTimes(lat, lng, "Trenggalek / Durenan");
+    // Initial load: Surabaya by default
+    fetchPrayerTimes(-7.2575, 112.7521, "Surabaya (Waktu Setempat)");
+
+    // Softly attempt auto geo-detection on mount if permission exists/cached
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        async (position) => {
+          const uLat = position.coords.latitude;
+          const uLng = position.coords.longitude;
+          setLat(uLat);
+          setLng(uLng);
+          const cityName = await fetchCityName(uLat, uLng);
+          setDetectedCity(cityName);
+          fetchPrayerTimes(uLat, uLng, cityName);
+        },
+        (error) => {
+          console.log("GPS auto-detection skipped or blocked. Code:", error.code);
+        },
+        { timeout: 4000 }
+      );
+    }
 
     return () => clearInterval(timer);
   }, []);
@@ -58,15 +170,21 @@ export default function PrayerSchedule() {
   const fetchPrayerTimes = async (latitude: number, longitude: number, name: string) => {
     setIsLoading(true);
     try {
-      // Fetch timings from Aladhan API, method 11 (Kemenag RI / Singapore / Malaysia MUIS region)
-      const response = await fetch(`https://api.aladhan.com/v1/timings?latitude=${latitude}&longitude=${longitude}&method=11`);
+      // Format current system date as DD-MM-YYYY for Aladhan API to ensure accurate 2026 data
+      const today = new Date();
+      const dayStr = String(today.getDate()).padStart(2, '0');
+      const monthStr = String(today.getMonth() + 1).padStart(2, '0');
+      const yearStr = today.getFullYear();
+      const dateStr = `${dayStr}-${monthStr}-${yearStr}`;
+
+      // Fetch timings from Aladhan API, method 11 (Kemenag RI / Singapore / Malaysia MUIS region) specifically for our simulated date
+      const response = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}&method=11`);
       if (!response.ok) {
         throw new Error("HTTP error");
       }
       const resJson = await response.json();
       if (resJson && resJson.data) {
         const remoteTimings = resJson.data.timings;
-        // Strip out seconds if returned
         const cleaned: { [key: string]: string } = {};
         Object.keys(remoteTimings).forEach(k => {
           cleaned[k.toLowerCase()] = remoteTimings[k].substring(0, 5);
@@ -74,14 +192,20 @@ export default function PrayerSchedule() {
         setTimings(cleaned);
         
         const hijri = resJson.data.date.hijri;
-        setHijriDate(`${hijri.day} ${hijri.month.ar} ${hijri.year} H (${hijri.month.en})`);
+        const hijriMonthsMap = [
+          "Muharram", "Safar", "Rabi'ul Awwal", "Rabi'ul Akhir",
+          "Jumadil Awwal", "Jumadil Akhir", "Rajab", "Sya'ban",
+          "Ramadhan", "Syawwal", "Dzulqa'dah", "Dzulhijjah"
+        ];
+        const monthNum = parseInt(hijri.month.number, 10);
+        const mappedMonth = hijriMonthsMap[monthNum - 1] || hijri.month.en;
+        setHijriDate(`${hijri.day} ${mappedMonth} ${hijri.year} H`);
         setLocationName(name);
       }
     } catch (err) {
       console.warn("Using local calculation fallbacks for prayer times", err);
       setTimings(STATIC_FALLBACK_TIMES);
-      // Give simulated Hijri date based on year 2026
-      setHijriDate("Dzulhijjah 1447 H");
+      setHijriDate(getCalculatedHijriDate(new Date()));
     } finally {
       setIsLoading(false);
     }
@@ -96,17 +220,19 @@ export default function PrayerSchedule() {
     }
 
     navigator.geolocation.getCurrentPosition(
-      (position) => {
+      async (position) => {
         const uLat = position.coords.latitude;
         const uLng = position.coords.longitude;
         setLat(uLat);
         setLng(uLng);
-        fetchPrayerTimes(uLat, uLng, "Lokasi GPS Anda");
+        const cityName = await fetchCityName(uLat, uLng);
+        setDetectedCity(cityName);
+        await fetchPrayerTimes(uLat, uLng, cityName);
         setIsGpsLoading(false);
       },
       (error) => {
         console.warn("GPS failed, using defaults", error);
-        alert("Akses GPS gagal. Menampilkan waktu shalat wilayah keluarga Mbah Yani secara presisi.");
+        alert("Akses GPS gagal. Menampilkan waktu shalat wilayah Surabaya secara presisi.");
         setIsGpsLoading(false);
       },
       { timeout: 6000 }
@@ -127,18 +253,17 @@ export default function PrayerSchedule() {
     const currentTotalMinutes = currentHour * 60 + currentMin;
 
     const schedules = [
-      { id: 'subuh', nama: 'Subuh', waktu: timings.subuh || "04:18" },
-      { id: 'dzuhur', nama: 'Dzuhur', waktu: timings.dzuhur || "11:34" },
-      { id: 'ashar', nama: 'Ashar', waktu: timings.ashar || "14:53" },
-      { id: 'maghrib', nama: 'Maghrib', waktu: timings.maghrib || "17:28" },
-      { id: 'isya', nama: 'Isya', waktu: timings.isya || "18:42" }
+      { id: 'subuh', nama: 'Subuh', waktu: timings.subuh || "04:19" },
+      { id: 'dzuhur', nama: 'Dzuhur', waktu: timings.dzuhur || "11:35" },
+      { id: 'ashar', nama: 'Ashar', waktu: timings.ashar || "14:54" },
+      { id: 'maghrib', nama: 'Maghrib', waktu: timings.maghrib || "17:29" },
+      { id: 'isya', nama: 'Isya', waktu: timings.isya || "18:43" }
     ];
 
     // Find next prayer today
     let nextScheduled = schedules.find(s => timeStrToMinutes(s.waktu) > currentTotalMinutes);
     let nextDay = false;
 
-    // If passed Isya, next prayer is Subuh of tomorrow
     if (!nextScheduled) {
       nextScheduled = schedules[0]; // Subuh
       nextDay = true;
@@ -149,7 +274,6 @@ export default function PrayerSchedule() {
     let diffInSeconds = 0;
 
     if (nextDay) {
-      // Remaining minutes today + minutes tomorrow
       const minutesRemainingToday = (24 * 60) - currentTotalMinutes;
       diffInSeconds = (minutesRemainingToday + targetMinutes) * 60 - currentSec;
     } else {
@@ -171,18 +295,17 @@ export default function PrayerSchedule() {
   const activeNextInfo = getNextPrayerInfo();
 
   const prayList: PrayerTimeRow[] = [
-    { id: 'imsak', nama: 'Imsak', waktu: timings.imsak || "04:08", deskripsi: 'Batas sahur puasa' },
-    { id: 'subuh', nama: 'Subuh', waktu: timings.subuh || "04:18", deskripsi: 'Mulai fajar shodiq' },
-    { id: 'terbit', nama: 'Syuruk', waktu: timings.terbit || "05:35", deskripsi: 'Matahari terbit' },
-    { id: 'dzuhur', nama: 'Dzuhur', waktu: timings.dzuhur || "11:34", deskripsi: 'Matahari condong barat' },
-    { id: 'ashar', nama: 'Ashar', waktu: timings.ashar || "14:53", deskripsi: 'Bayangan menyamai tinggi benda' },
-    { id: 'maghrib', nama: 'Maghrib', waktu: timings.maghrib || "17:28", deskripsi: 'Matahari terbenam' },
-    { id: 'isya', nama: 'Isya', waktu: timings.isya || "18:42", deskripsi: 'Hilangnya fajar merah' }
+    { id: 'imsak', nama: 'Imsak', waktu: timings.imsak || "04:09", deskripsi: 'Batas sahur puasa' },
+    { id: 'subuh', nama: 'Subuh', waktu: timings.subuh || "04:19", deskripsi: 'Mulai fajar shodiq' },
+    { id: 'terbit', nama: 'Syuruk', waktu: timings.terbit || "05:36", deskripsi: 'Matahari terbit' },
+    { id: 'dzuhur', nama: 'Dzuhur', waktu: timings.dzuhur || "11:35", deskripsi: 'Matahari condong barat' },
+    { id: 'ashar', nama: 'Ashar', waktu: timings.ashar || "14:54", deskripsi: 'Bayangan menyamai tinggi benda' },
+    { id: 'maghrib', nama: 'Maghrib', waktu: timings.maghrib || "17:29", deskripsi: 'Matahari terbenam' },
+    { id: 'isya', nama: 'Isya', waktu: timings.isya || "18:43", deskripsi: 'Hilangnya fajar merah' }
   ];
 
   const handlePlayAdzanDemo = () => {
     setShowAzzanNote(true);
-    // Beep double tone
     try {
       const ctx = new (window.AudioContext || (window as any).webkitAudioContext)();
       const osc = ctx.createOscillator();
@@ -205,33 +328,86 @@ export default function PrayerSchedule() {
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Schedule Header */}
       <div className="text-center mb-8">
-        <span className="px-3 py-1 bg-emerald-50 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 text-xs font-semibold uppercase tracking-wider rounded-full border border-emerald-100 dark:border-emerald-800">
+        <span className="px-3 py-1 bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-950/40 dark:to-blue-950/40 text-emerald-700 dark:text-blue-300 text-xs font-bold uppercase tracking-wider rounded-full border border-emerald-100/40 dark:border-blue-900/40">
           Tepat Waktu Menghadap Pencipta
         </span>
         <h1 className="text-3xl font-extrabold text-slate-800 dark:text-emerald-50 mt-3 font-sans">
           Jadwal Sholat Otomatis
         </h1>
         <p className="text-slate-600 dark:text-emerald-200/70 mt-2 text-sm max-w-lg mx-auto">
-          Membantu keluarga Mbah Yani menegakkan sholat di awal waktu. Terbuka otomatis bagi semua wilayah di Indonesia didukung koordinat satelit.
+          Membantu menegakkan sholat di awal waktu. Diselaraskan koordinat satelit instan dengan Kemenag RI di seluruh wilayah Indonesia.
         </p>
       </div>
+
+      {/* Banner Informasi Lokasi Default Surabaya / GPS */}
+      {(!detectedCity || locationName.toLowerCase().includes("surabaya")) ? (
+        <div className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-950/20 dark:to-slate-900/60 p-4 rounded-2xl border-l-4 border-l-emerald-600 border-r-4 border-r-blue-600 border-t border-b border-emerald-100/30 dark:border-blue-900/10 text-xs mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-in fade-in duration-300">
+          <div className="flex items-start gap-3 text-slate-700 dark:text-emerald-250">
+            <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
+            <div>
+              <p className="font-extrabold text-sm text-slate-800 dark:text-emerald-100 mb-0.5">Jadwal Aktif: Kota Surabaya</p>
+              <p className="leading-relaxed font-medium">
+                Jadwal di bawah ini adalah untuk <span className="font-bold text-emerald-700 dark:text-emerald-300">Kota Surabaya</span>. Jika posisi Anda tidak di Surabaya, silakan klik tombol <span className="luxury-highlight text-blue-800 dark:text-blue-300">"Sesuaikan GPS"</span> agar waktu shalat otomatis menyesuaikan lokasi Anda saat ini.
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleRequestGps}
+            disabled={isGpsLoading}
+            className="shrink-0 px-4.5 py-2.5 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-extrabold rounded-xl shadow-md cursor-pointer transition-all whitespace-nowrap self-start sm:self-center text-xs active:scale-97"
+          >
+            {isGpsLoading ? "Menyesuaikan..." : "Sesuaikan GPS"}
+          </button>
+        </div>
+      ) : null}
+
+      {/* Real-time Location alerts (Jakarta or other detected city) */}
+      {detectedCity && (detectedCity.toLowerCase().includes("jakarta") || locationName.toLowerCase().includes("jakarta")) ? (
+        <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border-l-4 border-l-blue-600 rounded-r-2xl p-4 mb-8 flex items-start gap-3.5 text-slate-700 dark:text-emerald-250 animate-in fade-in slide-in-from-top-3">
+          <MapPin className="w-5.5 h-5.5 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5 animate-bounce" />
+          <div className="text-xs">
+            <span className="font-extrabold text-sm block mb-1 text-slate-800 dark:text-white">📍 Lokasi Terdeteksi di Jakarta!</span>
+            Waktu jadwal sholat saat ini disinkronisasikan secara real-time mengacu pada perhitungan Kemenag RI untuk zona waktu Jakarta dan sekitarnya.
+            <button 
+              onClick={handleRestoreSurabaya}
+              className="mt-2 block text-[11px] font-bold uppercase text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              ← RESET KE SURABAYA (DEFAULT)
+            </button>
+          </div>
+        </div>
+      ) : detectedCity && !detectedCity.toLowerCase().includes("surabaya") ? (
+        <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20 border-l-4 border-l-emerald-600 rounded-r-2xl p-4 mb-8 flex items-start gap-3.5 text-slate-700 dark:text-emerald-250 animate-in fade-in slide-in-from-top-3">
+          <MapPin className="w-5.5 h-5.5 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
+          <div className="text-xs">
+            <span className="font-extrabold text-sm block mb-1 text-slate-800 dark:text-white">📍 Lokasi Terdeteksi: {detectedCity}</span>
+            Jadwal sholat otomatis disesuaikan secara real-time berdasarkan posisi geografis Anda di <strong>{detectedCity}</strong> sesuai hisab Kemenag RI.
+            <button 
+              onClick={handleRestoreSurabaya}
+              className="mt-2 block text-[11px] font-bold uppercase text-emerald-600 dark:text-emerald-400 hover:underline"
+            >
+              ← KEMBALI KE SURABAYA (DEFAULT)
+            </button>
+          </div>
+        </div>
+      ) : null}
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left pane: Active Countdown Panel */}
         <div className="lg:col-span-4 space-y-6">
-          {/* Current clock display */}
-          <div className="bg-gradient-to-br from-emerald-600 to-emerald-800 rounded-3xl p-6 text-white text-center shadow-md select-none relative overflow-hidden">
+          {/* Current clock display with rich luxury NU green to Muhammadiyah blue gradient */}
+          <div className="bg-gradient-to-br from-emerald-600 via-teal-700 to-blue-600 rounded-3xl p-6 text-white text-center shadow-lg select-none relative overflow-hidden border border-white/10">
             <div className="absolute right-0 top-0 opacity-10 transform -translate-y-6 translate-x-6">
               <Clock className="w-48 h-48" />
             </div>
             
-            <span className="text-xs font-bold text-emerald-100 uppercase tracking-widest block font-mono">
-              WAKTU HARI INI (GMT+7)
+            <span className="text-xs font-semibold text-emerald-100 uppercase tracking-widest block font-mono">
+              WAKTU HARI INI ({getTzLabel()})
             </span>
             <div className="text-4xl font-extrabold font-mono tracking-tight my-2.5">
               {systemTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
             </div>
-            <p className="text-xs text-white/90 font-medium font-sans">
+            <p className="text-xs text-white/95 font-medium font-sans">
               {gregorianDate}
             </p>
             <div className="h-px bg-white/20 my-4" />
@@ -254,7 +430,7 @@ export default function PrayerSchedule() {
               {activeNextInfo.countdown}
             </p>
             <div className="text-xs text-slate-400 mt-2 font-mono">
-              Pukul {activeNextInfo.waktu} WIB
+              Pukul {activeNextInfo.waktu} {getTzLabel()}
             </div>
           </div>
 
@@ -355,7 +531,7 @@ export default function PrayerSchedule() {
                       <span className="font-mono text-base font-bold text-slate-800 dark:text-emerald-50">
                         {pray.waktu}
                       </span>
-                      <span className="text-[10px] text-slate-400 block font-mono">WIB</span>
+                      <span className="text-[10px] text-slate-400 block font-mono">{getTzLabel()}</span>
                     </div>
                   </div>
                 );
@@ -368,7 +544,7 @@ export default function PrayerSchedule() {
             <HelpCircle className="w-4.5 h-4.5 mr-2 text-emerald-600 shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-slate-700 dark:text-emerald-100 mb-0.5">Konvensi Perhitungan:</p>
-              Mengadopsi formula hitungan astronomi Kementrian Agama Republik Indonesia (Kemenag RI) dengan ikhtiyat +2 menit demi ketenangan pengamalan ibadah fardhu Bapak/Ibu lansia dan seluruh keluarga besar Mbah Yani.
+              Mengadopsi formula hitungan astronomi Kementrian Agama Republik Indonesia (Kemenag RI - Metode Standardisasi Hisab) dengan ikhtiyat +2 menit demi ketenangan pengamalan ibadah fardhu Bapak/Ibu lansia dan seluruh keluarga besar Mbah Yani.
             </div>
           </div>
         </div>

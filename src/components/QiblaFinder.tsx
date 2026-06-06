@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Compass, Navigation, MapPin, RefreshCw, AlertCircle, Info, MoveRight } from 'lucide-react';
+import { Compass, Navigation, MapPin, RefreshCw, AlertCircle, Info, MoveRight, Smartphone, CheckCircle2 } from 'lucide-react';
 
 interface CityPreset {
   nama: string;
@@ -32,6 +32,8 @@ export default function QiblaFinder() {
   const [heading, setHeading] = useState<number>(0); // Simulated aligned direction or actual sensor heading
   const [sensorActive, setSensorActive] = useState<boolean>(false);
   const [manualRotate, setManualRotate] = useState<number>(0); // Client can slide to rotate compass manually
+  const [perfectPositionAlert, setPerfectPositionAlert] = useState<boolean>(false);
+  const [hasAlertedForCurrentZone, setHasAlertedForCurrentZone] = useState<boolean>(false);
 
   // Mecca coordinates
   const MECCA_LAT = 21.4225;
@@ -164,6 +166,23 @@ export default function QiblaFinder() {
   // Qibla display angle = Qibla Real Angle - Compass Heading
   const qiblaRelativeAngle = (qiblaAngle - alignedCompassBearing + 360) % 360;
 
+  // Calculate precision percentage based on how close heading is to the Qibla bearing
+  const angleDiffIndex = Math.abs(alignedCompassBearing - qiblaAngle) % 360;
+  const shortestDiff = angleDiffIndex > 180 ? 360 - angleDiffIndex : angleDiffIndex;
+  const precisionPercent = Math.max(0, Math.round(100 - (shortestDiff / 180) * 100));
+
+  // Trigger focus stealing alert in 90%-100% precision with an entry threshold
+  useEffect(() => {
+    if (precisionPercent >= 90 && precisionPercent <= 100) {
+      if (!hasAlertedForCurrentZone) {
+        setPerfectPositionAlert(true);
+        setHasAlertedForCurrentZone(true);
+      }
+    } else if (precisionPercent < 83) { // 83% deadzone to avoid repeat triggers while adjusting slightly
+      setHasAlertedForCurrentZone(false);
+    }
+  }, [precisionPercent, hasAlertedForCurrentZone]);
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Intro Header */}
@@ -242,6 +261,23 @@ export default function QiblaFinder() {
                 <div className="w-0.5 h-4 bg-slate-300 dark:bg-emerald-800" />
               </div>
             )}
+          </div>
+
+          {/* Precision percentage indicator */}
+          <div className="w-full max-w-xs mb-4 px-4 py-3 bg-slate-50 dark:bg-emerald-950/10 rounded-2xl border border-emerald-100 dark:border-emerald-900/60 flex items-center justify-between shadow-inner">
+            <div className="text-left">
+              <span className="block text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-emerald-400/50">AKURASI PENYEARAHAN</span>
+              <span className="block text-xs font-bold text-slate-700 dark:text-emerald-100">Presisi Posisi Sajadah</span>
+            </div>
+            <div className={`px-3 py-1.5 rounded-xl font-mono text-sm font-black flex items-center gap-1 border ${
+              precisionPercent >= 90
+                ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-300 border-amber-300 dark:border-amber-850 animate-pulse'
+                : precisionPercent >= 70
+                  ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-650 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50'
+                  : 'bg-slate-100 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-emerald-900/20'
+            }`}>
+              {precisionPercent}%
+            </div>
           </div>
 
           {/* Device Orientation Status */}
@@ -373,6 +409,70 @@ export default function QiblaFinder() {
             </div>
           </div>
 
+          {/* Detailed Smartphone Guide & Best Practice Calibration */}
+          <div className="bg-white dark:bg-emerald-950/25 p-5 rounded-3xl border border-emerald-100 dark:border-emerald-900 shadow-sm space-y-4">
+            <h3 className="text-sm font-bold text-slate-800 dark:text-emerald-100 uppercase tracking-wider flex items-center gap-2 border-b border-slate-150 dark:border-emerald-900 pb-2.5">
+              <Smartphone className="w-4.5 h-4.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
+              Cara Penggunaan Akurat di HP
+            </h3>
+            
+            <p className="text-xs text-slate-500 dark:text-emerald-300/60 leading-relaxed">
+              Jika Anda membuka portal ibadah ini menggunakan <strong>HP (Smartphone)</strong>, ikuti petunjuk penting berikut untuk mendapatkan akurasi kompas giroskopik 100% presisi:
+            </p>
+
+            <div className="space-y-3">
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-[10px] font-black text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100">
+                  1
+                </div>
+                <div className="text-xs">
+                  <span className="font-extrabold text-slate-700 dark:text-emerald-200 block">Izinkan Izin GPS Lokasi</span>
+                  <p className="text-slate-500 dark:text-emerald-300/50 leading-tight mt-0.5">Klik tombol <strong>"Deteksi Lokasi GPS Saya"</strong> di atas. Berikan akses browser untuk membaca lokasi Anda demi perhitungan derajat kemiringan Kabah yang eksak.</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-[10px] font-black text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100">
+                  2
+                </div>
+                <div className="text-xs">
+                  <span className="font-extrabold text-slate-700 dark:text-emerald-200 block">Letakkan HP Secara Datar / Rata</span>
+                  <p className="text-slate-500 dark:text-emerald-300/50 leading-tight mt-0.5">Letakkan smartphone mendatar di lantai, sajadah, atau telapak tangan yang datar. Memegang HP secara miring akan merusak kalibrasi sensor giroskop.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-[10px] font-black text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100">
+                  3
+                </div>
+                <div className="text-xs">
+                  <span className="font-extrabold text-slate-700 dark:text-emerald-200 block">Jauhkan dari Interferensi Magnet</span>
+                  <p className="text-slate-500 dark:text-emerald-300/50 leading-tight mt-0.5">Pastikan tidak ada benda logam, kabel listrik, charger, jam tangan pintar, speaker, atau casing HP magnetis karena dapat membelokkan jarum sensor kompas.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-[10px] font-black text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100">
+                  4
+                </div>
+                <div className="text-xs">
+                  <span className="font-extrabold text-slate-700 dark:text-emerald-200 block">Lakukan Kalibrasi Sapuan Angka &ldquo;8&rdquo;</span>
+                  <p className="text-slate-500 dark:text-emerald-300/50 leading-tight mt-0.5">Jika kompas mampet atau melantur, pegang HP Anda dan bayangkan melukis pola angka delapan <strong>(8)</strong> di udara 3-4 kali. Ini memicu kalibrasi ulang chip geomagnetik internal HP.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-emerald-50 dark:bg-emerald-900/40 text-[10px] font-black text-emerald-700 dark:text-emerald-300 flex items-center justify-center shrink-0 mt-0.5 border border-emerald-100">
+                  5
+                </div>
+                <div className="text-xs">
+                  <span className="font-extrabold text-slate-700 dark:text-emerald-200 block">Putar HP Perlahan</span>
+                  <p className="text-slate-500 dark:text-emerald-300/50 leading-tight mt-0.5">Putar tubuh Anda bersama HP secara bertahap sampai jarum emas sejajar lurus ke depan. Begitu akurasi menyentuh <strong>90% - 100%</strong>, pertanda letak sajadah terbaik lurus memproyeksikan Ka&apos;bah Masjidil Haram.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
           {/* Simple Guide */}
           <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl flex items-start text-xs text-amber-800 dark:text-amber-300">
             <Info className="w-4 h-4 mr-2 text-amber-500 shrink-0 mt-0.5" />
@@ -386,6 +486,52 @@ export default function QiblaFinder() {
           </div>
         </div>
       </div>
+
+      {/* SUCCESS FOCUS-STEALING ALERT MODAL (90% - 100%) */}
+      {perfectPositionAlert && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-350" id="qibla-perfect-modal">
+          <div className="bg-white dark:bg-slate-900 border-2 border-amber-400 dark:border-amber-500 max-w-md w-full rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200">
+            {/* ambient glow background decorative */}
+            <div className="absolute -top-12 -left-12 w-40 h-40 bg-amber-400/15 dark:bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-emerald-500/15 dark:bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
+
+            {/* Glowing gold medal icon */}
+            <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-550 rounded-full mx-auto flex items-center justify-center shadow-lg shadow-amber-450/40 mb-5 relative animate-bounce" style={{ animationDuration: '3s' }}>
+              <Compass className="w-10 h-10 text-slate-950 animate-spin" style={{ animationDuration: '12s' }} />
+              <div className="absolute inset-0 rounded-full border-4 border-amber-300/35 animate-ping duration-1000" />
+            </div>
+
+            <span className="inline-flex items-center px-3 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold uppercase tracking-widest rounded-full border border-amber-200 dark:border-amber-900/50 border-dashed mb-3">
+              🎯 POSISI TERBAIK (PRESISI: {precisionPercent}%)
+            </span>
+
+            <h3 className="text-xl font-black text-slate-800 dark:text-amber-300 font-sans mb-2.5">
+              Masyallah! Posisi Kiblat Sangat Akurat!
+            </h3>
+
+            <p className="text-xs text-slate-600 dark:text-emerald-100/85 leading-relaxed max-w-sm mx-auto mb-6">
+              Arah hadapan HP Anda kini sudah <strong>sejajar secara presisi ({precisionPercent}%)</strong> dengan arah Ka&apos;bah di Masjidil Haram, Makkah. 
+              Sangat direkomendasikan untuk membentangkan sajadah sejajar arah ini sekarang.
+            </p>
+
+            <div className="flex flex-col gap-2">
+              <button
+                id="dismiss-qibla-alert"
+                onClick={() => setPerfectPositionAlert(false)}
+                className="w-full py-3 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-450 hover:to-amber-550 active:scale-98 text-slate-950 font-extrabold rounded-2xl shadow-md transition-all cursor-pointer text-sm"
+              >
+                Alhamdulillah, Siap Sholat!
+              </button>
+              <button
+                onClick={() => setPerfectPositionAlert(false)}
+                className="text-[11px] text-slate-400 dark:text-emerald-400/60 hover:underline cursor-pointer py-1"
+              >
+                Tutup Sementara
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -72,4 +72,13 @@ export interface WorshipTrack {
   dzikirPetang: boolean;
 }
 
-export type ActiveTab = 'home' | 'qibla' | 'quran' | 'tasbih' | 'doa' | 'jadwal' | 'asmaul' | 'amal';
+export interface GlobalAudioState {
+  isPlaying: boolean;
+  isAudioLoading: boolean;
+  playingSurahNum: number | null;
+  playingSurahName: string | null;
+  playingAyatNum: number | null;
+  playingAudioUrl: string | null;
+}
+
+export type ActiveTab = 'home' | 'qibla' | 'quran' | 'tasbih' | 'doa' | 'jadwal' | 'asmaul';

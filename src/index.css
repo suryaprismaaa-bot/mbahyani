@@ -5,4 +5,59 @@
   --font-sans: "Plus Jakarta Sans", "Inter", system-ui, -apple-system, sans-serif;
   --font-serif: "Playfair Display", Georgia, serif;
   --font-mono: "JetBrains Mono", monospace;
+
+  /* Exclusive Luxury NU Green Palette (#006e36 is NU Green) */
+  --color-emerald-50: #f0faf3;
+  --color-emerald-100: #dbf3e3;
+  --color-emerald-150: #bdedc8;
+  --color-emerald-200: #a9e7bc;
+  --color-emerald-250: #93deaa;
+  --color-emerald-300: #6ecc8c;
+  --color-emerald-400: #3faf62;
+  --color-emerald-500: #006e36; /* Nahdlatul Ulama (NU) Green */
+  --color-emerald-600: #005c2c;
+  --color-emerald-650: #004d24;
+  --color-emerald-700: #004d24;
+  --color-emerald-800: #003e1c;
+  --color-emerald-900: #002d14;
+  --color-emerald-950: #001f0d;
+
+  /* Exclusive Luxury Muhammadiyah Blue Palette (around #005a9c is Muhammadiyah Blue) */
+  --color-blue-50: #f2f7fc;
+  --color-blue-100: #e1eff9;
+  --color-blue-200: #bfe0f4;
+  --color-blue-300: #8ccbe9;
+  --color-blue-400: #4fafdb;
+  --color-blue-500: #005a9c; /* Muhammadiyah Blue */
+  --color-blue-600: #004c85;
+  --color-blue-700: #003f6f;
+  --color-blue-800: #003258;
+  --color-blue-900: #002542;
+  --color-blue-950: #01182c;
+
+  /* Highlight / Gold Luxury Accents */
+  --color-amber-300: #ffd875;
+  --color-amber-350: #ffc439;
+  --color-amber-450: #ffae19;
+  --color-amber-500: #e59a00;
+  
+  /* Solid professional dark slate */
+  --color-slate-950: #0a1120;
 }
+
+/* Elegant custom transitions and scroll smoothing */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Highlights with professional subtle pulse effect */
+.luxury-highlight {
+  background: linear-gradient(120deg, rgba(0, 90, 156, 0.1) 0%, rgba(0, 110, 54, 0.1) 100%);
+  border-bottom: 2px dashed rgba(229, 154, 0, 0.5);
+}
+
+.dark .luxury-highlight {
+  background: linear-gradient(120deg, rgba(0, 90, 156, 0.25) 0%, rgba(0, 110, 54, 0.25) 100%);
+  border-bottom: 2px dashed rgba(255, 196, 57, 0.6);
+}
+
