@@ -1,0 +1,6 @@
+{
+  "name": "Portal Islami Keluarga Mbah Yani",
+  "description": "Portal Islami Modern untuk Keluarga Mbah Yani, menyediakan Jurnal Ibadah, Al-Qur'an digital, arah kiblat, tasbih, doa harian, jadwal sholat, dan asmaul husna.",
+  "requestFramePermissions": ["geolocation"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
