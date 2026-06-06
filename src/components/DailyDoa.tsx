@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
-import { Search, Copy, Check, Share2, Clipboard, BookHeart, Info, Send } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, Copy, Check, Share2, BookHeart, Send, ChevronLeft, ChevronRight, HelpCircle } from 'lucide-react';
 import { DOA_DATA } from '../data/doa';
 import { DoaItem } from '../types';
 
@@ -13,12 +13,21 @@ export default function DailyDoa() {
   const [activeCategory, setActiveCategory] = useState("Semua");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [sharedId, setSharedId] = useState<string | null>(null);
+  
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 4; // Display 4 per page so it is highly focused and looks premium on mobile/desktop without overflow
 
-  // Extract categorisation lists
+  // Reset pagination when category or search changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [activeCategory, searchQuery]);
+
+  // Extract categorisation lists dynamically
   const categories = ["Semua", ...Array.from(new Set(DOA_DATA.map((d) => d.kategori)))];
 
   const handleCopyDoa = (doa: DoaItem) => {
-    const textToCopy = `📝 ${doa.judul}\n\n🕌 Arab:\n${doa.arab}\n\n📖 Latin:\n${doa.latin}\n\n artinya:\n"${doa.terjemahan}"\n\nSaling Berbagi Kebaikan, Portal Islami Keluarga Mbah Yani`;
+    const textToCopy = `📝 ${doa.judul}\n\n🕌 Arab:\n${doa.arab}\n\n📖 Latin:\n${doa.latin}\n\nArtinya:\n"${doa.terjemahan}"\n\nSaling Berbagi Kebaikan, Portal Islami Keluarga Mbah Yani`;
     
     navigator.clipboard.writeText(textToCopy).then(() => {
       setCopiedId(doa.id);
@@ -59,15 +68,35 @@ export default function DailyDoa() {
   };
 
   const filteredDoas = DOA_DATA.filter((doa) => {
+    const query = searchQuery.toLowerCase();
     const matchesSearch =
-      doa.judul.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doa.latin.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      doa.terjemahan.toLowerCase().includes(searchQuery.toLowerCase());
+      doa.judul.toLowerCase().includes(query) ||
+      doa.latin.toLowerCase().includes(query) ||
+      doa.terjemahan.toLowerCase().includes(query) ||
+      doa.kategori.toLowerCase().includes(query);
     
     const matchesCategory = activeCategory === "Semua" || doa.kategori === activeCategory;
 
     return matchesSearch && matchesCategory;
   });
+
+  // Calculate items for current page
+  const totalItems = filteredDoas.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedDoas = filteredDoas.slice(startIndex, startIndex + itemsPerPage);
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage((prev) => prev + 1);
+    }
+  };
+
+  const goToPrevPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage((prev) => prev - 1);
+    }
+  };
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
@@ -94,7 +123,7 @@ export default function DailyDoa() {
           <input
             id="doa-search"
             type="text"
-            placeholder="Cari doa berdasarkan judul, lafal latin atau artinya..."
+            placeholder="Cari doa berdasarkan judul, lafal latin, atau kategori..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="block w-full pl-11 pr-4 py-3 border border-emerald-100 dark:border-emerald-900 rounded-2xl bg-white dark:bg-emerald-950/20 text-slate-800 dark:text-emerald-100 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-500"
@@ -102,7 +131,7 @@ export default function DailyDoa() {
         </div>
 
         {/* Categories list */}
-        <div className="flex flex-wrap gap-1.5 pb-2 overflow-x-auto scrollbar-thin">
+        <div className="flex flex-wrap gap-1.5 pb-2 overflow-x-auto scrollbar-none">
           {categories.map((cat) => (
             <button
               key={cat}
@@ -120,9 +149,9 @@ export default function DailyDoa() {
         </div>
       </div>
 
-      {/* Grid listing prayers */}
+      {/* Grid listing prayers - Paginated */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {filteredDoas.map((doa) => {
+        {paginatedDoas.map((doa) => {
           const isCopied = copiedId === doa.id;
           const isShared = sharedId === doa.id;
 
@@ -130,11 +159,11 @@ export default function DailyDoa() {
             <div
               key={doa.id}
               id={`doa-card-${doa.id}`}
-              className="bg-white dark:bg-emerald-950/15 border border-emerald-100/80 dark:border-emerald-900/50 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+              className="bg-white dark:bg-emerald-950/15 border border-emerald-100/80 dark:border-emerald-900/50 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between hover:translate-y-[-2px] duration-200"
             >
               <div>
                 <div className="flex justify-between items-start mb-3">
-                  <span className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-900/40 text-[10px] text-emerald-800 dark:text-emerald-300 rounded font-bold uppercase tracking-wider">
+                  <span className="px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-900/40 text-[10px] text-emerald-800 dark:text-emerald-300 rounded-full font-bold uppercase tracking-wider border border-emerald-100 dark:border-emerald-800/40">
                     {doa.kategori}
                   </span>
                   
@@ -149,7 +178,7 @@ export default function DailyDoa() {
 
                 {/* Big Arabic text container */}
                 <div className="p-4 bg-slate-50 dark:bg-emerald-900/10 rounded-xl mb-4">
-                  <p className="text-right text-xl font-serif text-slate-800 dark:text-emerald-100 leading-relaxed font-semibold">
+                  <p dir="rtl" className="text-right text-xl font-serif text-slate-800 dark:text-emerald-100 leading-loose font-semibold">
                     {doa.arab}
                   </p>
                 </div>
@@ -212,14 +241,51 @@ export default function DailyDoa() {
         </div>
       )}
 
+      {/* Pagination Controls Section */}
+      {totalPages > 1 && (
+        <div className="flex items-center justify-between mt-8 p-4 bg-white dark:bg-slate-900 border border-emerald-100 dark:border-emerald-900 rounded-2xl shadow-sm">
+          <button
+            id="doa-page-prev"
+            disabled={currentPage === 1}
+            onClick={goToPrevPage}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center cursor-pointer ${
+              currentPage === 1
+                ? 'opacity-40 cursor-not-allowed text-slate-400 dark:text-slate-600'
+                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100'
+            }`}
+          >
+            <ChevronLeft className="w-4 h-4 mr-1 shrink-0" />
+            Sebelumnya
+          </button>
+
+          <span className="text-xs font-bold text-slate-600 dark:text-emerald-200">
+            Halaman {currentPage} dari {totalPages}
+          </span>
+
+          <button
+            id="doa-page-next"
+            disabled={currentPage === totalPages}
+            onClick={goToNextPage}
+            className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center cursor-pointer ${
+              currentPage === totalPages
+                ? 'opacity-40 cursor-not-allowed text-slate-400 dark:text-slate-600'
+                : 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100'
+            }`}
+          >
+            Berikutnya
+            <ChevronRight className="w-4 h-4 ml-1 shrink-0" />
+          </button>
+        </div>
+      )}
+
       {/* WA Info guide box */}
       <div className="mt-8 p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900 rounded-2xl flex items-center space-x-3.5">
-        <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-xl">
-          <Send className="w-5 h-5 animate-bounce" />
+        <div className="p-2.5 bg-emerald-100 dark:bg-emerald-900/50 text-emerald-700 dark:text-emerald-300 rounded-xl animate-pulse">
+          <Send className="w-5 h-5" />
         </div>
         <div>
-          <h4 className="text-xs font-bold text-slate-700 dark:text-emerald-100">Kirim Ke WA Keluarga!</h4>
-          <p className="text-[11px] text-slate-500 dark:text-emerald-300/60 mt-0.5">
+          <h4 className="text-xs font-bold text-slate-700 dark:text-emerald-100">Kirim Ke WA Keluarga Mbah Yani!</h4>
+          <p className="text-[11px] text-slate-500 dark:text-emerald-300/60 mt-0.5 leading-relaxed">
             Gunakan tombol &ldquo;Bagikan Doa&rdquo; untuk secara otomatis menyalin format tulisan indah yang siap dikirim langsung ke grup obrolan Whatsapp / Telegram keluarga besar Mbah Yani.
           </p>
         </div>

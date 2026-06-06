@@ -21,6 +21,55 @@ const CITY_PRESETS: CityPreset[] = [
   { nama: 'Semarang', lat: -6.9667, lng: 110.4167 }
 ];
 
+const KabahLogo = ({ precision }: { precision: number }) => {
+  const isPerfect = precision >= 90;
+  return (
+    <div className="relative w-14 h-14 flex items-center justify-center">
+      {/* Floating glowing aura when alignment is perfect */}
+      {isPerfect && (
+        <div className="absolute inset-0 rounded-full bg-amber-400/35 dark:bg-amber-400/20 blur-md animate-ping" style={{ animationDuration: '2s' }} />
+      )}
+      
+      {/* Self-contained cute complex vector of Ka'bah with lovely structural styles */}
+      <svg 
+        viewBox="0 0 100 100" 
+        className={`w-12 h-12 drop-shadow-xl transition-all duration-300 ${isPerfect ? 'scale-115 rotate-1 animate-[bounce_1.5s_infinite]' : 'hover:scale-105'}`}
+      >
+        {/* Shadow floor */}
+        <ellipse cx="50" cy="85" rx="28" ry="7" fill="#000000" opacity="0.18" />
+        
+        {/* Top/Roof face of Cube */}
+        <polygon points="50,22 82,34 50,46 18,34" fill="#374151" stroke="#4b5563" strokeWidth="0.5" />
+        
+        {/* Left Wall (shaded) */}
+        <polygon points="18,34 50,46 50,80 18,68" fill="#111827" />
+        
+        {/* Right Wall */}
+        <polygon points="50,46 82,34 82,68 50,80" fill="#1f2937" />
+        
+        {/* Gold Kiswa Trim - Left Wall */}
+        <polygon points="18,44 50,56 50,60 18,48" fill="#f59e0b" />
+        <polygon points="18,45 50,57 50,58 18,46" fill="#fef08a" opacity="0.6" />
+        
+        {/* Gold Kiswa Trim - Right Wall */}
+        <polygon points="50,56 82,44 82,48 50,60" fill="#d97706" />
+        <polygon points="50,57 82,45 82,46 50,58" fill="#fef08a" opacity="0.6" />
+        
+        {/* Elegant Arabic Calligraphy mockup dots on the Kiswa belt */}
+        <line x1="26" y1="48.5" x2="42" y2="54.5" stroke="#fef08a" strokeWidth="1" strokeDasharray="1.5,1.5" />
+        <line x1="58" y1="54" x2="74" y2="48" stroke="#fef08a" strokeWidth="1" strokeDasharray="1.5,1.5" />
+
+        {/* Golden Door (Bab Al-Ka'bah) on the Right Wall */}
+        <polygon points="58,54 68,50 68,74 58,78" fill="#b45309" stroke="#fbbf24" strokeWidth="1" />
+        {/* Tiny door details */}
+        <line x1="63" y1="53" x2="63" y2="75" stroke="#fbbf24" strokeWidth="0.75" />
+        {/* Door framing arc */}
+        <path d="M 59 55 Q 63 52 67 51" fill="none" stroke="#fef08a" strokeWidth="0.75" />
+      </svg>
+    </div>
+  );
+};
+
 export default function QiblaFinder() {
   const [lat, setLat] = useState<number | null>(-8.0827); // Defaults to Yogyakarta/Jawa Timur area
   const [lng, setLng] = useState<number | null>(111.8021);
@@ -241,11 +290,11 @@ export default function QiblaFinder() {
               className="absolute w-56 h-56 flex items-center justify-center transition-transform duration-500 ease-out z-10 pointer-events-none"
               style={{ transform: `rotate(${qiblaRelativeAngle}deg)` }}
             >
-              {/* Beautiful Golden Gate / Mosque Arrow */}
+              {/* Beautiful Golden Gate / Mosque Arrow with Iconic Cute Ka'bah on Top */}
               <div className="absolute top-0 flex flex-col items-center">
-                {/* Qibla icon indicator */}
-                <div className="bg-amber-500 dark:bg-amber-400 p-1.5 rounded-full text-white shadow-md transform -translate-y-4 animate-bounce">
-                  <Navigation className="w-4 h-4 fill-current rotate-45" />
+                {/* Cute Ka'bah logo indicator */}
+                <div className="transform -translate-y-6 select-none transition-transform duration-300">
+                  <KabahLogo precision={precisionPercent} />
                 </div>
                 {/* Double Spear head */}
                 <div className="w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-b-[24px] border-b-amber-500 dark:border-b-amber-400" />
@@ -263,8 +312,20 @@ export default function QiblaFinder() {
             )}
           </div>
 
+          {/* Blinking alignment banner when 90-100% precision is met */}
+          {precisionPercent >= 90 && (
+            <div className="w-full max-w-xs px-4 py-3 mb-4 bg-amber-500/15 dark:bg-amber-400/10 rounded-2xl border border-amber-300/50 text-center animate-pulse">
+              <span className="font-extrabold text-[11px] uppercase text-amber-600 dark:text-amber-400 tracking-widest block">
+                ✨ POSISI TERBAIK SEJAJAR KIBLAT ✨
+              </span>
+              <span className="block text-xs font-bold text-slate-700 dark:text-emerald-250 mt-1 leading-normal">
+                Sajadah lurus memproyeksikan Ka&apos;bah ({precisionPercent}% Presisi)
+              </span>
+            </div>
+          )}
+
           {/* Precision percentage indicator */}
-          <div className="w-full max-w-xs mb-4 px-4 py-3 bg-slate-50 dark:bg-emerald-950/10 rounded-2xl border border-emerald-100 dark:border-emerald-900/60 flex items-center justify-between shadow-inner">
+          <div className="w-full max-w-xs mb-1 px-4 py-3 bg-slate-50 dark:bg-emerald-950/10 rounded-2xl border border-emerald-100 dark:border-emerald-900/60 flex items-center justify-between shadow-inner">
             <div className="text-left">
               <span className="block text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-emerald-400/50">AKURASI PENYEARAHAN</span>
               <span className="block text-xs font-bold text-slate-700 dark:text-emerald-100">Presisi Posisi Sajadah</span>
@@ -273,11 +334,16 @@ export default function QiblaFinder() {
               precisionPercent >= 90
                 ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-300 border-amber-300 dark:border-amber-850 animate-pulse'
                 : precisionPercent >= 70
-                  ? 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-650 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50'
+                  ? 'bg-emerald-100 dark:bg-emerald-100/40 text-emerald-650 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50'
                   : 'bg-slate-100 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-emerald-900/20'
             }`}>
               {precisionPercent}%
             </div>
+          </div>
+
+          {/* Information tip stating best precision */}
+          <div className="w-full max-w-xs px-2 text-[10.5px] text-slate-500 dark:text-emerald-405 mb-4 text-center leading-relaxed">
+            💡 <span className="font-semibold text-slate-600 dark:text-emerald-300">Presisi terbaik ada di angka 90 - 100%</span> sebagai tanda arah kiblat paling sejajar.
           </div>
 
           {/* Device Orientation Status */}
@@ -487,51 +553,7 @@ export default function QiblaFinder() {
         </div>
       </div>
 
-      {/* SUCCESS FOCUS-STEALING ALERT MODAL (90% - 100%) */}
-      {perfectPositionAlert && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md animate-in fade-in duration-350" id="qibla-perfect-modal">
-          <div className="bg-white dark:bg-slate-900 border-2 border-amber-400 dark:border-amber-500 max-w-md w-full rounded-3xl p-6 text-center shadow-2xl relative overflow-hidden animate-in zoom-in-95 duration-200">
-            {/* ambient glow background decorative */}
-            <div className="absolute -top-12 -left-12 w-40 h-40 bg-amber-400/15 dark:bg-amber-500/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -bottom-12 -right-12 w-40 h-40 bg-emerald-500/15 dark:bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
-
-            {/* Glowing gold medal icon */}
-            <div className="w-20 h-20 bg-gradient-to-br from-amber-400 to-amber-550 rounded-full mx-auto flex items-center justify-center shadow-lg shadow-amber-450/40 mb-5 relative animate-bounce" style={{ animationDuration: '3s' }}>
-              <Compass className="w-10 h-10 text-slate-950 animate-spin" style={{ animationDuration: '12s' }} />
-              <div className="absolute inset-0 rounded-full border-4 border-amber-300/35 animate-ping duration-1000" />
-            </div>
-
-            <span className="inline-flex items-center px-3 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-700 dark:text-amber-300 text-[10px] font-extrabold uppercase tracking-widest rounded-full border border-amber-200 dark:border-amber-900/50 border-dashed mb-3">
-              🎯 POSISI TERBAIK (PRESISI: {precisionPercent}%)
-            </span>
-
-            <h3 className="text-xl font-black text-slate-800 dark:text-amber-300 font-sans mb-2.5">
-              Masyallah! Posisi Kiblat Sangat Akurat!
-            </h3>
-
-            <p className="text-xs text-slate-600 dark:text-emerald-100/85 leading-relaxed max-w-sm mx-auto mb-6">
-              Arah hadapan HP Anda kini sudah <strong>sejajar secara presisi ({precisionPercent}%)</strong> dengan arah Ka&apos;bah di Masjidil Haram, Makkah. 
-              Sangat direkomendasikan untuk membentangkan sajadah sejajar arah ini sekarang.
-            </p>
-
-            <div className="flex flex-col gap-2">
-              <button
-                id="dismiss-qibla-alert"
-                onClick={() => setPerfectPositionAlert(false)}
-                className="w-full py-3 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-450 hover:to-amber-550 active:scale-98 text-slate-950 font-extrabold rounded-2xl shadow-md transition-all cursor-pointer text-sm"
-              >
-                Alhamdulillah, Siap Sholat!
-              </button>
-              <button
-                onClick={() => setPerfectPositionAlert(false)}
-                className="text-[11px] text-slate-400 dark:text-emerald-400/60 hover:underline cursor-pointer py-1"
-              >
-                Tutup Sementara
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal removed to ensure seamless background experience */}
     </div>
   );
 }

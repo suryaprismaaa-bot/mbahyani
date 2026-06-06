@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Compass, BookOpen, HeartHandshake, BookHeart, Calendar, Sparkles, MoveRight, Moon, Sun, Star, Play, Pause, X, SkipForward, Volume2, Clock } from 'lucide-react';
+import { Compass, BookOpen, HeartHandshake, BookHeart, Calendar, Sparkles, MoveRight, Moon, Sun, Star, Play, Pause, X, SkipForward, Volume2, Clock, Tv } from 'lucide-react';
 import { ActiveTab, GlobalAudioState, Ayat } from './types';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -14,6 +14,8 @@ import TasbihCounter from './components/TasbihCounter';
 import DailyDoa from './components/DailyDoa';
 import PrayerSchedule from './components/PrayerSchedule';
 import AsmaulHusnaList from './components/AsmaulHusnaList';
+import MakkahLive from './components/MakkahLive';
+import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
@@ -306,8 +308,17 @@ export default function App() {
         />
 
         {/* Primary Content Container */}
-        <main className="min-h-[70vh]">
-          {activeTab === 'home' && (
+        <main className="min-h-[70vh] overflow-x-hidden relative">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, x: 40 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -40 }}
+              transition={{ duration: 0.35, ease: [0.25, 1, 0.5, 1] }}
+              className="w-full"
+            >
+              {activeTab === 'home' && (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
               
               {/* Majestic Modern Islamic Hero Section */}
@@ -331,7 +342,7 @@ export default function App() {
 
                 <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center z-10 animate-in fade-in duration-500">
                   {/* Left layout: Hero Headline & Actions */}
-                  <div className="lg:col-span-7 xl:col-span-8 text-left">
+                  <div className="lg:col-span-8 xl:col-span-9 text-left">
                     <span className="inline-flex items-center px-4 py-1.5 bg-gradient-to-r from-emerald-900/60 to-blue-900/60 backdrop-blur-md rounded-full text-[10px] font-extrabold uppercase tracking-widest text-emerald-100 border border-white/10 mb-6">
                       🌟 Pusat Kajian & Ibadah Sinergi Umat Nusantara
                     </span>
@@ -350,7 +361,7 @@ export default function App() {
                         onClick={() => setActiveTab('quran')}
                         className="px-8 py-3.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-450 hover:to-amber-550 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-amber-500/10 active:scale-98 transition-all flex items-center cursor-pointer text-sm"
                       >
-                        Buka Al-Qur&apos;an
+                        Buka Al-Qur&apos;an Digital
                         <MoveRight className="w-4.5 h-4.5 ml-2 shrink-0" />
                       </button>
                       
@@ -364,37 +375,31 @@ export default function App() {
                     </div>
                   </div>
 
-                  {/* Right layout: Frosted-glass luxury real-time clock widget */}
-                  <div className="lg:col-span-5 xl:col-span-4 bg-white/5 dark:bg-slate-950/40 backdrop-blur-md border border-white/10 dark:border-blue-900/30 p-6.5 rounded-2xl flex flex-col items-center justify-center text-center shadow-xl relative overflow-hidden group">
-                    <div className="absolute -right-6 -bottom-6 text-white/5 pointer-events-none group-hover:scale-110 transition-transform duration-500">
-                      <Clock className="w-32 h-32" />
+                  {/* Right layout: Compact & simple real-time clock widget */}
+                  <div className="lg:col-span-4 xl:col-span-3 bg-white/5 dark:bg-slate-950/20 backdrop-blur-md border border-white/10 dark:border-blue-900/30 p-5 rounded-2xl flex flex-col items-center justify-center text-center shadow-lg relative overflow-hidden group">
+                    <div className="absolute -right-2 -bottom-2 text-white/5 pointer-events-none group-hover:scale-110 transition-transform duration-550">
+                      <Clock className="w-16 h-16 w-16" />
                     </div>
                     
-                    <span className="text-[10px] font-extrabold text-amber-300 uppercase tracking-widest mb-1.5 pb-1 border-b border-white/10 w-full block">
-                      🔴 LIVE TIMEPIECE
+                    <span className="text-[9px] font-black text-amber-300 uppercase tracking-widest bg-white/10 px-2 py-0.5 rounded-lg border border-white/10 mb-2.5">
+                      ⚡ Waktu Realtime
                     </span>
 
-                    <div className="text-3xl font-black font-mono tracking-wider text-white drop-shadow-md my-2">
+                    <div className="text-2xl font-bold font-mono tracking-wider text-white">
                        {timeString || "00:00:00 WIB"}
                     </div>
 
-                    <div className="h-px bg-white/10 w-full my-3.5" />
+                    <div className="h-px bg-white/10 w-full my-3" />
 
-                    <div className="space-y-2.5 w-full text-left">
-                      <div className="bg-white/5 dark:bg-slate-900/40 p-2.5 rounded-xl border border-white/5 flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-blue-400 shrink-0 animate-pulse"></div>
-                        <div className="text-[11px] leading-tight text-blue-105">
-                          <span className="block font-semibold text-white/55 text-[9px] uppercase tracking-wider">KALENDER MASEHI</span>
-                          <span className="font-extrabold text-white text-[12px]">{gregorianString || "Memuat..."}</span>
-                        </div>
+                    <div className="space-y-2 w-full text-center">
+                      <div className="text-[10px] leading-tight text-blue-100/90">
+                        <span className="block font-semibold text-white/55 text-[8px] uppercase tracking-wider">KALENDER MASEHI</span>
+                        <span className="font-bold text-white text-[11px]">{gregorianString || "Memuat..."}</span>
                       </div>
                       
-                      <div className="bg-white/5 dark:bg-slate-900/40 p-2.5 rounded-xl border border-white/5 flex items-center gap-3">
-                        <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 shrink-0"></div>
-                        <div className="text-[11px] leading-tight text-emerald-105">
-                          <span className="block font-semibold text-white/55 text-[9px] uppercase tracking-wider">KALENDER HIJRIYAH</span>
-                          <span className="font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-200 to-amber-350 text-[12px]">{hijriString || "Memuat..."}</span>
-                        </div>
+                      <div className="text-[10px] leading-tight text-emerald-100/90">
+                        <span className="block font-semibold text-white/55 text-[8px] uppercase tracking-wider">KALENDER HIJRIYAH</span>
+                        <span className="font-extrabold text-amber-200 text-[11px]">{hijriString || "Memuat..."}</span>
                       </div>
                     </div>
                   </div>
@@ -403,16 +408,21 @@ export default function App() {
 
               {/* Grid Menu Section - Tiru konsep Healing Bareng */}
               <div className="space-y-6">
-                <div className="border-b border-emerald-100 dark:border-emerald-900 pb-4 flex justify-between items-end">
-                  <div>
-                    <h2 className="text-2xl font-serif font-bold text-slate-900 dark:text-emerald-50 tracking-tight">
-                      Layanan Utama Ibadah
+                
+                {/* Centered and Highly Polished Layout Title */}
+                <div className="border-b border-emerald-100 dark:border-emerald-900 pb-6 text-center max-w-2xl mx-auto mb-8 animate-in fade-in slide-in-from-bottom-3 duration-500">
+                  <div className="flex flex-col items-center">
+                    <div className="w-11 h-11 bg-emerald-50 dark:bg-emerald-950/45 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                      <Sparkles className="w-5.5 h-5.5 animate-pulse" />
+                    </div>
+                    <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-emerald-50 tracking-tight leading-tight">
+                      Portal Islami Keluarga Mbah Yani
                     </h2>
-                    <p className="text-xs text-emerald-700/70 dark:text-emerald-400 mt-1 font-semibold tracking-wider font-sans uppercase">
+                    <p className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-2 font-extrabold tracking-widest font-sans uppercase">
                       Layanan Utama Portal Keluarga
                     </p>
                   </div>
-                  <span className="text-xs text-slate-400">Pilih menu untuk memulai</span>
+                  <p className="text-xs text-slate-400 dark:text-emerald-400/50 mt-3 font-semibold">Pilih menu layanan utama di bawah untuk memulai ibadah harian Anda</p>
                 </div>
 
                 {/* Main Menu Cards list */}
@@ -422,7 +432,7 @@ export default function App() {
                   <button
                     id="menu-quran"
                     onClick={() => setActiveTab('quran')}
-                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4"
+                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4 animate-shine-beam glow-on-click"
                   >
                     <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300">
                       <BookOpen className="w-7 h-7" />
@@ -441,7 +451,7 @@ export default function App() {
                   <button
                     id="menu-qibla"
                     onClick={() => setActiveTab('qibla')}
-                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4"
+                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4 animate-shine-beam glow-on-click"
                   >
                     <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300">
                       <Compass className="w-7 h-7" />
@@ -460,7 +470,7 @@ export default function App() {
                   <button
                     id="menu-tasbih"
                     onClick={() => setActiveTab('tasbih')}
-                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4"
+                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4 animate-shine-beam glow-on-click"
                   >
                     <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300">
                       <HeartHandshake className="w-7 h-7" />
@@ -479,7 +489,7 @@ export default function App() {
                   <button
                     id="menu-doa"
                     onClick={() => setActiveTab('doa')}
-                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4"
+                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4 animate-shine-beam glow-on-click"
                   >
                     <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300">
                       <BookHeart className="w-7 h-7" />
@@ -498,7 +508,7 @@ export default function App() {
                   <button
                     id="menu-jadwal"
                     onClick={() => setActiveTab('jadwal')}
-                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4"
+                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4 animate-shine-beam glow-on-click"
                   >
                     <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300">
                       <Calendar className="w-7 h-7" />
@@ -517,7 +527,7 @@ export default function App() {
                   <button
                     id="menu-asmaul"
                     onClick={() => setActiveTab('asmaul')}
-                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4"
+                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4 animate-shine-beam glow-on-click"
                   >
                     <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300">
                       <Sparkles className="w-7 h-7" />
@@ -532,20 +542,24 @@ export default function App() {
                     </div>
                   </button>
 
-                  {/* SPECIAL FAMILY STATEMENT CARD */}
-                  <div className="p-6 bg-gradient-to-br from-emerald-50/80 via-blue-50/40 to-white dark:from-slate-900/60 dark:via-blue-950/20 dark:to-slate-950/60 rounded-2xl border-l-4 border-l-emerald-600 border-r-4 border-r-blue-600 border-t border-b border-emerald-100/30 dark:border-blue-900/10 text-left shadow-md flex items-start gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-emerald-500 to-blue-500 rounded-xl flex items-center justify-center flex-shrink-0 text-white shadow-sm">
-                      <Sparkles className="w-5.5 h-5.5 animate-spin" style={{ animationDuration: '6s' }} />
+                  {/* CARD 8: Live Makkah Streaming */}
+                  <button
+                    id="menu-makkah"
+                    onClick={() => setActiveTab('makkah')}
+                    className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-sm border border-emerald-100 hover:border-emerald-300 dark:border-emerald-900/60 dark:hover:border-emerald-700 text-left hover:shadow-lg transition-all duration-300 cursor-pointer group flex items-start gap-4 animate-shine-beam glow-on-click"
+                  >
+                    <div className="w-14 h-14 bg-emerald-50 dark:bg-emerald-950/50 rounded-xl flex items-center justify-center flex-shrink-0 text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300">
+                      <Tv className="w-7 h-7" />
                     </div>
-                    <div className="flex-1 flex flex-col justify-between h-full">
-                      <p className="text-[12px] text-slate-800 dark:text-emerald-100 leading-relaxed font-bold tracking-wide italic">
-                        &ldquo;Mari luruskan niat mencari <span className="luxury-highlight text-emerald-800 dark:text-emerald-300">ridho-Nya</span> & rekatkan <span className="luxury-highlight text-blue-800 dark:text-blue-300">silaturahmi</span> seluruh keluarga besar Mbah Yani demi kebahagiaan dunia akhirat.&rdquo;
+                    <div className="flex-1">
+                      <h3 className="font-bold text-lg text-emerald-900 dark:text-emerald-50 leading-tight">
+                        Live Makkah
+                      </h3>
+                      <p className="text-xs text-slate-500 dark:text-emerald-300/70 mt-1.5 leading-relaxed">
+                        Siaran langsung 24 jam realtime Masjidil Haram, Ka&apos;bah, & Masjidil Nabawi.
                       </p>
-                      <span className="text-[10px] font-extrabold text-slate-500 dark:text-slate-400 mt-3 block uppercase tracking-wider">
-                        — Almarhum Mbah Yani & Keluarga Besar
-                      </span>
                     </div>
-                  </div>
+                  </button>
 
                 </div>
               </div>
@@ -569,6 +583,9 @@ export default function App() {
           {activeTab === 'doa' && <DailyDoa />}
           {activeTab === 'jadwal' && <PrayerSchedule />}
           {activeTab === 'asmaul' && <AsmaulHusnaList />}
+          {activeTab === 'makkah' && <MakkahLive />}
+            </motion.div>
+          </AnimatePresence>
         </main>
       </div>
 

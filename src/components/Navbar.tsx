@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Moon, Sun, Compass, BookOpen, HeartHandshake, Calendar, Sparkles, BookHeart, ChevronDown } from 'lucide-react';
+import { Menu, X, Moon, Sun, Compass, BookOpen, HeartHandshake, Calendar, Sparkles, BookHeart, ChevronDown, Tv } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface NavbarProps {
@@ -21,7 +21,7 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
 
   const primaryItems = [
     { id: 'home', label: 'Beranda', icon: Sparkles },
-    { id: 'quran', label: 'Al-Qur\'an', icon: BookOpen },
+    { id: 'quran', label: 'Al-Qur\'an Digital', icon: BookOpen },
     { id: 'jadwal', label: 'Jadwal Sholat', icon: Calendar }
   ] as const;
 
@@ -29,7 +29,8 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
     { id: 'qibla', label: 'Arah Kiblat', desc: 'Kompas arah sholat presisi', icon: Compass },
     { id: 'tasbih', label: 'Tasbih Digital', desc: 'Penghitung dzikir harian', icon: HeartHandshake },
     { id: 'doa', label: 'Doa Harian', desc: 'Kumpulan doa pilihan islami', icon: BookHeart },
-    { id: 'asmaul', label: 'Asmaul Husna', desc: '99 nama Allah luar biasa', icon: Sparkles }
+    { id: 'asmaul', label: 'Asmaul Husna', desc: '99 nama Allah luar biasa', icon: Sparkles },
+    { id: 'makkah', label: 'Live Makkah', desc: 'Streaming Masjidil Haram realtime', icon: Tv }
   ] as const;
 
   const isDropdownActive = dropdownItems.some(item => item.id === activeTab);
@@ -86,9 +87,9 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                   key={item.id}
                   id={`nav-desktop-${item.id}`}
                   onClick={() => handleNavClick(item.id)}
-                  className={`flex items-center px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                  className={`flex items-center px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer glow-on-click ${
                     isActive
-                      ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md shadow-emerald-600/10 scale-102'
+                      ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md shadow-emerald-600/10 scale-102 shadow-[0_0_15px_rgba(16,185,129,0.5)]'
                       : 'text-slate-600 dark:text-emerald-200 hover:bg-emerald-50/65 dark:hover:bg-blue-950/20 hover:text-emerald-700 dark:hover:text-emerald-100'
                   }`}
                 >
@@ -129,9 +130,9 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                           key={item.id}
                           id={`nav-dropdown-${item.id}`}
                           onClick={() => handleNavClick(item.id)}
-                          className={`flex items-center gap-3 w-full text-left p-2.5 rounded-xl transition-all duration-150 cursor-pointer hover:bg-emerald-50/60 dark:hover:bg-blue-950/30 group ${
+                          className={`flex items-center gap-3 w-full text-left p-2.5 rounded-xl transition-all duration-150 cursor-pointer hover:bg-emerald-50/60 dark:hover:bg-blue-950/30 group glow-on-click ${
                             isActive
-                              ? 'bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-950/30 dark:to-blue-950/30 text-emerald-700 dark:text-blue-100 border border-emerald-100/50 dark:border-blue-900/30'
+                              ? 'bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-950/30 dark:to-blue-950/30 text-emerald-700 dark:text-blue-100 border border-emerald-100/50 dark:border-blue-900/30 shadow-[0_0_10px_rgba(16,185,129,0.3)]'
                               : 'text-slate-700 dark:text-emerald-200'
                           }`}
                         >

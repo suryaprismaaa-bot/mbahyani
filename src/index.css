@@ -45,6 +45,72 @@
   --color-slate-950: #0a1120;
 }
 
+/* Sweeping Ray of Light (Sinar Highlight) Keyframes & Classes */
+@keyframes shineGlow {
+  0% {
+    left: -150%;
+  }
+  50% {
+    left: 150%;
+  }
+  100% {
+    left: 150%;
+  }
+}
+
+.animate-shine-beam {
+  position: relative;
+  overflow: hidden;
+}
+
+.animate-shine-beam::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(
+    to right,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.45) 50%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  transform: skewX(-25deg);
+  pointer-events: none;
+}
+
+.animate-shine-beam:hover::after, 
+.animate-shine-beam:active::after {
+  animation: shineGlow 1.4s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Active glowing ring of light (sinar pendar) when clicked/focused/active */
+.glow-on-click {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.glow-on-click:active {
+  transform: scale(0.97);
+  box-shadow: 0 0 25px rgba(16, 185, 129, 0.75), inset 0 0 10px rgba(16, 185, 129, 0.2);
+  border-color: #10b981 !important;
+}
+
+.glow-on-click:focus,
+.glow-on-click:active {
+  outline: none;
+  animation: pulse-glow 1.2s infinite;
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 24px rgba(16, 185, 129, 0.65);
+  }
+}
+
 /* Elegant custom transitions and scroll smoothing */
 html {
   scroll-behavior: smooth;

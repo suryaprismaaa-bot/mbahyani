@@ -94,12 +94,30 @@ const getCalculatedHijriDate = (d: Date = new Date()): string => {
 };
 
 export default function PrayerSchedule() {
-  const [lat, setLat] = useState<number>(-7.2575); // Surabaya Default
-  const [lng, setLng] = useState<number>(112.7521);
-  const [locationName, setLocationName] = useState<string>("Surabaya (Default)");
-  const [detectedCity, setDetectedCity] = useState<string | null>(null);
-  const [timings, setTimings] = useState<{ [key: string]: string }>(STATIC_FALLBACK_TIMES);
-  const [hijriDate, setHijriDate] = useState<string>(getCalculatedHijriDate(new Date()));
+  const [calcMethod, setCalcMethod] = useState<'kemenag' | 'muhammadiyah'>(() => {
+    return (localStorage.getItem('pr_calcMethod') as 'kemenag' | 'muhammadiyah') || 'kemenag';
+  });
+  const [lat, setLat] = useState<number>(() => {
+    const saved = localStorage.getItem('pr_lat');
+    return saved ? parseFloat(saved) : -7.2575;
+  });
+  const [lng, setLng] = useState<number>(() => {
+    const saved = localStorage.getItem('pr_lng');
+    return saved ? parseFloat(saved) : 112.7521;
+  });
+  const [locationName, setLocationName] = useState<string>(() => {
+    return localStorage.getItem('pr_locationName') || "Surabaya (Waktu Setempat)";
+  });
+  const [detectedCity, setDetectedCity] = useState<string | null>(() => {
+    return localStorage.getItem('pr_detectedCity') || null;
+  });
+  const [timings, setTimings] = useState<{ [key: string]: string }>(() => {
+    const saved = localStorage.getItem('pr_timings');
+    return saved ? JSON.parse(saved) : STATIC_FALLBACK_TIMES;
+  });
+  const [hijriDate, setHijriDate] = useState<string>(() => {
+    return localStorage.getItem('pr_hijriDate') || getCalculatedHijriDate(new Date());
+  });
   const [gregorianDate, setGregorianDate] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isGpsLoading, setIsGpsLoading] = useState<boolean>(false);
@@ -128,7 +146,15 @@ export default function PrayerSchedule() {
     setLat(-7.2575);
     setLng(112.7521);
     setDetectedCity(null);
-    fetchPrayerTimes(-7.2575, 112.7521, "Surabaya (Waktu Setempat)");
+    localStorage.removeItem('pr_detectedCity');
+    fetchPrayerTimes(-7.2575, 112.7521, "Surabaya (Waktu Setempat)", calcMethod);
+  };
+
+  // Keep a function to handle dropdown calculation changes
+  const handleCalcMethodChange = (method: 'kemenag' | 'muhammadiyah') => {
+    setCalcMethod(method);
+    localStorage.setItem('pr_calcMethod', method);
+    fetchPrayerTimes(lat, lng, locationName, method);
   };
 
   // Load times and update system watch
@@ -142,43 +168,74 @@ export default function PrayerSchedule() {
       setSystemTime(new Date());
     }, 1000);
 
-    // Initial load: Surabaya by default
-    fetchPrayerTimes(-7.2575, 112.7521, "Surabaya (Waktu Setempat)");
-
-    // Softly attempt auto geo-detection on mount if permission exists/cached
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const uLat = position.coords.latitude;
-          const uLng = position.coords.longitude;
-          setLat(uLat);
-          setLng(uLng);
-          const cityName = await fetchCityName(uLat, uLng);
-          setDetectedCity(cityName);
-          fetchPrayerTimes(uLat, uLng, cityName);
-        },
-        (error) => {
-          console.log("GPS auto-detection skipped or blocked. Code:", error.code);
-        },
-        { timeout: 4000 }
-      );
+    // Initial load check: Let's see if we already have coordinate cache
+    const savedLat = localStorage.getItem('pr_lat');
+    const savedLng = localStorage.getItem('pr_lng');
+    const savedName = localStorage.getItem('pr_locationName');
+    
+    if (savedLat && savedLng && savedName) {
+      fetchPrayerTimes(parseFloat(savedLat), parseFloat(savedLng), savedName, calcMethod);
+    } else {
+      // Fetch default Surabaya
+      fetchPrayerTimes(-7.2575, 112.7521, "Surabaya (Waktu Setempat)", calcMethod);
+      
+      // Attempt GPS if not cached and supported
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          async (position) => {
+            const uLat = position.coords.latitude;
+            const uLng = position.coords.longitude;
+            setLat(uLat);
+            setLng(uLng);
+            const cityName = await fetchCityName(uLat, uLng);
+            setDetectedCity(cityName);
+            localStorage.setItem('pr_detectedCity', cityName);
+            fetchPrayerTimes(uLat, uLng, cityName, calcMethod);
+          },
+          (error) => {
+            console.log("GPS auto-detection skipped or blocked. Code:", error.code);
+          },
+          { timeout: 4000 }
+        );
+      }
     }
 
     return () => clearInterval(timer);
   }, []);
 
-  const fetchPrayerTimes = async (latitude: number, longitude: number, name: string) => {
+  const fetchPrayerTimes = async (latitude: number, longitude: number, name: string, methodOverride?: 'kemenag' | 'muhammadiyah') => {
+    const activeMethod = methodOverride || calcMethod;
+    
+    // Format current system date as DD-MM-YYYY for Aladhan API to ensure accurate data
+    const today = new Date();
+    const dayStr = String(today.getDate()).padStart(2, '0');
+    const monthStr = String(today.getMonth() + 1).padStart(2, '0');
+    const yearStr = today.getFullYear();
+    const dateStr = `${dayStr}-${monthStr}-${yearStr}`;
+
+    const cacheKey = `${latitude.toFixed(4)}_${longitude.toFixed(4)}_${dateStr}_${activeMethod}`;
+    const storedCacheKey = localStorage.getItem('pr_timings_cache_key');
+    
+    // If the cache matches today's date, same location and same calculation method, skip network and render instantly!
+    if (storedCacheKey === cacheKey && localStorage.getItem('pr_timings')) {
+      try {
+        const cached = JSON.parse(localStorage.getItem('pr_timings') || '{}');
+        setTimings(cached);
+        const cachedHijri = localStorage.getItem('pr_hijriDate');
+        if (cachedHijri) setHijriDate(cachedHijri);
+        setLocationName(name);
+        return; // Complete return early - no blocking loading visual triggers!
+      } catch (e) {}
+    }
+
     setIsLoading(true);
     try {
-      // Format current system date as DD-MM-YYYY for Aladhan API to ensure accurate 2026 data
-      const today = new Date();
-      const dayStr = String(today.getDate()).padStart(2, '0');
-      const monthStr = String(today.getMonth() + 1).padStart(2, '0');
-      const yearStr = today.getFullYear();
-      const dateStr = `${dayStr}-${monthStr}-${yearStr}`;
+      // Aladhan API method 20 is "Kementerian Agama Republik Indonesia" (Fajr 20, Isha 18)
+      // Aladhan API method 1 is "University of Islamic Sciences, Karachi" (Fajr 18, Isha 18), fits Muhammadiyah Majelis Tarjih (KHGT) post-2021 criteria exactly.
+      const methodId = activeMethod === 'muhammadiyah' ? 1 : 20;
 
-      // Fetch timings from Aladhan API, method 11 (Kemenag RI / Singapore / Malaysia MUIS region) specifically for our simulated date
-      const response = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}&method=11`);
+      // Fetch timings from Aladhan API, method matching standard settings
+      const response = await fetch(`https://api.aladhan.com/v1/timings/${dateStr}?latitude=${latitude}&longitude=${longitude}&method=${methodId}`);
       if (!response.ok) {
         throw new Error("HTTP error");
       }
@@ -199,13 +256,25 @@ export default function PrayerSchedule() {
         ];
         const monthNum = parseInt(hijri.month.number, 10);
         const mappedMonth = hijriMonthsMap[monthNum - 1] || hijri.month.en;
-        setHijriDate(`${hijri.day} ${mappedMonth} ${hijri.year} H`);
+        const mappedHijri = `${hijri.day} ${mappedMonth} ${hijri.year} H`;
+        setHijriDate(mappedHijri);
         setLocationName(name);
+
+        // Update localstorage cache values
+        localStorage.setItem('pr_lat', latitude.toString());
+        localStorage.setItem('pr_lng', longitude.toString());
+        localStorage.setItem('pr_locationName', name);
+        localStorage.setItem('pr_timings', JSON.stringify(cleaned));
+        localStorage.setItem('pr_hijriDate', mappedHijri);
+        localStorage.setItem('pr_calcMethod', activeMethod);
+        localStorage.setItem('pr_timings_cache_key', cacheKey);
       }
     } catch (err) {
       console.warn("Using local calculation fallbacks for prayer times", err);
-      setTimings(STATIC_FALLBACK_TIMES);
-      setHijriDate(getCalculatedHijriDate(new Date()));
+      if (!localStorage.getItem('pr_timings')) {
+        setTimings(STATIC_FALLBACK_TIMES);
+        setHijriDate(getCalculatedHijriDate(new Date()));
+      }
     } finally {
       setIsLoading(false);
     }
@@ -227,12 +296,13 @@ export default function PrayerSchedule() {
         setLng(uLng);
         const cityName = await fetchCityName(uLat, uLng);
         setDetectedCity(cityName);
-        await fetchPrayerTimes(uLat, uLng, cityName);
+        localStorage.setItem('pr_detectedCity', cityName);
+        await fetchPrayerTimes(uLat, uLng, cityName, calcMethod);
         setIsGpsLoading(false);
       },
       (error) => {
         console.warn("GPS failed, using defaults", error);
-        alert("Akses GPS gagal. Menampilkan waktu shalat wilayah Surabaya secara presisi.");
+        alert("Akses GPS gagal atau diblokir. Menampilkan waktu shalat wilayah Surabaya.");
         setIsGpsLoading(false);
       },
       { timeout: 6000 }
@@ -335,7 +405,7 @@ export default function PrayerSchedule() {
           Jadwal Sholat Otomatis
         </h1>
         <p className="text-slate-600 dark:text-emerald-200/70 mt-2 text-sm max-w-lg mx-auto">
-          Membantu menegakkan sholat di awal waktu. Diselaraskan koordinat satelit instan dengan Kemenag RI di seluruh wilayah Indonesia.
+          Membantu menegakkan sholat di awal waktu. Disinkronisasikan instan sesuai koordinat GPS Anda dengan pilihan metodologi Kemenag RI atau Muhammadiyah (KHGT).
         </p>
       </div>
 
@@ -454,7 +524,9 @@ export default function PrayerSchedule() {
 
         {/* Right pane: Timings complete list */}
         <div className="lg:col-span-8 bg-white dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900 rounded-3xl p-6 shadow-sm">
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center space-y-3.5 sm:space-y-0 mb-6 border-b border-emerald-55/20 pb-4">
+          
+          {/* Header of timing table */}
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center space-y-4 sm:space-y-0 mb-5 border-b border-emerald-55/20 pb-4">
             <div>
               <h3 className="font-bold text-lg text-slate-800 dark:text-emerald-100 flex items-center">
                 <MapPin className="w-5 h-5 text-emerald-600 mr-2 shrink-0" />
@@ -465,12 +537,12 @@ export default function PrayerSchedule() {
               </p>
             </div>
 
-            {/* Retrieve browser coordinates */}
+            {/* Retrieve browser coordinates with GPS */}
             <button
               id="gps-schedule-button"
               onClick={handleRequestGps}
               disabled={isGpsLoading}
-              className="flex items-center justify-center px-4.5 py-2.5 bg-emerald-50 dark:bg-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-700 hover:text-emerald-900 text-emerald-800 dark:text-white font-semibold text-xs border border-emerald-100 dark:border-emerald-700 rounded-2xl cursor-pointer transition-colors disabled:opacity-40"
+              className="flex items-center justify-center px-4.5 py-2.5 bg-emerald-50 dark:bg-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-700 hover:text-emerald-950 text-emerald-800 dark:text-white font-semibold text-xs border border-emerald-100 dark:border-emerald-700 rounded-xl cursor-pointer transition-colors disabled:opacity-40 h-[38px] active:scale-95"
             >
               {isGpsLoading ? (
                 <>
@@ -484,6 +556,54 @@ export default function PrayerSchedule() {
                 </>
               )}
             </button>
+          </div>
+
+          {/* Segmented Reference Selector (Highly Space-Efficient and Beautiful) */}
+          <div className="mb-6 bg-slate-50 dark:bg-emerald-950/30 p-2 rounded-2xl border border-slate-100 dark:border-emerald-900/35">
+            <span className="text-[10px] font-extrabold uppercase text-slate-400 dark:text-emerald-450 tracking-wider block mb-2 px-1">
+              Dasar Hisab Perhitungan Waktu Shalat
+            </span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
+              <button
+                id="ref-btn-kemenag"
+                onClick={() => handleCalcMethodChange('kemenag')}
+                className={`py-2.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between gap-1.5 ${
+                  calcMethod === 'kemenag'
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'text-slate-600 dark:text-emerald-355 hover:bg-white dark:hover:bg-emerald-900/10'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm shrink-0">🇮🇩</span>
+                  <span className="text-left font-sans">Kementerian Agama RI</span>
+                </div>
+                <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded-md font-mono ${
+                  calcMethod === 'kemenag' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500 dark:bg-emerald-900/40 dark:text-emerald-300'
+                }`}>
+                  Subuh -20°
+                </span>
+              </button>
+              
+              <button
+                id="ref-btn-muhammadiyah"
+                onClick={() => handleCalcMethodChange('muhammadiyah')}
+                className={`py-2.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between gap-1.5 ${
+                  calcMethod === 'muhammadiyah'
+                    ? 'bg-blue-600 text-white shadow-md'
+                    : 'text-slate-600 dark:text-emerald-355 hover:bg-white dark:hover:bg-emerald-900/10'
+                }`}
+              >
+                <div className="flex items-center space-x-2">
+                  <span className="text-sm shrink-0">🕌</span>
+                  <span className="text-left font-sans">Muhammadiyah (KHGT)</span>
+                </div>
+                <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded-md font-mono ${
+                  calcMethod === 'muhammadiyah' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500 dark:bg-emerald-900/40 dark:text-emerald-300'
+                }`}>
+                  Subuh -18°
+                </span>
+              </button>
+            </div>
           </div>
 
           {/* List display */}
@@ -544,7 +664,15 @@ export default function PrayerSchedule() {
             <HelpCircle className="w-4.5 h-4.5 mr-2 text-emerald-600 shrink-0 mt-0.5" />
             <div>
               <p className="font-bold text-slate-700 dark:text-emerald-100 mb-0.5">Konvensi Perhitungan:</p>
-              Mengadopsi formula hitungan astronomi Kementrian Agama Republik Indonesia (Kemenag RI - Metode Standardisasi Hisab) dengan ikhtiyat +2 menit demi ketenangan pengamalan ibadah fardhu Bapak/Ibu lansia dan seluruh keluarga besar Mbah Yani.
+              {calcMethod === 'kemenag' ? (
+                <span>
+                  Mengadopsi kriteria Kementerian Agama Republik Indonesia (Kemenag RI - Metode Standardisasi Hisab) dengan sudut Fajar -20° dan Isya -18°. Dilengkapi ikhtiyat +2 menit demi ketenangan pengamalan ibadah fardhu.
+                </span>
+              ) : (
+                <span>
+                  Mengadopsi kriteria terbaru Majelis Tarjih PP Muhammadiyah (KHGT - Kalender Hijriah Global Tunggal) dengan penyesuaian sudut Fajar (Subuh) menjadi -18° dan Isya -18° demi ketepatan telaah fajar shodiq astronomis.
+                </span>
+              )}
             </div>
           </div>
         </div>
