@@ -37,7 +37,7 @@ export default function MosqueFinder() {
   const [gpsStatus, setGpsStatus] = useState<'idle' | 'detecting' | 'success' | 'denied' | 'error'>('idle');
   const [loadingMosques, setLoadingMosques] = useState<boolean>(false);
   const [mosques, setMosques] = useState<Mosque[]>([]);
-  const [filterRadius, setFilterRadius] = useState<number>(10); // Default 10km as requested
+  const [filterRadius, setFilterRadius] = useState<number>(2); // Default 2km as requested
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [gpsErrorMessage, setGpsErrorMessage] = useState<string>('');
   
@@ -68,6 +68,7 @@ export default function MosqueFinder() {
   // Reverse geocodes coords to human-friendly street / road name
   const fetchUserLocationAddress = async (lat: number, lng: number) => {
     setLoadingAddress(true);
+    let finalAddress = '';
     try {
       const response = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=id`);
       if (response.ok) {
@@ -78,24 +79,26 @@ export default function MosqueFinder() {
           const addressText = data.display_name || '';
 
           if (street) {
-            setUserStreetAddress(`${street}${city ? `, ${city}` : ''}`);
+            finalAddress = `${street}${city ? `, ${city}` : ''}`;
           } else if (addressText) {
             // Cut down to first 3 segments for neat display
             const parts = addressText.split(',');
-            setUserStreetAddress(parts.slice(0, 3).join(', ').trim());
+            finalAddress = parts.slice(0, 3).join(', ').trim();
           } else {
-            setUserStreetAddress(`Wilayah Koordinat Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`);
+            finalAddress = `Wilayah Koordinat Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`;
           }
         } else {
-          setUserStreetAddress(`Lokasi Koordinat Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`);
+          finalAddress = `Lokasi Koordinat Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`;
         }
       } else {
-        setUserStreetAddress(`Koordinat Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`);
+        finalAddress = `Koordinat Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`;
       }
     } catch (e) {
       console.warn("Could not geocode user coordinates", e);
-      setUserStreetAddress(`Koordinat Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`);
+      finalAddress = `Koordinat Lat ${lat.toFixed(4)}, Lng ${lng.toFixed(4)}`;
     } finally {
+      setUserStreetAddress(finalAddress);
+      (window as any).__mosque_user_address = finalAddress;
       setLoadingAddress(false);
     }
   };
@@ -103,14 +106,19 @@ export default function MosqueFinder() {
   // Triggers GPS acquisition
   const detectLocation = () => {
     setGpsStatus('detecting');
+    (window as any).__mosque_gps_status = 'detecting';
     setLoadingMosques(true);
     setGpsErrorMessage('');
     setUserStreetAddress('');
 
     if (!navigator.geolocation) {
-      setGpsStatus('error');
+      const fallbackStatus = 'error';
+      setGpsStatus(fallbackStatus);
+      (window as any).__mosque_gps_status = fallbackStatus;
       setGpsErrorMessage('Browser tidak mendukung Geolocation GPS atau tidak diizinkan');
-      setUserCoords({ lat: DEFAULT_LAT, lng: DEFAULT_LNG });
+      const fallbackCoords = { lat: DEFAULT_LAT, lng: DEFAULT_LNG };
+      setUserCoords(fallbackCoords);
+      (window as any).__mosque_user_coords = fallbackCoords;
       generateAdaptiveMosques(DEFAULT_LAT, DEFAULT_LNG);
       fetchUserLocationAddress(DEFAULT_LAT, DEFAULT_LNG);
       return;
@@ -124,23 +132,29 @@ export default function MosqueFinder() {
         };
         setUserCoords(coords);
         setGpsStatus('success');
+        (window as any).__mosque_user_coords = coords;
+        (window as any).__mosque_gps_status = 'success';
         fetchNearbyMosques(coords.lat, coords.lng);
         fetchUserLocationAddress(coords.lat, coords.lng);
       },
       (error) => {
         console.warn("Geolocation access failed, utilizing default coordinates", error);
         let msg = 'Izin lokasi tidak dideteksi atau GPS dinonaktifkan';
+        let status: 'denied' | 'error' = 'error';
         if (error.code === error.PERMISSION_DENIED) {
-          setGpsStatus('denied');
+          status = 'denied';
           msg = 'Izin akses lokasi GPS ditolak oleh browser/pengguna';
         } else {
-          setGpsStatus('error');
+          status = 'error';
           msg = 'Gagal membaca sinyal GPS. Menggunakan koordinat default kota';
         }
+        setGpsStatus(status);
+        (window as any).__mosque_gps_status = status;
         setGpsErrorMessage(msg);
         
         const coords = { lat: DEFAULT_LAT, lng: DEFAULT_LNG };
         setUserCoords(coords);
+        (window as any).__mosque_user_coords = coords;
         generateAdaptiveMosques(coords.lat, coords.lng);
         fetchUserLocationAddress(coords.lat, coords.lng);
       },
@@ -152,9 +166,12 @@ export default function MosqueFinder() {
   const fetchNearbyMosques = async (userLat: number, userLng: number) => {
     setLoadingMosques(true);
     try {
-      // Query both nodes, ways, and relations (nwr) within 10km (10000 meters) of user coords
-      // Using 'out center' so ways have center coordinate centers
-      const query = `[out:json];nwr(around:10000,${userLat},${userLng})[amenity=place_of_worship][religion=muslim];out center;`;
+      // Query both nodes, ways, and relations within 2km (2000 meters) of user coords
+      // We look for both religious places of worship for Muslims, or explicit mosque buildings
+      const query = `[out:json];(
+        nwr(around:2000,${userLat},${userLng})[amenity=place_of_worship][religion=muslim];
+        nwr(around:2000,${userLat},${userLng})[building=mosque];
+      );out center;`;
       const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
 
       const response = await fetch(url);
@@ -171,7 +188,7 @@ export default function MosqueFinder() {
 
               // Speeds: Walk=4.8 km/h (12.5 mins per km), Motorbike=28 km/h (2.15 mins per km)
               const durationWalk = Math.max(1, Math.round(distance * 12.5));
-              const durationMotor = Math.max(1, Math.round(distance * 2.15));
+              const durationMotor = Math.max(1, Math.round(distance * 2.13));
 
               let addr = element.tags?.['addr:street'] || element.tags?.['addr:full'] || 'Jalan Sekitar Lokasi Wilayah Masjid';
               if (element.tags?.['addr:housenumber']) {
@@ -194,11 +211,12 @@ export default function MosqueFinder() {
 
           // Sort strictly by distance ASCENDING
           const sorted = parsedMosques.sort((a, b) => a.distance - b.distance);
-          // Show ONLY mosques within 10km limit as requested
-          const filtered = sorted.filter(m => m.distance <= 10);
+          // Show ONLY mosques within 2km limit
+          const filtered = sorted.filter(m => m.distance <= 2);
 
           if (filtered.length > 0) {
             setMosques(filtered);
+            (window as any).__mosque_list = filtered;
             setLoadingMosques(false);
             return;
           }
@@ -210,15 +228,15 @@ export default function MosqueFinder() {
     generateAdaptiveMosques(userLat, userLng);
   };
 
-  // Generate highly realistic nearby mosques sorted strictly with close distances (under 4.5km so they feel highly relevant)
+  // Generate highly realistic nearby mosques sorted strictly with close distances (under 2km boundary as requested)
   const generateAdaptiveMosques = (lat: number, lng: number) => {
     const generated: Mosque[] = SAMPLE_MOSQUES_DATA.map((item, index) => {
       // Calculate micro-offset coordinates so we are highly accurate
       const seed = (index + 2) * 23;
       const angle = (seed * Math.PI) / 180;
       
-      // Kept close (0.15km to 4.5km) so it is extremely useful to walk or ride!
-      const rDistance = 0.15 + (index * 0.45); 
+      // Kept close (0.15km to 1.8km)
+      const rDistance = 0.15 + (index * 0.18); 
 
       // 1 degree lat = ~111km, 1 degree lng = ~111*cos(lat)
       const dLat = (rDistance * Math.cos(angle)) / 111;
@@ -244,12 +262,13 @@ export default function MosqueFinder() {
       };
     });
 
-    // Sort strictly by distance ascending and filter < 10km limit
+    // Sort strictly by distance ascending and filter < 2km limit
     const filteredAndSorted = generated
-      .filter(m => m.distance <= 10)
+      .filter(m => m.distance <= 2)
       .sort((a, b) => a.distance - b.distance);
 
     setMosques(filteredAndSorted);
+    (window as any).__mosque_list = filteredAndSorted;
     setLoadingMosques(false);
   };
 
@@ -260,7 +279,18 @@ export default function MosqueFinder() {
   };
 
   useEffect(() => {
-    detectLocation();
+    // Session list-cache: Instant recovery on tab remounting
+    const cachedMosques = (window as any).__mosque_list;
+    const cachedCoords = (window as any).__mosque_user_coords;
+    if (cachedMosques && cachedMosques.length > 0 && cachedCoords) {
+      setMosques(cachedMosques);
+      setUserCoords(cachedCoords);
+      setGpsStatus((window as any).__mosque_gps_status || 'success');
+      setUserStreetAddress((window as any).__mosque_user_address || '');
+      setLoadingMosques(false);
+    } else {
+      detectLocation();
+    }
   }, []);
 
   // Filter mosques with chosen radius threshold
@@ -334,9 +364,9 @@ export default function MosqueFinder() {
           <div className="flex items-center gap-1 bg-slate-55 dark:bg-slate-955 p-1.5 rounded-xl border border-slate-200 dark:border-slate-800">
             <span className="text-[10px] font-black text-slate-450 uppercase pl-1 shrink-0">Batas Jarak:</span>
             {[
-              { label: '2 KM', value: 2 },
-              { label: '5 KM', value: 5 },
-              { label: '10 KM', value: 10 },
+              { label: '500 M', value: 0.5 },
+              { label: '1 KM', value: 1 },
+              { label: '2 KM (Maks)', value: 2 },
             ].map((rOption) => (
               <button
                 key={rOption.value}
@@ -381,14 +411,14 @@ export default function MosqueFinder() {
           <div className="py-20 text-center">
             <RefreshCw className="w-10 h-10 mx-auto animate-spin text-orange-500 stroke-1" />
             <h3 className="mt-4 text-sm font-extrabold text-slate-800 dark:text-white">Menghitung Jarak Masjid Terdekat...</h3>
-            <p className="text-xs text-slate-400 mt-1">Menyeleksi makhraj lokasi koordinat di bawah {filterRadius} km.</p>
+            <p className="text-xs text-slate-400 mt-1">Menyeleksi makhraj lokasi koordinat di bawah {filterRadius < 1 ? `${filterRadius * 1000} meter` : `${filterRadius} km`}.</p>
           </div>
         ) : visibleMosques.length === 0 ? (
           <div className="py-20 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 rounded-3xl text-center">
             <MapPin className="w-10 h-10 mx-auto text-slate-305 stroke-1" />
             <h3 className="mt-4 text-sm font-extrabold text-slate-800 dark:text-white">Tidak Ada Masjid Dalam Batas Radius</h3>
             <p className="text-xs text-slate-400 max-w-xs mx-auto mt-1 leading-relaxed font-semibold">
-              Tidak ditemukan masjid berjarak kurang dari {filterRadius} KM dari GPS Anda saat ini. Coba perbesar batas jarak filter.
+              Tidak ditemukan masjid berjarak kurang dari {filterRadius < 1 ? `${filterRadius * 1000} meter` : `${filterRadius} KM`} dari GPS Anda saat ini. Coba perbesar batas jarak filter.
             </p>
           </div>
         ) : (

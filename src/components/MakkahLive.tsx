@@ -19,6 +19,7 @@ export default function MakkahLive() {
   const [ksaTimeStr, setKsaTimeStr] = useState('');
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [availableStreamIds, setAvailableStreamIds] = useState<string[]>(['makkah-alternative', 'madinah-sunnah']);
+  const [isStreamPlaying, setIsStreamPlaying] = useState(false);
 
   // Saudi Al Quran TV channel (Makkah) and Saudi Sunnah TV channel (Madinah)
   // We use YouTube dynamic live_stream endpoint which automatically grabs the latest/active stream of the channel!
@@ -204,22 +205,50 @@ export default function MakkahLive() {
 
             {/* Video Iframe Frame */}
             <div className="relative aspect-video bg-slate-950 w-full flex items-center justify-center">
-              {activeStreamId ? (
-                <iframe
-                  id="makkah-youtube-iframe"
-                  width="100%"
-                  height="100%"
-                  src={selectedStream.embedUrl}
-                  title="Masjidil Haram Live Stream"
-                  frameBorder="0"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  allowFullScreen
-                  className="absolute inset-0 w-full h-full"
-                ></iframe>
+              {isStreamPlaying ? (
+                activeStreamId ? (
+                  <iframe
+                    id="makkah-youtube-iframe"
+                    width="100%"
+                    height="100%"
+                    src={selectedStream.embedUrl}
+                    title="Masjidil Haram Live Stream"
+                    frameBorder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowFullScreen
+                    className="absolute inset-0 w-full h-full"
+                  ></iframe>
+                ) : (
+                  <div className="flex flex-col items-center justify-center text-center space-y-3 p-4">
+                    <RefreshCw className="w-8 h-8 text-emerald-400 animate-spin" />
+                    <span className="text-xs text-slate-400 font-mono">Menyegarkan feed siaran luar jaringan...</span>
+                  </div>
+                )
               ) : (
-                <div className="flex flex-col items-center justify-center text-center space-y-3 p-4">
-                  <RefreshCw className="w-8 h-8 text-emerald-400 animate-spin" />
-                  <span className="text-xs text-slate-400 font-mono">Menyegarkan feed siaran luar jaringan...</span>
+                <div 
+                  className="absolute inset-0 w-full h-full flex flex-col justify-center items-center p-6 text-center cursor-pointer overflow-hidden group select-none transition-all duration-300"
+                  onClick={() => setIsStreamPlaying(true)}
+                  style={{
+                    backgroundImage: `linear-gradient(to bottom, rgba(15, 23, 42, 0.4), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=1200&auto=format&fit=crop')`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                  }}
+                >
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-rose-600 hover:bg-rose-500 rounded-full flex items-center justify-center text-white shadow-xl shadow-rose-600/30 transition-all duration-300 scale-95 group-hover:scale-105">
+                    <Youtube className="w-8 h-8 sm:w-10 sm:h-10 fill-current" />
+                  </div>
+                  <h3 className="text-sm sm:text-base font-black uppercase tracking-wider text-white mt-4 flex items-center gap-2">
+                    <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse inline-block" />
+                    Putar Siaran Langsung
+                  </h3>
+                  <p className="text-[10px] sm:text-xs text-slate-300 max-w-sm mt-1.5 leading-relaxed font-semibold">
+                    Hemat kuota data internet Anda. Aliran video YouTube secara live baru akan dimuat setelah Anda menekan tombol putar.
+                  </p>
+                  <button
+                    className="mt-4 px-4 py-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/25 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer"
+                  >
+                    Mulai Menonton LIVE
+                  </button>
                 </div>
               )}
             </div>
@@ -283,7 +312,10 @@ export default function MakkahLive() {
                   <button
                     key={st.id}
                     id={`stream-select-${st.id}`}
-                    onClick={() => setActiveStreamId(st.id)}
+                    onClick={() => {
+                      setActiveStreamId(st.id);
+                      setIsStreamPlaying(true);
+                    }}
                     className={`w-full text-left p-3 rounded-2xl border transition-all cursor-pointer flex items-start gap-3 group ${
                       isSelected
                         ? 'bg-emerald-600 text-white border-emerald-600 shadow-md shadow-emerald-600/10 font-medium'

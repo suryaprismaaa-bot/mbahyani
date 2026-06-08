@@ -210,6 +210,20 @@ export default function QuranReader({
       return;
     }
 
+    // Check sessionStorage cache (instant retrieval even across refreshes)
+    try {
+      const storedDetail = sessionStorage.getItem(`quran_detail_${nomor}`);
+      if (storedDetail) {
+        const parsed = JSON.parse(storedDetail);
+        if (parsed) {
+          (window as any).__quran_surah_details[nomor] = parsed;
+          setSurahDetail(parsed);
+          saveLastRead(nomor, parsed.namaLatin);
+          return;
+        }
+      }
+    } catch (e) {}
+
     setIsLoadingDetail(true);
     setErrorDetailMsg(null);
 
@@ -224,6 +238,9 @@ export default function QuranReader({
         saveLastRead(nomor, json.data.namaLatin);
         // Save to cache for smooth, repeat zero-second loads
         (window as any).__quran_surah_details[nomor] = json.data;
+        try {
+          sessionStorage.setItem(`quran_detail_${nomor}`, JSON.stringify(json.data));
+        } catch (e) {}
       } else {
         throw new Error("Format detail surat tidak dikenal.");
       }
