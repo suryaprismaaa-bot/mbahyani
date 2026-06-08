@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Compass, BookOpen, HeartHandshake, BookHeart, Calendar, Sparkles, MoveRight, Moon, Sun, Star, Play, Pause, X, SkipForward, Volume2, Clock, Tv, GraduationCap, BookMarked, Scale, MapPin } from 'lucide-react';
+import { Compass, BookOpen, HeartHandshake, BookHeart, Calendar, Sparkles, MoveRight, Moon, Sun, Star, Play, Pause, X, SkipForward, Volume2, Clock, Tv, GraduationCap, BookMarked, Scale, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
 import { ActiveTab, GlobalAudioState, Ayat } from './types';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -25,7 +25,14 @@ import { AnimatePresence, motion } from 'motion/react';
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
   const [menuCategory, setMenuCategory] = useState<'all' | 'ibadah' | 'pembelajaran' | 'kajian'>('all');
-  const [darkMode, setDarkMode] = useState<boolean>(true);
+  const [darkMode, setDarkMode] = useState<boolean>(() => {
+    try {
+      const saved = localStorage.getItem('portal_dark_mode');
+      return saved !== null ? saved === 'true' : true;
+    } catch (e) {
+      return true;
+    }
+  });
   const [theme, setTheme] = useState<'emerald' | 'merah' | 'orange' | 'biru' | 'ungu' | 'coklat' | 'putih' | 'birutua' | 'merahmuda'>(() => {
     try {
       return (localStorage.getItem('portal_theme') as any) || 'orange';
@@ -34,11 +41,45 @@ export default function App() {
     }
   });
 
+  const [arabicFontSize, setArabicFontSize] = useState<number>(() => {
+    try {
+      const saved = localStorage.getItem('portal_arabic_font_size');
+      return saved !== null ? parseInt(saved, 10) : 3;
+    } catch (e) {
+      return 3;
+    }
+  });
+
   useEffect(() => {
     try {
       localStorage.setItem('portal_theme', theme);
     } catch (e) {}
   }, [theme]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('portal_dark_mode', String(darkMode));
+    } catch (e) {}
+  }, [darkMode]);
+
+  useEffect(() => {
+    try {
+      localStorage.setItem('portal_arabic_font_size', String(arabicFontSize));
+    } catch (e) {}
+  }, [arabicFontSize]);
+
+  const themeDropdownRef = useRef<HTMLDivElement>(null);
+  const [isThemeOpen, setIsThemeOpen] = useState(false);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (themeDropdownRef.current && !themeDropdownRef.current.contains(event.target as Node)) {
+        setIsThemeOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
   const [activeSurahNum, setActiveSurahNum] = useState<number | null>(null);
   const [showDevModal, setShowDevModal] = useState<boolean>(() => {
     try {
@@ -147,6 +188,30 @@ export default function App() {
     };
   }, []);
 
+  const prefetchNextSurah = async (surahNum: number) => {
+    if (surahNum >= 114) return;
+    const nextSurahNum = surahNum + 1;
+    try {
+      if ((window as any).__quran_surah_details && (window as any).__quran_surah_details[nextSurahNum]) return;
+      const cached = sessionStorage.getItem(`quran_detail_${nextSurahNum}`);
+      if (cached) return;
+
+      const response = await fetch(`https://equran.id/api/v2/surat/${nextSurahNum}`);
+      if (response.ok) {
+        const json = await response.json();
+        if (json && json.data) {
+          if (!(window as any).__quran_surah_details) {
+            (window as any).__quran_surah_details = {};
+          }
+          (window as any).__quran_surah_details[nextSurahNum] = json.data;
+          sessionStorage.setItem(`quran_detail_${nextSurahNum}`, JSON.stringify(json.data));
+        }
+      }
+    } catch (e) {
+      console.warn("Prefetch next surah failed:", e);
+    }
+  };
+
   const playGlobalAudio = (ayat: any, surahNum: number, surahName: string, surahAyats: any[]) => {
     // Dynamically and consistently construct URL with the selected Qari key
     let audioUrl = '';
@@ -162,6 +227,10 @@ export default function App() {
     if (!audioUrl) return;
 
     currentAyatListRef.current = surahAyats;
+
+    if (surahNum < 114 && ayat.nomorAyat >= surahAyats.length - 2) {
+      prefetchNextSurah(surahNum);
+    }
 
     if (globalAudioState.playingAudioUrl === audioUrl) {
       if (audioRef.current?.paused) {
@@ -193,16 +262,51 @@ export default function App() {
     const audio = new Audio(audioUrl);
     audioRef.current = audio;
 
-    audio.oncanplaythrough = () => {
+    // Immediately start playing to respect modern browser autoplay policies within user interaction contexts
+    audio.play()
+      .then(() => {
+        setGlobalAudioState(prev => {
+          if (prev.playingAudioUrl === audioUrl) {
+            return { ...prev, isPlaying: true, isAudioLoading: false };
+          }
+          return prev;
+        });
+      })
+      .catch(e => {
+        console.warn("Audio autoplay blocked or interrupted", e);
+        // Do not fail hard, just set isPlaying to false so user can click play to resume
+        setGlobalAudioState(prev => {
+          if (prev.playingAudioUrl === audioUrl) {
+            return { ...prev, isPlaying: false, isAudioLoading: false };
+          }
+          return prev;
+        });
+      });
+
+    audio.onwaiting = () => {
+      setGlobalAudioState(prev => {
+        if (prev.playingAudioUrl === audioUrl) {
+          return { ...prev, isAudioLoading: true };
+        }
+        return prev;
+      });
+    };
+
+    audio.onplaying = () => {
+      setGlobalAudioState(prev => {
+        if (prev.playingAudioUrl === audioUrl) {
+          return { ...prev, isAudioLoading: false, isPlaying: true };
+        }
+        return prev;
+      });
+    };
+
+    audio.oncanplay = () => {
       setGlobalAudioState(prev => {
         if (prev.playingAudioUrl === audioUrl) {
           return { ...prev, isAudioLoading: false };
         }
         return prev;
-      });
-      audio.play().catch(e => {
-        console.warn("Audio autoplay blocked", e);
-        setGlobalAudioState(prev => ({ ...prev, isPlaying: false }));
       });
     };
 
@@ -211,6 +315,7 @@ export default function App() {
     };
 
     audio.onerror = () => {
+      console.warn("Murottal playback error for URL:", audioUrl);
       setGlobalAudioState({
         isPlaying: false,
         isAudioLoading: false,
@@ -219,7 +324,6 @@ export default function App() {
         playingAyatNum: null,
         playingAudioUrl: null
       });
-      alert("Gagal memutar audio Murottal. Periksa koneksi internet.");
     };
   };
 
@@ -241,6 +345,52 @@ export default function App() {
           playingAudioUrl: `loading-${nextSurahNum}`
         }));
 
+        // Bismillah representation
+        const BISMILLAH_AYAT = {
+          nomorAyat: 0,
+          teksArab: "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ",
+          teksLatin: "Bismillāhir-raḥmānir-raḥīm(i).",
+          teksIndonesia: "Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang.",
+          audio: {
+            "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/001001.mp3"
+          }
+        };
+
+        // Check if next surah details are cached in window memory or sessionStorage
+        let nextSurahData: any = null;
+        try {
+          if ((window as any).__quran_surah_details && (window as any).__quran_surah_details[nextSurahNum]) {
+            nextSurahData = (window as any).__quran_surah_details[nextSurahNum];
+          } else {
+            const storedDetail = sessionStorage.getItem(`quran_detail_${nextSurahNum}`);
+            if (storedDetail) {
+              nextSurahData = JSON.parse(storedDetail);
+              if (nextSurahData) {
+                if (!(window as any).__quran_surah_details) {
+                  (window as any).__quran_surah_details = {};
+                }
+                (window as any).__quran_surah_details[nextSurahNum] = nextSurahData;
+              }
+            }
+          }
+        } catch (e) {
+          console.warn("Error reading cache for next surah:", e);
+        }
+
+        // If cached surah data is available, skip network request entirely for instant playback
+        if (nextSurahData && nextSurahData.ayat && nextSurahData.ayat.length > 0) {
+          const nextSurahName = nextSurahData.namaLatin;
+          const nextSurahAyats = nextSurahData.ayat;
+
+          if (nextSurahNum !== 9) { // At-Tawbah has no Bismillah
+            playGlobalAudio(BISMILLAH_AYAT, nextSurahNum, nextSurahName, nextSurahAyats);
+          } else {
+            const firstAyat = nextSurahAyats[0];
+            playGlobalAudio(firstAyat, nextSurahNum, nextSurahName, nextSurahAyats);
+          }
+          return;
+        }
+
         try {
           // Fetch next Surah Ayat list
           const response = await fetch(`https://equran.id/api/v2/surat/${nextSurahNum}`);
@@ -251,17 +401,17 @@ export default function App() {
           if (json && json.data && json.data.ayat && json.data.ayat.length > 0) {
             const nextSurahName = json.data.namaLatin;
             const nextSurahAyats = json.data.ayat;
-            
-            // Const for Bismillah audio
-            const BISMILLAH_AYAT = {
-              nomorAyat: 0,
-              teksArab: "بِسْمِ اللّٰهِ الرَّحْمٰنِ الرَّحِيْمِ",
-              teksLatin: "Bismillāhir-raḥmānir-raḥīm(i).",
-              teksIndonesia: "Dengan nama Allah Yang Maha Pengasih lagi Maha Penyayang.",
-              audio: {
-                "01": "https://cdn.equran.id/audio-partial/Abdurrahman-as-Sudais/001001.mp3"
+
+            // Cache downloaded surah data
+            try {
+              if (!(window as any).__quran_surah_details) {
+                (window as any).__quran_surah_details = {};
               }
-            };
+              (window as any).__quran_surah_details[nextSurahNum] = json.data;
+              sessionStorage.setItem(`quran_detail_${nextSurahNum}`, JSON.stringify(json.data));
+            } catch (e) {
+              console.warn("Could not cache fetched surah details:", e);
+            }
 
             if (nextSurahNum !== 9) { // At-Tawbah has no Bismillah
               playGlobalAudio(BISMILLAH_AYAT, nextSurahNum, nextSurahName, nextSurahAyats);
@@ -331,13 +481,11 @@ export default function App() {
     }
   }, [darkMode]);
 
-
-
   return (
-    <div className={`min-h-screen bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-emerald-50 font-sans transition-colors duration-300 flex flex-col justify-between theme-${theme}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-emerald-50/45 via-white to-emerald-100/25 dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 text-slate-800 dark:text-emerald-50 font-sans transition-all duration-300 flex flex-col justify-between theme-${theme}`}>
       <div>
-        {/* Main Header / Navigation - Combined Sticky Container */}
-        <div className="sticky top-0 z-50 w-full shadow-md bg-white/95 dark:bg-slate-950/95 backdrop-blur-md">
+        {/* Main Header / Navigation - Combined Sticky Container with Custom Distinct Color and Animated Divider */}
+        <div className="sticky top-0 z-50 w-full shadow-md bg-[#f4fcf8]/98 dark:bg-slate-950/98 backdrop-blur-md transition-all duration-300">
           <Navbar 
             activeTab={activeTab} 
             setActiveTab={setActiveTab} 
@@ -346,46 +494,156 @@ export default function App() {
           />
 
           {/* Visual Theme Swatches Bar - Contained within the Sticky Header */}
-          <div className="bg-white/90 dark:bg-slate-900/90 border-t border-b border-slate-100 dark:border-slate-800/60 py-1.5 px-4 shadow-xxs">
-            <div className="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5">
-                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse shrink-0" />
-                <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-slate-500 dark:text-emerald-300/80">
-                  Warna Tema Portal
-                </span>
+          <div className="bg-transparent border-t border-emerald-100/35 dark:border-slate-800/45 py-2.5 px-4 transition-all duration-300">
+            <div className="max-w-7xl mx-auto flex flex-col gap-2.5">
+              
+              {/* Baris 1: Tanggal Masehi & Tanggal Hijriyah Sejajar */}
+              <div className="flex items-center justify-center gap-3 text-center whitespace-nowrap overflow-x-auto scrollbar-none w-full py-0.5">
+                <div className="text-[11px] sm:text-xs font-semibold text-slate-655 dark:text-slate-305 shrink-0 flex items-center gap-1">
+                  <span className="opacity-75">📅</span>
+                  <span>{gregorianString || "Memuat..."}</span>
+                </div>
+                
+                <span className="text-slate-300 dark:text-slate-705 font-bold text-xs shrink-0">|</span>
+                
+                <div className="text-[11px] sm:text-xs font-black text-emerald-700 dark:text-amber-400 shrink-0 bg-emerald-50 dark:bg-amber-950/30 px-2.5 py-0.5 rounded-lg border border-emerald-100/80 dark:border-amber-900/20 flex items-center gap-1">
+                  <span>🌙</span>
+                  <span>{hijriString || "Memuat..."}</span>
+                </div>
               </div>
-              <div className="flex flex-wrap items-center gap-1.5 overflow-x-auto pb-0.5 sm:pb-0 scrollbar-none justify-center">
-                {[
-                  { id: 'orange', name: 'Orange', color: 'bg-orange-500' },
-                  { id: 'emerald', name: 'Hijau', color: 'bg-emerald-600' },
-                  { id: 'biru', name: 'Biru', color: 'bg-sky-500' },
-                  { id: 'merah', name: 'Merah', color: 'bg-rose-500' },
-                  { id: 'ungu', name: 'Ungu', color: 'bg-violet-600' },
-                  { id: 'coklat', name: 'Coklat', color: 'bg-amber-800' },
-                  { id: 'putih', name: 'Putih/Charcoal', color: 'bg-slate-500' },
-                  { id: 'birutua', name: 'Biru Tua', color: 'bg-indigo-900' },
-                  { id: 'merahmuda', name: 'Merah Muda', color: 'bg-pink-500' },
-                ].map((swatch) => {
-                  const isActive = theme === swatch.id;
-                  return (
-                    <button
-                      key={swatch.id}
-                      onClick={() => setTheme(swatch.id as any)}
-                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-all border flex items-center gap-1.5 shrink-0 hover:scale-102 ${
-                        isActive
-                          ? 'bg-slate-900 border-slate-900 text-white shadow-xs dark:bg-emerald-500 dark:border-emerald-500'
-                          : 'bg-white dark:bg-slate-800 border-slate-150 dark:border-slate-700 text-slate-600 dark:text-emerald-200'
-                      }`}
-                      title={`Tema ${swatch.name}`}
-                    >
-                      <span className={`w-2 h-2 rounded-full ${swatch.color} border border-white/20`} />
-                      <span>{swatch.name}</span>
-                    </button>
-                  );
-                })}
+
+              {/* Thin Elegant Divider */}
+              <div className="w-full h-px bg-slate-150 dark:bg-slate-800/60" />
+
+              {/* Baris 2: Warna Tema Portal Dropdown Selector */}
+              <div className="flex items-center justify-center gap-3 relative">
+                <div className="flex flex-col items-end leading-tight text-right select-none">
+                  <span className="text-[10.5px] sm:text-xs font-black uppercase tracking-wider text-slate-600 dark:text-emerald-400">
+                    Warna Tema Portal:
+                  </span>
+                  <span className="text-[9px] sm:text-[9.5px] font-bold text-slate-400 dark:text-emerald-500/60 lowercase italic tracking-wide mt-0.5">
+                    (pilih warna salah satu)
+                  </span>
+                </div>
+                
+                {/* Custom Elegant Dropdown Trigger */}
+                <div className="relative" ref={themeDropdownRef}>
+                  <button
+                    id="theme-dropdown-trigger"
+                    onClick={() => setIsThemeOpen(!isThemeOpen)}
+                    className="px-3.5 py-1.5 rounded-xl text-[10px] sm:text-xs font-extrabold cursor-pointer transition-all border bg-slate-50 dark:bg-slate-800/80 border-slate-200 dark:border-slate-700 text-slate-755 dark:text-emerald-100 hover:bg-slate-100 dark:hover:bg-slate-750 flex items-center gap-1.5 shrink-0 shadow-xxs active:scale-98"
+                  >
+                    <span className={`w-2.5 h-2.5 rounded-full ${
+                      theme === 'orange' ? 'bg-orange-500' :
+                      theme === 'emerald' ? 'bg-emerald-600' :
+                      theme === 'biru' ? 'bg-sky-500' :
+                      theme === 'merah' ? 'bg-rose-500' :
+                      theme === 'ungu' ? 'bg-violet-600' :
+                      theme === 'coklat' ? 'bg-amber-800' :
+                      theme === 'putih' ? 'bg-slate-500' :
+                      theme === 'birutua' ? 'bg-indigo-900' : 'bg-pink-500'
+                    } border border-white/25 shadow-xxs`} />
+                    <span>
+                      {theme === 'orange' ? 'Hijau Jingga (Orange)' :
+                       theme === 'emerald' ? 'Khazanah Hijau (Emerald)' :
+                       theme === 'biru' ? 'Samudera Biru (Blue)' :
+                       theme === 'merah' ? 'Kasih Merah (Rose)' :
+                       theme === 'ungu' ? 'Mulia Ungu (Violet)' :
+                       theme === 'coklat' ? 'Tanah Coklat (Amber)' :
+                       theme === 'putih' ? 'Putih & Charcoal' :
+                       theme === 'birutua' ? 'Malam Biru Tua' : 'Merah Muda (Pink)'}
+                    </span>
+                    <ChevronDown className={`w-3.5 h-3.5 text-slate-400 dark:text-emerald-400/70 transition-transform duration-200 ${isThemeOpen ? 'rotate-180' : ''}`} />
+                  </button>
+
+                  {/* Dropdown Menu Panel (Centered dropdown overlay) */}
+                  {isThemeOpen && (
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 mt-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-xl z-50 p-1.5 grid grid-cols-1 gap-1 w-64 hover:shadow-2xl transition-all duration-150 animate-in fade-in duration-100">
+                      <div className="px-2.5 py-1.5 text-[8.5px] font-black uppercase tracking-wider text-slate-400 dark:text-emerald-500 border-b border-slate-100 dark:border-slate-800/60 mb-1">
+                        Pilih Nuansa Warna Widget
+                      </div>
+                      {[
+                        { id: 'orange', name: 'Hijau Jingga (Orange)', color: 'bg-orange-500' },
+                        { id: 'emerald', name: 'Khazanah Hijau (Emerald)', color: 'bg-emerald-600' },
+                        { id: 'biru', name: 'Samudera Biru (Blue)', color: 'bg-sky-500' },
+                        { id: 'merah', name: 'Kasih Merah (Rose)', color: 'bg-rose-500' },
+                        { id: 'ungu', name: 'Mulia Ungu (Violet)', color: 'bg-violet-600' },
+                        { id: 'coklat', name: 'Tanah Coklat (Amber)', color: 'bg-amber-800' },
+                        { id: 'putih', name: 'Putih & Charcoal', color: 'bg-slate-500' },
+                        { id: 'birutua', name: 'Malam Biru Tua', color: 'bg-indigo-900' },
+                        { id: 'merahmuda', name: 'Merah Muda (Pink)', color: 'bg-pink-500' },
+                      ].map((swatch) => {
+                        const isActive = theme === swatch.id;
+                        return (
+                          <button
+                            key={swatch.id}
+                            onClick={() => {
+                              setTheme(swatch.id as any);
+                              setIsThemeOpen(false);
+                            }}
+                            className={`px-3 py-2 rounded-xl text-[10.5px] sm:text-xs font-bold cursor-pointer transition-all border flex items-center gap-2.5 w-full text-left ${
+                              isActive
+                                ? 'bg-slate-900 border-slate-900 text-white dark:bg-emerald-600 dark:border-emerald-600 dark:text-white shadow-sm'
+                                : 'bg-transparent border-transparent text-slate-705 dark:text-emerald-150 hover:bg-slate-100 dark:hover:bg-slate-800'
+                            }`}
+                          >
+                            <span className={`w-2.5 h-2.5 rounded-full ${swatch.color} border border-white/20`} />
+                            <span>{swatch.name}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Thin Elegant Divider */}
+              <div className="w-full h-px bg-slate-150 dark:bg-slate-800/40" />
+
+              {/* Baris 3: Pengatur Ukuran Teks Arab, Latin & Terjemahan */}
+              <div id="arabic-resizer-control" className="flex items-center justify-center gap-3">
+                <div className="flex flex-col items-end leading-tight text-right select-none">
+                  <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-emerald-400">
+                    Ukuran Teks Arab:
+                  </span>
+                  <span className="text-[8.5px] sm:text-[9.2px] font-semibold text-slate-400 dark:text-emerald-500/55 lowercase italic tracking-normal mt-0.5">
+                    (latin & arti menyesuaikan)
+                  </span>
+                </div>
+
+                {/* Adjuster Buttons: Up/Down Buttons */}
+                <div className="flex items-center bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-750 p-1 rounded-xl shrink-0">
+                  <button
+                    id="arabic-zoom-down"
+                    onClick={() => setArabicFontSize(prev => Math.max(1, prev - 1))}
+                    disabled={arabicFontSize === 1}
+                    className="w-8 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-emerald-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus:outline-hidden"
+                    title="Perkecil Ukuran Teks"
+                    aria-label="Perkecil Ukuran Teks"
+                  >
+                    <ChevronDown className="w-4 h-4 font-bold" />
+                  </button>
+                  <span className="px-3.5 text-[10.5px] font-black font-mono text-emerald-800 dark:text-emerald-200 select-none bg-white dark:bg-slate-900 py-0.5 rounded-md border border-slate-100 dark:border-slate-800/80 shadow-3xs min-w-[50px] text-center">
+                    Lv {arabicFontSize}
+                  </span>
+                  <button
+                    id="arabic-zoom-up"
+                    onClick={() => setArabicFontSize(prev => Math.min(5, prev + 1))}
+                    disabled={arabicFontSize === 5}
+                    className="w-8 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-755 text-slate-600 dark:text-emerald-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus:outline-hidden"
+                    title="Perbesar Ukuran Teks"
+                    aria-label="Perbesar Ukuran Teks"
+                  >
+                    <ChevronUp className="w-4 h-4 font-bold" />
+                  </button>
+                </div>
+              </div>
+
             </div>
           </div>
+          
+          {/* Animated Moving Divider Line to demarcate scrolling content boundary */}
+          <div className="h-[5px] w-full animate-moving-divider shadow-[0_4px_16px_rgba(0,0,0,0.18)] border-b border-emerald-900/10 dark:border-amber-450/10" />
         </div>
 
         {/* Primary Content Container */}
@@ -421,10 +679,10 @@ export default function App() {
                   <Star className="w-8 h-8 text-amber-200 fill-current" />
                 </div>
 
-                <div className="relative grid grid-cols-1 lg:grid-cols-12 gap-8 items-center z-10 animate-in fade-in duration-500">
-                  {/* Left layout: Hero Headline & Actions */}
-                  <div className="lg:col-span-8 xl:col-span-9 text-left">
-                    <span className="inline-flex items-center px-4 py-1.5 bg-gradient-to-r from-emerald-900/60 to-blue-900/60 backdrop-blur-md rounded-full text-[10px] font-extrabold uppercase tracking-widest text-emerald-100 border border-white/10 mb-6">
+                 <div className="relative z-10 animate-in fade-in duration-500">
+                  {/* Expanded majestic text layout */}
+                  <div className="w-full text-left max-w-3xl">
+                    <span className="inline-flex items-center px-4 py-1.5 bg-gradient-to-r from-emerald-950/60 to-blue-900/60 backdrop-blur-md rounded-full text-[10px] font-extrabold uppercase tracking-widest text-emerald-100 border border-white/10 mb-6">
                       🌟 Pusat Kajian & Ibadah Sinergi Umat Nusantara
                     </span>
                     
@@ -455,35 +713,6 @@ export default function App() {
                       </button>
                     </div>
                   </div>
-
-                  {/* Right layout: Compact & simple real-time clock widget */}
-                  <div className="lg:col-span-4 xl:col-span-3 bg-white/5 dark:bg-slate-950/20 backdrop-blur-md border border-white/10 dark:border-blue-900/30 p-5 rounded-2xl flex flex-col items-center justify-center text-center shadow-lg relative overflow-hidden group">
-                    <div className="absolute -right-2 -bottom-2 text-white/5 pointer-events-none group-hover:scale-110 transition-transform duration-550">
-                      <Clock className="w-16 h-16 w-16" />
-                    </div>
-                    
-                    <span className="text-[9px] font-black text-amber-300 uppercase tracking-widest bg-white/10 px-2 py-0.5 rounded-lg border border-white/10 mb-2.5">
-                      ⚡ Waktu Realtime
-                    </span>
-
-                    <div className="text-2xl font-bold font-mono tracking-wider text-white">
-                       {timeString || "00:00:00 WIB"}
-                    </div>
-
-                    <div className="h-px bg-white/10 w-full my-3" />
-
-                    <div className="space-y-2 w-full text-center">
-                      <div className="text-[10px] leading-tight text-blue-100/90">
-                        <span className="block font-semibold text-white/55 text-[8px] uppercase tracking-wider">KALENDER MASEHI</span>
-                        <span className="font-bold text-white text-[11px]">{gregorianString || "Memuat..."}</span>
-                      </div>
-                      
-                      <div className="text-[10px] leading-tight text-emerald-100/90">
-                        <span className="block font-semibold text-white/55 text-[8px] uppercase tracking-wider">KALENDER HIJRIYAH</span>
-                        <span className="font-extrabold text-amber-200 text-[11px]">{hijriString || "Memuat..."}</span>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
 
@@ -491,7 +720,7 @@ export default function App() {
               <div className="space-y-6">
                 
                 {/* Centered and Highly Polished Layout Title */}
-                <div className="border-b border-emerald-100 dark:border-emerald-950 pb-6 text-center max-w-2xl mx-auto mb-8 animate-in fade-in slide-in-from-bottom-3 duration-500">
+                <div className="border-b border-emerald-100 dark:border-emerald-950 pb-4 text-center max-w-2xl mx-auto mb-6 animate-in fade-in slide-in-from-bottom-3 duration-500">
                   <div className="flex flex-col items-center">
                     <div className="w-11 h-11 bg-emerald-50 dark:bg-emerald-950/45 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
                       <Sparkles className="w-5.5 h-5.5 animate-pulse" />
@@ -499,17 +728,11 @@ export default function App() {
                     <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-emerald-50 tracking-tight leading-tight">
                       Portal Islami Keluarga Mbah Yani
                     </h2>
-                    <p className="text-[10px] text-emerald-700 dark:text-emerald-400 mt-2 font-extrabold tracking-widest font-sans uppercase">
-                      Layanan Utama Portal Keluarga
-                    </p>
-
-                    {/* VISUAL THEME SWATCHES DELETED - Now global at the very top of each page */}
-                    <p className="text-xs text-slate-400 dark:text-emerald-400/50 mt-4 font-semibold">Pilih menu layanan utama di bawah untuk memulai ibadah harian Anda</p>
                   </div>
                 </div>
 
                 {/* Ayat & Pengingat Hari Ini */}
-                <HomeQuranReminder />
+                <HomeQuranReminder theme={theme} arabicFontSize={arabicFontSize} />
 
                 {/* Dynamic Category Filtering Tabs */}
                 <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-8 bg-slate-100/60 dark:bg-slate-900/60 p-1.5 rounded-2xl max-w-3xl mx-auto border border-slate-200/40 dark:border-slate-800/40 animate-in fade-in slide-in-from-bottom-3 duration-400">
@@ -539,7 +762,7 @@ export default function App() {
                 </div>
 
                 {/* Main Menu Cards list - Categorized and Sorted */}
-                <div className="space-y-12">
+                <div className="space-y-6">
                   {[
                     {
                       id: 'ibadah',
@@ -576,17 +799,17 @@ export default function App() {
                   ]
                     .filter(section => menuCategory === 'all' || menuCategory === section.id)
                     .map((section) => (
-                      <div key={section.id} className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-300">
+                      <div key={section.id} className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
                         <div className="border-l-4 border-emerald-500 pl-4 py-0.5">
-                          <h3 className="font-serif font-bold text-lg dark:text-emerald-50 text-slate-900 leading-tight">
+                          <h3 className="font-serif font-bold text-[15px] dark:text-emerald-50 text-slate-900 leading-tight">
                             {section.title}
                           </h3>
-                          <p className="text-[10.5px] text-slate-500 dark:text-emerald-400/60 font-semibold mt-0.5">
+                          <p className="text-[10px] text-slate-500 dark:text-emerald-400/60 font-semibold mt-0.5">
                             {section.desc}
                           </p>
                         </div>
                         
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
                           {section.items.map((item) => {
                             const Icon = item.icon;
                             return (
@@ -594,22 +817,21 @@ export default function App() {
                                 key={item.id}
                                 id={`menu-${item.id}`}
                                 onClick={() => setActiveTab(item.id as any)}
-                                className="p-6 bg-white dark:bg-slate-900 rounded-2xl shadow-xs border border-emerald-100/70 hover:border-emerald-300 dark:border-emerald-900/40 dark:hover:border-emerald-700 text-left hover:shadow-md transition-all duration-300 cursor-pointer group flex flex-col justify-between h-44 relative overflow-hidden animate-shine-beam glow-on-click"
+                                className="p-3.5 bg-white dark:bg-slate-900 rounded-xl shadow-xs border border-emerald-100/70 hover:border-emerald-300 dark:border-emerald-900/40 dark:hover:border-emerald-700 text-left hover:shadow-md transition-all duration-300 cursor-pointer group flex items-center gap-3 relative overflow-hidden animate-shine-beam glow-on-click transform hover:-translate-y-1"
                               >
-                                <div className="flex items-start justify-between w-full">
-                                  <div className="w-11 h-11 bg-emerald-50 dark:bg-emerald-950/45 rounded-xl flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300">
-                                    <Icon className="w-5.5 h-5.5" />
-                                  </div>
-                                  <span className="text-[8.5px] font-extrabold uppercase tracking-widest px-2.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-emerald-350">
-                                    {item.badge}
-                                  </span>
+                                <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-950/45 rounded-lg flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300 shrink-0">
+                                  <Icon className="w-5 h-5" />
                                 </div>
-                                
-                                <div className="mt-3 flex-1">
-                                  <h4 className="font-bold text-sm text-slate-800 dark:text-emerald-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                                    {item.label}
-                                  </h4>
-                                  <p className="text-[10.5px] text-slate-450 dark:text-emerald-400/50 mt-1.5 leading-relaxed line-clamp-2">
+                                <div className="min-w-0 flex-1">
+                                  <div className="flex items-center justify-between gap-1.5">
+                                    <h4 className="font-extrabold text-xs text-slate-800 dark:text-emerald-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
+                                      {item.label}
+                                    </h4>
+                                    <span className="text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-850 text-slate-500 dark:text-emerald-350 shrink-0">
+                                      {item.badge}
+                                    </span>
+                                  </div>
+                                  <p className="text-[10px] text-slate-400 dark:text-emerald-400/50 mt-1 lines-normal truncate">
                                     {item.desc}
                                   </p>
                                 </div>
@@ -636,10 +858,11 @@ export default function App() {
               setActiveSurahNum={setActiveSurahNum}
               selectedQori={selectedQori}
               setSelectedQori={setSelectedQori}
+              arabicFontSize={arabicFontSize}
             />
           )}
           {activeTab === 'tasbih' && <TasbihCounter />}
-          {activeTab === 'doa' && <DailyDoa />}
+          {activeTab === 'doa' && <DailyDoa arabicFontSize={arabicFontSize} />}
           {activeTab === 'jadwal' && <PrayerSchedule />}
           {activeTab === 'asmaul' && <AsmaulHusnaList />}
           {activeTab === 'makkah' && <MakkahLive />}

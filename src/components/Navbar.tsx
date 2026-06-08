@@ -84,7 +84,7 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
   }, []);
 
   return (
-    <nav className="bg-white/95 dark:bg-slate-950/95 backdrop-blur-md border-b border-emerald-100/60 dark:border-blue-900/30 transition-all duration-300 shadow-sm">
+    <nav className="bg-transparent transition-all duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
@@ -98,10 +98,10 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
               </div>
               <div>
                 <span className="block font-sans font-extrabold text-lg text-slate-800 dark:text-emerald-100 tracking-tight leading-tight">
-                  Keluarga Mbah Yani
+                  Portal Islami
                 </span>
-                <span className="block text-[9px] font-bold text-center bg-gradient-to-r from-emerald-600 to-blue-650 bg-clip-text text-transparent uppercase tracking-widest -mt-0.5 font-mono">
-                  Portal Sinergi Umat
+                <span className="block font-sans font-extrabold text-[12px] text-slate-700 dark:text-emerald-200/90 tracking-tight leading-normal mt-0.5">
+                  Keluarga Mbah Yani
                 </span>
               </div>
             </button>
@@ -227,14 +227,34 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
               {darkMode ? <Sun className="w-4 h-4 text-amber-300 animate-pulse" /> : <Moon className="w-4 h-4 text-blue-800" />}
             </button>
 
-            <button
-              id="mobile-menu-toggle"
-              onClick={() => setIsOpen(!isOpen)}
-              className="p-2 rounded-xl border border-emerald-100/60 dark:border-blue-900/30 text-slate-600 dark:text-emerald-300 hover:bg-emerald-50/65 dark:hover:bg-blue-950/20 cursor-pointer transition-colors"
-              aria-label="Open menu"
-            >
-              {isOpen ? <X className="w-5 h-5 text-slate-800 dark:text-emerald-100" /> : <Menu className="w-5 h-5 text-slate-800 dark:text-emerald-100" />}
-            </button>
+            <div className="relative">
+              <button
+                id="mobile-menu-toggle"
+                onClick={() => setIsOpen(!isOpen)}
+                className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl border cursor-pointer transition-all duration-300 select-none ${
+                  isOpen
+                    ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 dark:border-emerald-700 text-white shadow-md shadow-emerald-600/20'
+                    : 'bg-amber-500 dark:bg-amber-600 border-amber-400 dark:border-amber-500 text-slate-950 dark:text-white shadow-[0_0_15px_rgba(245,158,11,0.5)] dark:shadow-[0_0_15px_rgba(217,119,6,0.35)] active:scale-95 hover:bg-amber-400 dark:hover:bg-amber-500'
+                }`}
+                aria-label="Open menu"
+              >
+                {isOpen ? (
+                  <>
+                    <X className="w-4 h-4 text-white" />
+                    <span className="text-xs font-black tracking-wide uppercase text-white font-sans">Tutup</span>
+                  </>
+                ) : (
+                  <>
+                    <span className="relative flex h-2 w-2 mr-0.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 dark:bg-rose-400 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600 dark:bg-rose-500"></span>
+                    </span>
+                    <span className="text-xs font-black tracking-wide uppercase font-sans text-slate-900 dark:text-white">Pilih Menu</span>
+                    <Menu className="w-4.5 h-4.5 font-extrabold text-slate-900 dark:text-white" />
+                  </>
+                )}
+              </button>
+            </div>
           </div>
         </div>
       </div>

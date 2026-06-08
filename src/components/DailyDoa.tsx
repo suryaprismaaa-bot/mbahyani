@@ -8,11 +8,45 @@ import { Search, Copy, Check, Share2, BookHeart, Send, ChevronLeft, ChevronRight
 import { DOA_DATA } from '../data/doa';
 import { DoaItem } from '../types';
 
-export default function DailyDoa() {
+export default function DailyDoa({ arabicFontSize = 3 }: { arabicFontSize?: number }) {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState("Semua");
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [sharedId, setSharedId] = useState<string | null>(null);
+
+  // Helper font size scaling classes mapping
+  const getArabicFontSizeClass = (level: number) => {
+    switch (level) {
+      case 1: return 'text-base sm:text-lg';
+      case 2: return 'text-lg sm:text-xl';
+      case 3: return 'text-xl sm:text-2xl'; // default
+      case 4: return 'text-2xl sm:text-3xl';
+      case 5: return 'text-3xl sm:text-4xl';
+      default: return 'text-xl sm:text-2xl';
+    }
+  };
+
+  const getLatinFontSizeClass = (level: number) => {
+    switch (level) {
+      case 1: return 'text-[10px]';
+      case 2: return 'text-[11px] sm:text-xs';
+      case 3: return 'text-xs sm:text-sm'; // default
+      case 4: return 'text-sm sm:text-base';
+      case 5: return 'text-base sm:text-lg';
+      default: return 'text-xs sm:text-sm';
+    }
+  };
+
+  const getTranslationFontSizeClass = (level: number) => {
+    switch (level) {
+      case 1: return 'text-[10px]';
+      case 2: return 'text-[11px] sm:text-xs';
+      case 3: return 'text-xs sm:text-sm'; // default
+      case 4: return 'text-sm sm:text-base';
+      case 5: return 'text-base sm:text-lg';
+      default: return 'text-xs sm:text-sm';
+    }
+  };
   
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -159,11 +193,11 @@ export default function DailyDoa() {
             <div
               key={doa.id}
               id={`doa-card-${doa.id}`}
-              className="bg-white dark:bg-emerald-950/15 border border-emerald-100/80 dark:border-emerald-900/50 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between hover:translate-y-[-2px] duration-200"
+              className="bg-white dark:bg-slate-900/60 border-[3px] border-emerald-500/70 dark:border-emerald-700/80 rounded-2xl p-5.5 shadow-md hover:shadow-lg transition-all flex flex-col justify-between hover:translate-y-[-2px] duration-200"
             >
               <div>
                 <div className="flex justify-between items-start mb-3">
-                  <span className="px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-900/40 text-[10px] text-emerald-800 dark:text-emerald-300 rounded-full font-bold uppercase tracking-wider border border-emerald-100 dark:border-emerald-800/40">
+                  <span className="px-2.5 py-0.5 bg-emerald-50 dark:bg-emerald-950/50 text-[10px] text-emerald-800 dark:text-emerald-200 rounded-full font-bold uppercase tracking-wider border border-emerald-100/60 dark:border-emerald-800/40 animate-pulse">
                     {doa.kategori}
                   </span>
                   
@@ -177,18 +211,21 @@ export default function DailyDoa() {
                 </h3>
 
                 {/* Big Arabic text container */}
-                <div className="p-4 bg-slate-50 dark:bg-emerald-900/10 rounded-xl mb-4">
-                  <p dir="rtl" className="text-right text-xl font-serif text-slate-800 dark:text-emerald-100 leading-loose font-semibold">
+                <div className="p-4 bg-slate-50 dark:bg-emerald-950/40 rounded-xl mb-4 border border-slate-100 dark:border-emerald-900/10">
+                  <p 
+                    dir="rtl" 
+                    className={`text-right font-serif text-slate-900 dark:text-emerald-50 leading-loose font-bold transition-all duration-200 ${getArabicFontSizeClass(arabicFontSize)}`}
+                  >
                     {doa.arab}
                   </p>
                 </div>
 
                 {/* Translit and translation */}
-                <p className="text-xs text-teal-700 dark:text-teal-400 font-medium italic pl-2 border-l border-teal-500 mb-3">
+                <p className={`text-teal-950 dark:text-teal-200 font-black italic pl-2.5 border-l-3 border-teal-500 mb-3.5 transition-all duration-200 ${getLatinFontSizeClass(arabicFontSize)}`}>
                   {doa.latin}
                 </p>
 
-                <p className="text-xs text-slate-600 dark:text-emerald-300/80 leading-relaxed italic mb-4 font-sans">
+                <p className={`text-slate-600 dark:text-emerald-250/90 leading-relaxed font-sans transition-all duration-200 ${getTranslationFontSizeClass(arabicFontSize)}`}>
                   &ldquo;{doa.terjemahan}&rdquo;
                 </p>
               </div>

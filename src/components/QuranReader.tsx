@@ -69,6 +69,7 @@ interface QuranReaderProps {
   setActiveSurahNum: React.Dispatch<React.SetStateAction<number | null>>;
   selectedQori: string;
   setSelectedQori: (qori: string) => void;
+  arabicFontSize?: number;
 }
 
 export default function QuranReader({
@@ -79,7 +80,8 @@ export default function QuranReader({
   activeSurahNum,
   setActiveSurahNum,
   selectedQori,
-  setSelectedQori
+  setSelectedQori,
+  arabicFontSize = 3
 }: QuranReaderProps) {
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -88,6 +90,40 @@ export default function QuranReader({
   const [isLoadingDetail, setIsLoadingDetail] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [errorDetailMsg, setErrorDetailMsg] = useState<string | null>(null);
+
+  // Helper font size scaling classes mapping
+  const getArabicFontSizeClass = (level: number) => {
+    switch (level) {
+      case 1: return 'text-lg sm:text-xl';
+      case 2: return 'text-xl sm:text-2xl';
+      case 3: return 'text-2xl sm:text-3xl'; // default
+      case 4: return 'text-3xl sm:text-4xl';
+      case 5: return 'text-4xl sm:text-5xl';
+      default: return 'text-2xl sm:text-3xl';
+    }
+  };
+
+  const getLatinFontSizeClass = (level: number) => {
+    switch (level) {
+      case 1: return 'text-[10px]';
+      case 2: return 'text-[11px] sm:text-xs';
+      case 3: return 'text-xs sm:text-sm'; // default
+      case 4: return 'text-sm sm:text-base';
+      case 5: return 'text-base sm:text-lg';
+      default: return 'text-xs sm:text-sm';
+    }
+  };
+
+  const getTranslationFontSizeClass = (level: number) => {
+    switch (level) {
+      case 1: return 'text-[10px]';
+      case 2: return 'text-[11px] sm:text-xs';
+      case 3: return 'text-xs sm:text-sm'; // default
+      case 4: return 'text-sm sm:text-base';
+      case 5: return 'text-base sm:text-lg';
+      default: return 'text-xs sm:text-sm';
+    }
+  };
 
   // Derived global audio states mapping to old internal names
   const playingAudioUrl = globalAudioState.playingAudioUrl;
@@ -514,7 +550,7 @@ export default function QuranReader({
                       
                       {/* Bismillah Header (Don't show for Al-Fatihah or Al-Tawbah, since Al-Fatihah includes it as verse 1) */}
                       {surahDetail.nomor !== 1 && surahDetail.nomor !== 9 && (
-                        <p className={`text-xl font-serif mt-2 tracking-wide transition-all duration-300 ${
+                        <p className={`font-serif mt-2 tracking-wide transition-all duration-300 ${getArabicFontSizeClass(arabicFontSize)} ${
                           globalAudioState.playingSurahNum === surahDetail.nomor && globalAudioState.playingAyatNum === 0
                             ? 'text-amber-300 font-bold scale-105 animate-pulse drop-shadow-[0_0_8px_rgba(252,211,77,0.5)]'
                             : 'text-amber-200'
@@ -583,18 +619,18 @@ export default function QuranReader({
                               </div>
                             </div>
 
-                            {/* Beautiful Big Arabic Text */}
-                            <p className="text-right text-25xl leading-loose font-serif text-slate-800 dark:text-emerald-100 tracking-wide md:text-3xl my-6 font-semibold select-all">
+                             {/* Beautiful Big Arabic Text */}
+                            <p className={`text-right leading-loose font-serif text-slate-800 dark:text-emerald-100 tracking-wide my-6 font-bold select-all transition-all duration-200 ${getArabicFontSizeClass(arabicFontSize)}`}>
                               {ayat.teksArab}
                             </p>
 
                             {/* Transliteration Latin */}
-                            <p className="text-xs text-teal-700 dark:text-teal-400 font-medium italic mb-2 tracking-wide pl-2 border-l border-teal-500">
+                            <p className={`text-teal-950 dark:text-teal-200 font-black italic mb-2.5 tracking-wide pl-2 border-l-2 border-teal-500 transition-all duration-200 ${getLatinFontSizeClass(arabicFontSize)}`}>
                               {ayat.teksLatin}
                             </p>
 
                             {/* Indonesia Translation */}
-                            <p className="text-sm text-slate-600 dark:text-emerald-200/80 leading-relaxed font-sans">
+                            <p className={`text-slate-600 dark:text-emerald-250/90 leading-relaxed font-sans transition-all duration-200 ${getTranslationFontSizeClass(arabicFontSize)}`}>
                               {ayat.teksIndonesia}
                             </p>
                           </div>

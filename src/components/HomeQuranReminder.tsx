@@ -5,7 +5,6 @@
 
 import React, { useEffect, useState, useRef } from 'react';
 import { BookOpen, Sparkles, ChevronRight, Quote } from 'lucide-react';
-import { motion, AnimatePresence } from 'motion/react';
 
 interface QuranQuote {
   text: string;
@@ -53,10 +52,181 @@ const QURAN_QUOTES: QuranQuote[] = [
   }
 ];
 
-export default function HomeQuranReminder() {
+const themeStyles: Record<string, {
+  border: string;
+  bg: string;
+  accentBar: string;
+  badgeBg: string;
+  badgeTextColor: string;
+  latinBg: string;
+  latinText: string;
+  indicatorText: string;
+  btnBg: string;
+  btnBorder: string;
+  btnText: string;
+}> = {
+  emerald: {
+    border: "border-emerald-500 dark:border-emerald-450 shadow-lg shadow-emerald-500/10 dark:shadow-emerald-950/20",
+    bg: "bg-emerald-50/95 dark:bg-slate-900/95",
+    accentBar: "bg-emerald-600 dark:bg-emerald-450",
+    badgeBg: "bg-emerald-500/10 dark:bg-emerald-500/20",
+    badgeTextColor: "text-emerald-800 dark:text-emerald-300",
+    latinBg: "bg-emerald-500/5",
+    latinText: "text-emerald-700 dark:text-emerald-450 font-medium",
+    indicatorText: "text-emerald-700 dark:text-emerald-400",
+    btnBg: "bg-emerald-100 hover:bg-emerald-200 dark:bg-emerald-950/60 dark:hover:bg-emerald-900/60",
+    btnBorder: "border-emerald-305 dark:border-emerald-800",
+    btnText: "text-emerald-900 dark:text-emerald-200",
+  },
+  merah: {
+    border: "border-rose-500 dark:border-rose-450 shadow-lg shadow-rose-500/10 dark:shadow-rose-950/20",
+    bg: "bg-rose-50/95 dark:bg-slate-900/95",
+    accentBar: "bg-rose-600 dark:bg-rose-450",
+    badgeBg: "bg-rose-500/10 dark:bg-rose-500/20",
+    badgeTextColor: "text-rose-800 dark:text-rose-300",
+    latinBg: "bg-rose-505/5",
+    latinText: "text-rose-700 dark:text-rose-455 font-medium",
+    indicatorText: "text-rose-700 dark:text-rose-400",
+    btnBg: "bg-rose-100 hover:bg-rose-200 dark:bg-rose-950/60 dark:hover:bg-rose-900/60",
+    btnBorder: "border-rose-305 dark:border-rose-800",
+    btnText: "text-rose-900 dark:text-rose-200",
+  },
+  orange: {
+    border: "border-orange-500 dark:border-orange-450 shadow-lg shadow-orange-500/10 dark:shadow-orange-950/20",
+    bg: "bg-orange-50/95 dark:bg-slate-900/95",
+    accentBar: "bg-orange-600 dark:bg-orange-450",
+    badgeBg: "bg-orange-500/10 dark:bg-orange-500/20",
+    badgeTextColor: "text-orange-850 dark:text-orange-300",
+    latinBg: "bg-orange-500/5",
+    latinText: "text-orange-700 dark:text-orange-455 font-medium",
+    indicatorText: "text-orange-700 dark:text-orange-400",
+    btnBg: "bg-orange-100 hover:bg-orange-200 dark:bg-orange-950/60 dark:hover:bg-orange-900/60",
+    btnBorder: "border-orange-305 dark:border-orange-800",
+    btnText: "text-orange-900 dark:text-orange-200",
+  },
+  biru: {
+    border: "border-sky-500 dark:border-sky-450 shadow-lg shadow-sky-505/10 dark:shadow-sky-955/20",
+    bg: "bg-sky-50/95 dark:bg-slate-900/95",
+    accentBar: "bg-sky-600 dark:bg-sky-450",
+    badgeBg: "bg-sky-500/10 dark:bg-sky-500/20",
+    badgeTextColor: "text-sky-850 dark:text-sky-305",
+    latinBg: "bg-sky-505/5",
+    latinText: "text-sky-700 dark:text-sky-455 font-medium",
+    indicatorText: "text-sky-700 dark:text-sky-400",
+    btnBg: "bg-sky-100 hover:bg-sky-200 dark:bg-sky-950/60 dark:hover:bg-sky-900/60",
+    btnBorder: "border-sky-350 dark:border-sky-800",
+    btnText: "text-sky-900 dark:text-sky-200",
+  },
+  ungu: {
+    border: "border-violet-500 dark:border-violet-450 shadow-lg shadow-violet-500/10 dark:shadow-violet-950/20",
+    bg: "bg-violet-50/95 dark:bg-slate-900/95",
+    accentBar: "bg-violet-600 dark:bg-violet-450",
+    badgeBg: "bg-violet-500/10 dark:bg-violet-500/20",
+    badgeTextColor: "text-violet-855 dark:text-violet-305",
+    latinBg: "bg-violet-505/5",
+    latinText: "text-violet-700 dark:text-violet-455 font-medium",
+    indicatorText: "text-violet-700 dark:text-violet-400",
+    btnBg: "bg-violet-100 hover:bg-violet-200 dark:bg-violet-950/60 dark:hover:bg-violet-900/60",
+    btnBorder: "border-violet-305 dark:border-violet-805",
+    btnText: "text-violet-900 dark:text-violet-200",
+  },
+  coklat: {
+    border: "border-amber-600 dark:border-amber-500 shadow-lg shadow-amber-500/10 dark:shadow-amber-950/20",
+    bg: "bg-amber-50/95 dark:bg-slate-900/95",
+    accentBar: "bg-amber-700 dark:bg-amber-500",
+    badgeBg: "bg-amber-500/10 dark:bg-amber-500/20",
+    badgeTextColor: "text-amber-855 dark:text-amber-305",
+    latinBg: "bg-amber-505/5",
+    latinText: "text-amber-700 dark:text-amber-455 font-medium",
+    indicatorText: "text-amber-700 dark:text-amber-400",
+    btnBg: "bg-amber-100 hover:bg-amber-200 dark:bg-amber-955/60 dark:hover:bg-amber-900/60",
+    btnBorder: "border-amber-305 dark:border-amber-805",
+    btnText: "text-amber-900 dark:text-amber-200",
+  },
+  putih: {
+    border: "border-slate-600 dark:border-slate-300 shadow-lg shadow-slate-500/10 dark:shadow-slate-950/20",
+    bg: "bg-slate-100 dark:bg-slate-900",
+    accentBar: "bg-slate-705 dark:bg-slate-350",
+    badgeBg: "bg-slate-205 dark:bg-slate-800",
+    badgeTextColor: "text-slate-800 dark:text-slate-200",
+    latinBg: "bg-slate-505/10",
+    latinText: "text-slate-800 dark:text-slate-305 font-medium",
+    indicatorText: "text-slate-705 dark:text-slate-300",
+    btnBg: "bg-slate-200 hover:bg-slate-300 dark:bg-slate-800 dark:hover:bg-slate-705",
+    btnBorder: "border-slate-305 dark:border-slate-700",
+    btnText: "text-slate-900 dark:text-slate-100",
+  },
+  birutua: {
+    border: "border-indigo-600 dark:border-indigo-400 shadow-lg shadow-indigo-500/10 dark:shadow-indigo-950/20",
+    bg: "bg-indigo-50/95 dark:bg-slate-900/95",
+    accentBar: "bg-indigo-650 dark:bg-indigo-450",
+    badgeBg: "bg-indigo-505/10 dark:bg-indigo-505/20",
+    badgeTextColor: "text-indigo-855 dark:text-indigo-305",
+    latinBg: "bg-indigo-505/5",
+    latinText: "text-indigo-700 dark:text-indigo-455 font-medium",
+    indicatorText: "text-indigo-700 dark:text-indigo-400",
+    btnBg: "bg-indigo-100 hover:bg-indigo-200 dark:bg-indigo-950/60 dark:hover:bg-indigo-900/60",
+    btnBorder: "border-indigo-350 dark:border-indigo-805",
+    btnText: "text-indigo-900 dark:text-indigo-200",
+  },
+  merahmuda: {
+    border: "border-pink-500 dark:border-pink-450 shadow-lg shadow-pink-500/10 dark:shadow-pink-955/20",
+    bg: "bg-pink-50/95 dark:bg-slate-900/95",
+    accentBar: "bg-pink-600 dark:bg-pink-450",
+    badgeBg: "bg-pink-500/10 dark:bg-pink-500/20",
+    badgeTextColor: "text-pink-855 dark:text-pink-305",
+    latinBg: "bg-pink-500/5",
+    latinText: "text-pink-700 dark:text-pink-455 font-medium",
+    indicatorText: "text-pink-700 dark:text-pink-400",
+    btnBg: "bg-pink-100 hover:bg-pink-200 dark:bg-pink-955/60 dark:hover:bg-pink-905/60",
+    btnBorder: "border-pink-350 dark:border-pink-805",
+    btnText: "text-pink-900 dark:text-pink-200",
+  },
+};
+
+interface HomeQuranReminderProps {
+  theme?: string;
+  arabicFontSize?: number;
+}
+
+export default function HomeQuranReminder({ theme = 'emerald', arabicFontSize = 3 }: HomeQuranReminderProps) {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
   const [fade, setFade] = useState<boolean>(true);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Helper font size scaling classes mapping
+  const getArabicFontSizeClass = (level: number) => {
+    switch (level) {
+      case 1: return 'text-lg';
+      case 2: return 'text-xl md:text-2xl';
+      case 3: return 'text-2xl md:text-3xl'; // default
+      case 4: return 'text-3xl md:text-4xl';
+      case 5: return 'text-4xl md:text-5xl';
+      default: return 'text-2xl md:text-3xl';
+    }
+  };
+
+  const getLatinFontSizeClass = (level: number) => {
+    switch (level) {
+      case 1: return 'text-[10px]';
+      case 2: return 'text-[11px] sm:text-xs';
+      case 3: return 'text-xs sm:text-sm'; // default
+      case 4: return 'text-sm sm:text-base';
+      case 5: return 'text-base sm:text-lg';
+      default: return 'text-xs sm:text-sm';
+    }
+  };
+
+  const getTranslationFontSizeClass = (level: number) => {
+    switch (level) {
+      case 1: return 'text-[10px]';
+      case 2: return 'text-[11px] sm:text-xs';
+      case 3: return 'text-xs sm:text-sm'; // default
+      case 4: return 'text-sm sm:text-base';
+      case 5: return 'text-base sm:text-lg';
+      default: return 'text-xs sm:text-sm';
+    }
+  };
 
   const handleNextQuote = () => {
     setFade(false);
@@ -85,50 +255,54 @@ export default function HomeQuranReminder() {
   };
 
   const activeQuote = QURAN_QUOTES[currentIndex];
+  const currentStyle = themeStyles[theme] || themeStyles.emerald;
 
   return (
-    <div className="w-full max-w-2xl mx-auto mb-8 relative animate-in fade-in duration-500">
-      <div className="absolute -top-3 -left-2 text-sky-100/30 dark:text-sky-905/10 pointer-events-none select-none z-0">
+    <div className="w-full max-w-2xl mx-auto mb-8 relative animate-in fade-in duration-500 z-10 font-sans">
+      <div className="absolute -top-3 -left-2 text-slate-400/10 pointer-events-none select-none z-0">
         <Quote className="w-10 h-10 transform rotate-180" />
       </div>
 
-      <div className="bg-white dark:bg-slate-900 rounded-3xl border border-sky-100 dark:border-emerald-950 p-5.5 relative overflow-hidden shadow-sm flex flex-col justify-between min-h-[220px]">
-        {/* Underlay delicate light green border */}
-        <div className="absolute top-0 left-0 w-1.5 h-full bg-gradient-to-b from-sky-450 to-emerald-400" />
+      <div className={`rounded-3xl p-5.5 relative overflow-hidden transition-all duration-300 border-2 flex flex-col justify-between min-h-[220px] ${currentStyle.border} ${currentStyle.bg}`}>
+        {/* Thick dynamic color left bar */}
+        <div className={`absolute top-0 left-0 w-2 h-full transition-colors duration-300 ${currentStyle.accentBar}`} />
 
         <div className={`transition-all duration-200 ${fade ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="flex justify-between items-center mb-3">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-sky-50 to-emerald-50 dark:from-sky-950/20 dark:to-emerald-950/20 text-sky-700 dark:text-sky-300 text-[10px] font-extrabold uppercase tracking-widest rounded-full border border-sky-100/50 dark:border-sky-900/30">
-              <BookOpen className="w-3.5 h-3.5 text-sky-500" />
+          <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full border transition-all duration-300 ${currentStyle.badgeBg} ${currentStyle.badgeTextColor} ${currentStyle.btnBorder}`}>
+              <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin-slow animate-pulse" />
               Ayat & Pengingat Hari Ini
             </span>
-            <span className="text-[10px] bg-emerald-500/10 text-emerald-600 px-2 py-0.5 rounded-md font-extrabold font-mono uppercase tracking-widest">
-              {activeQuote.category}
+            <span className={`text-[10px] px-2.5 py-1 rounded-md font-black uppercase tracking-wider transition-all duration-300 ${currentStyle.badgeBg} ${currentStyle.indicatorText}`}>
+              📍 {activeQuote.category}
             </span>
           </div>
 
           {/* Large Arabic text */}
-          <div dir="rtl" className="text-right text-lg md:text-xl font-serif text-slate-800 dark:text-emerald-50 leading-relaxed font-normal mb-3">
+          <div 
+            dir="rtl" 
+            className={`text-right font-serif text-slate-900 dark:text-slate-50 font-bold leading-loose mb-3.5 tracking-wide drop-shadow-sm transition-all duration-250 ${getArabicFontSizeClass(arabicFontSize)}`}
+          >
             {activeQuote.arabic}
           </div>
 
           {/* Latin & translation */}
-          <p className="text-[11px] italic text-sky-655 dark:text-sky-400/80 mb-2 leading-relaxed bg-sky-500/5 py-1 px-2 rounded-lg inline-block">
+          <p className={`italic font-medium px-3 py-1.5 rounded-xl inline-block mb-3 border transition-all duration-250 ${getLatinFontSizeClass(arabicFontSize)} ${currentStyle.latinBg} ${currentStyle.latinText} ${currentStyle.btnBorder}`}>
             {activeQuote.latin}
           </p>
 
-          <p className="text-xs text-slate-650 dark:text-emerald-200 mt-1 leading-relaxed">
+          <p className={`font-semibold text-slate-805 dark:text-slate-100 mt-1 lines-relaxed bg-white/40 dark:bg-black/20 p-3.5 rounded-2xl border border-slate-205/50 dark:border-slate-800/40 shadow-xs transition-all duration-250 ${getTranslationFontSizeClass(arabicFontSize)}`}>
             &ldquo;{activeQuote.text}&rdquo;
           </p>
 
-          <div className="flex justify-between items-center mt-4 border-t border-slate-105 dark:border-emerald-900/20 pt-3 text-[11px] font-bold text-slate-400">
-            <span>{activeQuote.reference}</span>
+          <div className="flex justify-between items-center mt-5 border-t border-slate-200/60 dark:border-slate-800/60 pt-4 text-[11px] font-extrabold uppercase tracking-wide text-slate-505 dark:text-slate-400">
+            <span>📚 {activeQuote.reference}</span>
             <button
               onClick={handleManualNext}
-              className="px-3 py-1 bg-sky-50 hover:bg-sky-100 dark:bg-sky-950/25 text-sky-700 dark:text-sky-305 rounded-lg border border-sky-100/60 dark:border-sky-900/40 flex items-center gap-1 font-extrabold cursor-pointer transition-colors hover:text-sky-800"
+              className={`px-3.5 py-1.5 text-xs font-black rounded-xl border flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-xxs ${currentStyle.btnBg} ${currentStyle.btnBorder} ${currentStyle.btnText}`}
             >
               Lanjut
-              <ChevronRight className="w-3.5 h-3.5" />
+              <ChevronRight className="w-3.5 h-3.5 font-bold" />
             </button>
           </div>
 
