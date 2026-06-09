@@ -790,9 +790,9 @@ export default function App() {
 
       {/* Floating Global Murottal BG Player */}
       {globalAudioState.playingAudioUrl && (
-        <div id="global-murottal-player" className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-2rem)] max-w-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-2xl border border-emerald-100 dark:border-emerald-800/80 p-4 rounded-2xl flex items-center justify-between gap-4 z-50 transition-all duration-300">
+        <div id="global-murottal-player" className="fixed bottom-6 left-1/2 -translate-x-1/2 w-[calc(100%-1.5rem)] max-w-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-md shadow-2xl border border-emerald-100 dark:border-emerald-800/80 p-3 sm:p-4 rounded-2xl flex items-center justify-between gap-2.5 sm:gap-4 z-50 transition-all duration-300">
           <div 
-            className="flex items-center gap-3 min-w-0 cursor-pointer hover:opacity-90 flex-grow"
+            className="flex items-center gap-2 sm:gap-3 min-w-0 cursor-pointer hover:opacity-90 flex-grow"
             title="Buka Ayat di Al-Qur'an"
             onClick={() => {
               setActiveTab('quran');
@@ -801,17 +801,17 @@ export default function App() {
               }
             }}
           >
-            <div className={`w-11 h-11 rounded-full bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0 ${globalAudioState.isPlaying && !globalAudioState.isAudioLoading ? 'animate-spin' : ''}`} style={{ animationDuration: '8s' }}>
-              <Volume2 className="w-5.5 h-5.5" />
+            <div className={`w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 dark:text-emerald-400 flex-shrink-0 ${globalAudioState.isPlaying && !globalAudioState.isAudioLoading ? 'animate-spin' : ''}`} style={{ animationDuration: '8s' }}>
+              <Volume2 className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
             </div>
-            <div className="min-w-0">
-              <span className="block text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest">
-                Murottal Background Player
+            <div className="min-w-0 flex-grow">
+              <span className="block text-[8px] sm:text-[10px] font-extrabold text-emerald-700 dark:text-emerald-400 uppercase tracking-widest leading-none mb-1">
+                Murottal Background
               </span>
-              <h4 className="font-bold text-sm text-slate-800 dark:text-emerald-100 truncate">
+              <h4 className="font-bold text-xs sm:text-sm text-slate-800 dark:text-emerald-100 leading-tight break-words">
                 QS. {globalAudioState.playingSurahName}: {globalAudioState.playingAyatNum === 0 ? 'Bismillah' : `Ayat ${globalAudioState.playingAyatNum}`}
               </h4>
-              <p className="text-[10px] text-slate-400 dark:text-emerald-300/60 flex items-center gap-1.5 mt-0.5 font-medium">
+              <p className="text-[9px] sm:text-[10px] text-slate-400 dark:text-emerald-300/60 flex items-center gap-1 sm:gap-1.5 mt-0.5 font-medium">
                 {globalAudioState.isAudioLoading ? (
                   <>
                     <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
@@ -832,22 +832,22 @@ export default function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-2 flex-shrink-0">
+          <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
             {/* Play/Pause Button */}
             <button
               id="global-player-toggle"
               onClick={globalAudioState.isPlaying ? pauseGlobalAudio : resumeGlobalAudio}
               disabled={globalAudioState.isAudioLoading}
-              className={`p-2 rounded-xl border transition-all cursor-pointer ${
+              className={`p-1.5 sm:p-2 rounded-xl border transition-all cursor-pointer ${
                 globalAudioState.isAudioLoading
                   ? 'border-slate-100 text-slate-300'
                   : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-355 hover:bg-emerald-100 dark:hover:bg-emerald-900/50'
               }`}
             >
               {globalAudioState.isPlaying && !globalAudioState.isAudioLoading ? (
-                <Pause className="w-4 h-4" />
+                <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
               ) : (
-                <Play className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
               )}
             </button>
 
@@ -856,20 +856,20 @@ export default function App() {
               id="global-player-next"
               onClick={skipToNextGlobalAudio}
               disabled={globalAudioState.isAudioLoading}
-              className="p-2 rounded-xl border border-slate-200 dark:border-emerald-900 text-slate-500 dark:text-emerald-300 hover:bg-slate-50 dark:hover:bg-emerald-900/50 cursor-pointer disabled:opacity-40"
+              className="p-1.5 sm:p-2 rounded-xl border border-slate-200 dark:border-emerald-900 text-slate-500 dark:text-emerald-300 hover:bg-slate-50 dark:hover:bg-emerald-900/50 cursor-pointer disabled:opacity-40"
               title="Lanjut Ayat Berikutnya"
             >
-              <SkipForward className="w-4 h-4" />
+              <SkipForward className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
 
             {/* Stop Button */}
             <button
               id="global-player-stop"
               onClick={stopGlobalAudio}
-              className="p-2 rounded-xl border border-rose-100 dark:border-rose-950/50 bg-rose-50/50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/50 cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-xl border border-rose-100 dark:border-rose-950/50 bg-rose-50/50 dark:bg-rose-950/20 text-rose-600 dark:text-rose-400 hover:bg-rose-100 dark:hover:bg-rose-950/50 cursor-pointer"
               title="Hentikan & Tutup"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             </button>
           </div>
         </div>
