@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Search, BookOpen, Bookmark, Play, Pause, ChevronLeft, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Search, BookOpen, Bookmark, Play, Pause, ChevronLeft, RefreshCw, AlertTriangle, Eye, EyeOff } from 'lucide-react';
 import { Surah, SurahDetail, Ayat, GlobalAudioState } from '../types';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -70,6 +70,8 @@ interface QuranReaderProps {
   selectedQori: string;
   setSelectedQori: (qori: string) => void;
   arabicFontSize?: number;
+  quranFocusMode: boolean;
+  setQuranFocusMode: (mode: boolean) => void;
 }
 
 export default function QuranReader({
@@ -81,7 +83,9 @@ export default function QuranReader({
   setActiveSurahNum,
   selectedQori,
   setSelectedQori,
-  arabicFontSize = 3
+  arabicFontSize = 3,
+  quranFocusMode,
+  setQuranFocusMode
 }: QuranReaderProps) {
   const [surahs, setSurahs] = useState<Surah[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
@@ -324,6 +328,7 @@ export default function QuranReader({
   const handleBackToList = () => {
     setActiveSurahNum(null);
     setSurahDetail(null);
+    setQuranFocusMode(false);
   };
 
   // Audio Playback Engine mapped to global audio player
@@ -495,8 +500,25 @@ export default function QuranReader({
             transition={{ duration: 0.22, ease: "easeOut" }}
             className="bg-white dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900 rounded-3xl p-6 shadow-sm"
           >
+            {/* Floating Focus Mode Bar */}
+            {quranFocusMode && (
+              <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] flex items-center justify-between gap-4 bg-slate-900/90 dark:bg-emerald-950/95 backdrop-blur-md px-4 py-2.5 rounded-full border border-emerald-500/20 shadow-2xl max-w-sm w-[calc(100%-2rem)] text-white text-xs">
+                <div className="flex items-center gap-2 font-medium">
+                  <span className="w-2 h-2 rounded-full bg-emerald-450 animate-pulse" />
+                  <span>Mode Fokus Aktif (Membaca Khusyuk)</span>
+                </div>
+                <button
+                  id="quran-focus-float-exit"
+                  onClick={() => setQuranFocusMode(false)}
+                  className="px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white font-extrabold rounded-full transition-all text-[10px] cursor-pointer"
+                >
+                  Keluar
+                </button>
+              </div>
+            )}
+
             {/* Action header */}
-            <div className="flex justify-between items-center mb-6">
+            <div className="flex flex-wrap justify-between items-center gap-3 mb-6">
               <button
                 id="quran-back-button"
                 onClick={handleBackToList}
@@ -506,16 +528,42 @@ export default function QuranReader({
                 Kembali Ke Daftar
               </button>
 
-              {/* Quick banner or audio stopper */}
-              {playingAudioUrl && (
+              <div className="flex items-center gap-2">
+                {/* Focus Mode button */}
                 <button
-                  id="quran-stop-murottal"
-                  onClick={stopAudio}
-                  className="inline-flex items-center px-3.5 py-2 bg-rose-50 dark:bg-rose-950/20 text-rose-500 dark:text-rose-400 border border-rose-100 dark:border-rose-950 rounded-xl text-xs font-bold cursor-pointer hover:bg-rose-100"
+                  id="quran-focus-mode-toggle"
+                  onClick={() => setQuranFocusMode(!quranFocusMode)}
+                  className={`inline-flex items-center px-3.5 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all border ${
+                    quranFocusMode
+                      ? 'bg-amber-500 hover:bg-amber-600 border-amber-500 text-slate-950 hover:text-white shadow-md'
+                      : 'bg-emerald-50 dark:bg-emerald-900/30 hover:bg-emerald-100 border-emerald-100 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+                  }`}
+                  title={quranFocusMode ? "Matikan Mode Fokus" : "Aktifkan Mode Fokus"}
                 >
-                  Hentikan Audio
+                  {quranFocusMode ? (
+                    <>
+                      <EyeOff className="w-3.5 h-3.5 mr-1.5" />
+                      Keluar Mode Fokus
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="w-3.5 h-3.5 mr-1.5" />
+                      Mode Fokus
+                    </>
+                  )}
                 </button>
-              )}
+
+                {/* Quick banner or audio stopper */}
+                {playingAudioUrl && (
+                  <button
+                    id="quran-stop-murottal"
+                    onClick={stopAudio}
+                    className="inline-flex items-center px-3.5 py-2 bg-rose-50 dark:bg-rose-950/20 text-rose-500 dark:text-rose-400 border border-rose-100 dark:border-rose-950 rounded-xl text-xs font-bold cursor-pointer hover:bg-rose-100"
+                  >
+                    Hentikan Audio
+                  </button>
+                )}
+              </div>
             </div>
 
             {isLoadingDetail ? (

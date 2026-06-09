@@ -83,6 +83,11 @@ export default function App() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
   const [activeSurahNum, setActiveSurahNum] = useState<number | null>(null);
+  const [quranFocusMode, setQuranFocusMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    setQuranFocusMode(false);
+  }, [activeTab]);
   const [showDevModal, setShowDevModal] = useState<boolean>(() => {
     try {
       return sessionStorage.getItem('portal_dev_alert_closed') !== 'true';
@@ -507,7 +512,8 @@ export default function App() {
     <div className={`min-h-screen bg-gradient-to-br from-emerald-50/45 via-white to-emerald-100/25 dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 text-slate-800 dark:text-emerald-50 font-sans transition-all duration-300 flex flex-col justify-between theme-${theme}`}>
       <div>
         {/* Main Header / Navigation - Combined Sticky Container with Custom Distinct Color and Animated Divider */}
-        <div className="sticky top-0 z-50 w-full shadow-md bg-[#f4fcf8]/98 dark:bg-slate-950/98 backdrop-blur-md transition-all duration-300">
+        {!quranFocusMode && (
+          <div className="sticky top-0 z-50 w-full shadow-md bg-[#f4fcf8]/98 dark:bg-slate-950/98 backdrop-blur-md transition-all duration-300">
           <Navbar 
             activeTab={activeTab} 
             setActiveTab={setActiveTab} 
@@ -670,6 +676,7 @@ export default function App() {
           {/* Animated Moving Divider Line to demarcate scrolling content boundary */}
           <div className="h-[5px] w-full animate-moving-divider shadow-[0_4px_16px_rgba(0,0,0,0.18)] border-b border-emerald-900/10 dark:border-amber-450/10" />
         </div>
+        )}
 
         {/* Primary Content Container */}
         <main className="min-h-[70vh] overflow-x-hidden relative">
@@ -761,6 +768,8 @@ export default function App() {
               selectedQori={selectedQori}
               setSelectedQori={setSelectedQori}
               arabicFontSize={arabicFontSize}
+              quranFocusMode={quranFocusMode}
+              setQuranFocusMode={setQuranFocusMode}
             />
           )}
           {activeTab === 'tasbih' && <TasbihCounter />}
@@ -1004,7 +1013,7 @@ export default function App() {
       </AnimatePresence>
 
       {/* Styled Footer */}
-      <Footer />
+      {!quranFocusMode && <Footer />}
     </div>
   );
 }

@@ -20,6 +20,50 @@ interface Hadith {
 
 const HADITH_DATA: Hadith[] = [
   {
+    number: "1",
+    narrator: "HR. Bukhari",
+    category: "Niat & Keikhlasan",
+    arabic: "إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
+    latin: "Innamal-a'mālu bin-niyyāti wa innamā likullimri-im mā nawā.",
+    translation: "Sesungguhnya setiap amalan itu bergantung pada niatnya, dan setiap orang akan mendapatkan balasan sesuai dengan apa yang dia niatkan.",
+    explanation: "Kaidah agung dalam Islam bahwa keabsahan, kesempurnaan, serta diterimanya seluruh ibadah fisik maupun non-fisik ditentukan oleh kemurnian niat semata-mata karena Allah.",
+    sourceKitab: "Kitab Shahih Bukhari No. 1, Bab Permulaan Turunnya Keikhlasan Niat",
+    verificationAgency: "Lembaga Pentashihan & Kementerian Agama RI"
+  },
+  {
+    number: "2564",
+    narrator: "HR. Muslim",
+    category: "Niat & Keikhlasan",
+    arabic: "إِنَّ اللَّهَ لَا يَنْظُرُ إِلَى صُوَرِكُمْ وَأَمْوَالِكُمْ وَلَكِنْ يَنْظُرُ إِلَى قُلُوبِكُمْ وَأَعْمَالِكُمْ",
+    latin: "Inna-llāha lā yanẓuru ilā ṣuwarikum wa amwālikum walākin yanẓuru ilā qulūbikum wa a'mālikum.",
+    translation: "Sesungguhnya Allah tidak melihat kepada rupa dan harta kalian, melainkan Dia melihat kepada hati dan amal kalian.",
+    explanation: "Allah menilai ketulusan hati dan kualitas amal perbuatan spiritual, bukan sekadar penampilan lahiriah atau status kekayaan material seseorang.",
+    sourceKitab: "Kitab Shahih Muslim No. 2564, Kitab Kebajikan, Silaturahmi, dan Adab",
+    verificationAgency: "Komisi Fatwa Majelis Ulama Indonesia (MUI)"
+  },
+  {
+    number: "2518",
+    narrator: "HR. Tirmidzi",
+    category: "Niat & Keikhlasan",
+    arabic: "دَعْ مَا يَرِيبُكَ إِلَى مَا لَا يَرِيبُكَ",
+    latin: "Da' mā yarībuka ilā mā lā yarībuka.",
+    translation: "Tinggalkanlah apa yang meragukanmu menuju apa yang tidak meragukanmu.",
+    explanation: "Prinsip kehati-hatian (wara') untuk menghindari kesyubhatan atau keraguan demi menjaga kesucian agama dan keikhlasan jiwa.",
+    sourceKitab: "Syarah Sunan Tirmidzi No. 2518, Dinilai Shahih oleh Syekh Al-Albani",
+    verificationAgency: "Kementerian Agama RI & Lajnah Tashih"
+  },
+  {
+    number: "54",
+    narrator: "HR. Bukhari",
+    category: "Niat & Keikhlasan",
+    arabic: "الْحَلَالُ بَيِّنٌ وَالْحَرَامُ بَيِّنٌ وَبَيْنَهُمَا مُشْتَبِهَاتٌ",
+    latin: "Al-ḥalālu bayyinun wal-ḥarāmu bayyinun wa baynahumā musytabihāt.",
+    translation: "Yang halal itu jelas dan yang haram itu jelas, dan di antara keduanya terdapat hal-hal syubhat (samar) yang tidak diketahui oleh kebanyakan orang.",
+    explanation: "Menghindari hal-hal yang samar atau diperselisihkan kehalalannya adalah sebaik-baik jalan menjaga kemurnian iman dan kehormatan diri.",
+    sourceKitab: "Kitab Shahih Bukhari No. 52 & Shahih Muslim No. 1599",
+    verificationAgency: "Majelis Ulama Indonesia (MUI)"
+  },
+  {
     number: "6035",
     narrator: "HR. Bukhari",
     category: "Akhlak & Adab",
@@ -37,20 +81,64 @@ const HADITH_DATA: Hadith[] = [
     arabic: "مَا مِنْ شَيْءٍ أَثْقَلُ فِي مِيزَانِ الْمُؤْمِنِ يَوْمَ الْقِيَامَةِ مِنْ حُسْنِ الْخُلُقِ",
     latin: "Mā min syay-in aṡqalu fī mīzānil-mu'mini yawmal-qiyāmati min ḥusnil-khuluq.",
     translation: "Tidak ada sesuatu pun yang lebih berat dalam timbangan amalan seorang mukmin di hari kiamat kelak melainkan akhlak yang baik.",
-    explanation: "Akhlak mulia memiliki bobot pahala yang sangat luar biasa di akhirat, menyaingi ibadah-ibadah madhah lainnya dalam timbangan mizan.",
+    explanation: "Akhlak mulia memiliki bobot pahala yang sangat luar biasa di akhirat, menyaingi ibadah-ibadah murni lainnya dalam timbangan mizan.",
     sourceKitab: "Kitab Sunan Tirmidzi No. 2002, Dinilai Shahih oleh Syekh Al-Albani",
     verificationAgency: "Komisi Fatwa Majelis Ulama Indonesia (MUI)"
   },
   {
-    number: "1",
+    number: "6018",
     narrator: "HR. Bukhari",
-    category: "Niat & Keikhlasan",
-    arabic: "إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى",
-    latin: "Innamal-a'mālu bin-niyyāti wa innamā likullimri-im mā nawā.",
-    translation: "Sesungguhnya setiap amalan itu bergantung pada niatnya, dan setiap orang akan mendapatkan balasan sesuai dengan apa yang dia niatkan.",
-    explanation: "Kaidah agung dalam Islam bahwa keabsahan, kesempurnaan, serta diterimanya seluruh ibadah fisik maupun non-fisik ditentukan oleh kemurnian niat semata-mata karena Allah.",
-    sourceKitab: "Kitab Shahih Bukhari No. 1, Bab Permulaan Turunnya Wahyu",
+    category: "Akhlak & Adab",
+    arabic: "مَنْ كَانَ يُؤْمِنُ بِاللَّهِ وَالْيَوْمِ الْآخِرِ فَلْيَقُلْ خَيْرًا أَوْ لِيَصْمُتْ",
+    latin: "Man kāna yu'minu billāhi wal-yawmil-ākhiri falyaqul khayran aw liyasmut.",
+    translation: "Barangsiapa yang beriman kepada Allah dan hari akhir, hendaklah ia berkata yang baik atau diam.",
+    explanation: "Menjaga lisan adalah cerminan langsung dari keimanan. Menghindari ucapan sia-sia, ujaran kebencian, fitnah, maupun ghibah.",
+    sourceKitab: "Kitab Shahih Bukhari No. 6018, Kitab Adab Umum",
+    verificationAgency: "Kementerian Agama RI"
+  },
+  {
+    number: "6116",
+    narrator: "HR. Bukhari",
+    category: "Akhlak & Adab",
+    arabic: "لَا تَغْضَبْ وَلَكَ الْجَنَّةُ",
+    latin: "Lā tagḍab wa lakal-jannah.",
+    translation: "Janganlah kamu marah, dan bagimu adalah surga.",
+    explanation: "Kemampuan menahan amarah secara sadar adalah salah satu kekuatan mental spiritual tertinggi dan berpahala surga.",
+    sourceKitab: "Kitab Shahih Bukhari No. 6116, Bab Menghindari Amarah",
     verificationAgency: "Lembaga Pentashihan & Kementerian Agama RI"
+  },
+  {
+    number: "1977",
+    narrator: "HR. Tirmidzi",
+    category: "Akhlak & Adab",
+    arabic: "تَبَسُّمُكَ فِي وَجْهِ أَخِيكَ لَكَ صَدَقَةٌ",
+    latin: "Tabassumuka fī wajhi akhīka laka ṣadaqatun.",
+    translation: "Senyummu di hadapan saudaramu adalah sedekah bagimu.",
+    explanation: "Kebaikan tidak harus berwujud materi. Keramahan wajah dan kehangatan sosial yang tulus bernilai ibadah sedekah di sisi Allah.",
+    sourceKitab: "Kitab Sunan Tirmidzi No. 1977, Dinilai Shahih oleh Syekh Al-Albani",
+    verificationAgency: "Komisi Fatwa Majelis Ulama Indonesia (MUI)"
+  },
+  {
+    number: "6117",
+    narrator: "HR. Bukhari",
+    category: "Akhlak & Adab",
+    arabic: "الْحَيَاءُ لَا يَأْتِي إِلَّا بِخَيْرٍ",
+    latin: "Al-ḥayā'u lā ya'tī illā bikhayrin.",
+    translation: "Sifat malu itu tidak mendatangkan sesuatu melainkan kebaikan semata.",
+    explanation: "Rasa malu untuk melakukan perbuatan buruk, maksiat, atau melanggar norma sosial adalah tameng pelindung moral yang sangat kokoh.",
+    sourceKitab: "Kitab Shahih Bukhari No. 6117, Bab Sifat Malu",
+    verificationAgency: "Kementerian Agama RI"
+  },
+  {
+    number: "33",
+    narrator: "HR. Bukhari",
+    category: "Akhlak & Adab",
+    arabic: "آيَةُ الْمُنَافِقِ ثَلَاثٌ إِذَا حَدَّثَ كَذَبَ وَإِذَا وَعَدَ أَخْلَفَ وَإِذَا اؤْتُمِنَ خَانَ",
+    latin: "Āyatul-munāfiqi ṡalāṡun: iżā ḥaddaṡa każaba, wa iżā wa'ada akhlafa, wa iżā'tumina khāna.",
+    translation: "Tanda-tanda orang munafik ada tiga: jika berbicara ia berdusta, jika berjanji ia mengingkari, dan jika dipercaya ia berkhianat.",
+    explanation: "Peringatan keras terhadap karakter nifak amali (kemunafikan dalam perbuatan) yang merusak kepercayaan sosial dan integritas diri.",
+    sourceKitab: "Kitab Shahih Bukhari No. 33 & Shahih Muslim No. 59",
+    verificationAgency: "Kajian Hadits & Kementerian Agama RI"
   },
   {
     number: "13",
@@ -64,15 +152,59 @@ const HADITH_DATA: Hadith[] = [
     verificationAgency: "Kementerian Agama RI & Lajnah Tashih"
   },
   {
-    number: "2588",
+    number: "2586",
     narrator: "HR. Muslim",
     category: "Kasih Sayang & Sosial",
     arabic: "مَثَلُ الْمُؤْمِنِينَ فِي تَوَادِّهِمْ وَتَرَاحُمِهِمْ وَتَعَاطُفِهِمْ مَثَلُ الْجَسَدِ إِذَا اشْتَكَى مِنْهُ عُضْوٌ تَدَاعَى لَهُ سَائِرُ الْجَسَدِ بِالسَّهَرِ وَالْحُمَّى",
     latin: "Maṡalul-mu'minīna fī tawāddihim wa tarāḥumihim wa ta'āṭufihim maṡalul-jasadi iżasytakā minhu 'uḍwun tadā'ā lahu sā'irul-jasadi bis-sahari wal-ḥummā.",
     translation: "Perumpamaan kaum mukmin dalam sikap saling mencintai, saling mengasihi, dan bahu-membahu bagaikan satu tubuh. Apabila ada salah satu anggota tubuh yang sakit, maka seluruh anggota tubuh lainnya ikut merasakan dengan tidak bisa tidur dan demam.",
     explanation: "Prinsip solidaritas kemanusiaan dan keimanan yang kokoh, menggambarkan kesatuan umat bagai organisme tunggal yang tak terpisahkan.",
-    sourceKitab: "Kitab Shahih Muslim No. 2588, Bab Saling Mengasihi Sesama Muslim",
+    sourceKitab: "Kitab Shahih Muslim No. 2586, Bab Saling Mengasihi Sesama Muslim",
     verificationAgency: "Lembaga Fatwa & Kajian Hadits Nusantara"
+  },
+  {
+    number: "1924",
+    narrator: "HR. Tirmidzi",
+    category: "Kasih Sayang & Sosial",
+    arabic: "ارْحَمُوا مَنْ فِي الْأَرْضِ يَرْحَمْكُمْ مَنْ فِي السَّمَاءِ",
+    latin: "Irḥamū man fīl-arḍi yarḥamkum man fīs-samā'.",
+    translation: "Sayangilah makhluk yang ada di bumi, niscaya yang ada di langit akan menyayangimu.",
+    explanation: "Pesan kasih sayang yang universal (rahmatan lil alamin) mencakup perdamaian sesama manusia, hewan, tumbuhan, dan seisi ekosistem bumi.",
+    sourceKitab: "Kitab Sunan Tirmidzi No. 1924, Hadits Hasan Shahih",
+    verificationAgency: "Majelis Ulama Indonesia (MUI)"
+  },
+  {
+    number: "5971",
+    narrator: "HR. Bukhari",
+    category: "Kasih Sayang & Sosial",
+    arabic: "مْنْ أَحَقُw النَّاسِ بِحُسْنِ صَحَابَتِي قَالَ أُمُّكَ قَالَ ثُمَّ مَنْ قَالَ أُمُّكَ قَالَ ثُمَّ مَنْ قَالَ أُمُّكَ قَالَ ثُمَّ مَنْ قَالَ أَبُوكَ",
+    latin: "Man aḥaqqun-nāsi biḥusni ṣaḥābatī? Qāla: Ummuka, ṡumma Ummuka, ṡumma Ummuka, ṡumma abūka.",
+    translation: "Siapakah orang yang paling berhak aku pergauli dengan baik? Rasulullah menjawab: Ibumu, kemudian Ibumu, kemudian Ibumu, kemudian Ayahmu.",
+    explanation: "Penghormatan luar biasa agung terhadap peran seorang ibu yang mengayomi kehidupan anak sejak mengandung, melahirkan, hingga membesarkan.",
+    sourceKitab: "Kitab Shahih Bukhari No. 5971 & Shahih Muslim No. 2548",
+    verificationAgency: "Darul Ifta & Lajnah Pentashih Hadits"
+  },
+  {
+    number: "6011",
+    narrator: "HR. Thabrani",
+    category: "Kasih Sayang & Sosial",
+    arabic: "لَيْسَ الْمُؤْمِنُ الَّذِي يَشْبَعُ وَجَارُهُ جَائِعٌ إِلَى جَنْبِهِ",
+    latin: "Laysal-mu'minul-lażī yasbya'u wa jāruhū jā'i'un ilā janbih.",
+    translation: "Bukanlah seorang mukmin sejati, orang yang kenyang sementara tetangga di sampingnya kelaparan.",
+    explanation: "Kepekaan sosial dan kepedulian pangan antartetangga diletakkan langsung sebagai tolok ukur kesempurnaan iman seseorang.",
+    sourceKitab: "Kitab Al-Mu'jam al-Kabir Thabrani, Dinilai Shahih oleh Al-Albani di Al-Adab Al-Mufrad",
+    verificationAgency: "Komisi Fatwa Majelis Ulama Indonesia (MUI)"
+  },
+  {
+    number: "5986",
+    narrator: "HR. Bukhari",
+    category: "Kasih Sayang & Sosial",
+    arabic: "مَنْ أَحَبَّ أَنْ يُبْسَطَ لَهُ فِي رِzْقِهِ وَيُنْسَأَ لَهُ فِي أَثَرِهِ فَلْيَصِلْ رَحِمَهُ",
+    latin: "Man aḥabba ay yubsaṭa lahu fī rizqihī wa yunsa'a lahu fī aṡarihī falyāṣil raḥimah.",
+    translation: "Barangsiapa yang ingin dilapangkan rezekinya dan dipanjangkan umurnya, maka hendaklah ia menyambung tali silaturahmi.",
+    explanation: "Silaturahmi tidak sekadar melahirkan kerukunan sosial berkelanjutan, melainkan mengundang keberkahan rezeki dan kemanfaatan umur dari Allah.",
+    sourceKitab: "Kitab Shahih Bukhari No. 5986 & Shahih Muslim No. 2557",
+    verificationAgency: "Kementerian Agama RI"
   },
   {
     number: "224",
@@ -97,19 +229,140 @@ const HADITH_DATA: Hadith[] = [
     verificationAgency: "Lembaga Pentashihan & Lajnah Kemenag RI"
   },
   {
+    number: "1893",
+    narrator: "HR. Muslim",
+    category: "Ilmu & Pembelajaran",
+    arabic: "مَنْ دَلَّ عَلَى خَيْرٍ فَلَهُ مِثْلُ أَجْرِ فَاعِلِهِ",
+    latin: "Man dalla 'alā khayrin falahū miṡlu ajri fā'ilih.",
+    translation: "Barangsiapa menunjukkan kepada kebaikan, maka ia memperoleh pahala seperti pahala orang yang melakukannya.",
+    explanation: "Keutamaan sharing ilmu, dakwah, dan edukasi kebaikan. Setiap pelaku yang mengikuti perbuatan baik kita akan mengalirkan pahala pasif melimpah.",
+    sourceKitab: "Kitab Shahih Muslim No. 1893, Bab Fadhlul I'anah 'alal Jihad",
+    verificationAgency: "Kementerian Agama RI"
+  },
+  {
+    number: "5027",
+    narrator: "HR. Bukhari",
+    category: "Ilmu & Pembelajaran",
+    arabic: "خَيْرُكُمْ مَنْ تَعَلَّمَ الْقُرْآنَ وَعَلَّمَهُ",
+    latin: "Khayrukum man ta'allamal-qur'āna wa 'allamah.",
+    translation: "Sebaik-baik kalian adalah orang yang belajar Al-Qur'an dan mengajarkannya.",
+    explanation: "Tolok ukur kualitas spiritual terbaik seorang mukmin adalah kesediaannya membagi waktu untuk mempelajari firman Allah dan mengajarkannya secara tulus.",
+    sourceKitab: "Kitab Shahih Bukhari No. 5027, Bab Keutamaan Membaca Al-Qur'an",
+    verificationAgency: "Lajnah Pentashihan Mushaf Al-Qur'an Kemenag"
+  },
+  {
+    number: "2322",
+    narrator: "HR. Thabrani",
+    category: "Ilmu & Pembelajaran",
+    arabic: "فَضْلُ الْعِلْمِ خَيْرٌ مِنْ فَضْلِ الْعِبَادَةِ",
+    latin: "Faḍlul-'ilmi khayrun min faḍlil-'ibādah.",
+    translation: "Keutamaan ilmu itu lebih baik daripada keutamaan ibadah sunnah (tanpa bekal ilmu).",
+    explanation: "Ilmu menjaga ketepatan, kesahihan, dan keikhlasan amalan ibadah. Ibadah tanpa landasan ilmu yang mapan rentan tersesat atau sia-sia.",
+    sourceKitab: "Kitab Al-Mu'jam Al-Awsat Thabrani, Dinilai Hasan oleh Al-Albani",
+    verificationAgency: "Komisi Fatwa Majelis Ulama Indonesia (MUI)"
+  },
+  {
     number: "1631",
     narrator: "HR. Muslim",
     category: "Amal & Sedekah",
     arabic: "إِذَا مَاتَ الْإِنْسَانُ انْقَطَعَ عَنْهُ عَمَلُهُ إِلَّا مِنْ ثَلَاثَةٍ إِلَّا مِنْ صَدَقَةٍ جَارِيَةٍ أَوْ عِلْمٍ يُنْتَفَعُ بِهِ أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ",
     latin: "Iżā mātul-insānun-qaṭa'a 'anhu 'amaluhū illā min ṡalāṡatin, illā min ṣadaqatin jāriyatin aw 'ilmin yuntafa'u bihī aw waladin ṣāliḥin yad'ū lah.",
-    translation: "Jika seseorang meninggal dunia, maka terputuslah semua amalannya kecuali tiga perkara: sedekah jariyah (amal jariah), ilmu yang bermanfaat, atau anak saleh yang selalu mendoakan orang tuanya.",
-    explanation: "Tiga amalan abadi yang pahalanya terus mengalir deras meskipun seseorang telah tiada dan berada di alam barzakh.",
+    translation: "Jika seseorang meninggal dunia, maka terputuslah semua amalannya kecuali tiga perkara: sedekah jariyah, ilmu yang bermanfaat, atau anak saleh yang mendoakannya.",
+    explanation: "Tiga amalan abadi setelah kematian yang pahalanya terus mengalir deras meskipun seseorang telah tiada dan berada di alam barzakh.",
     sourceKitab: "Kitab Shahih Muslim No. 1631, Kitab Wasiat",
     verificationAgency: "Darul Ifta & Lajnah Pentashih Hadits"
+  },
+  {
+    number: "2588",
+    narrator: "HR. Muslim",
+    category: "Amal & Sedekah",
+    arabic: "مَا نَقَصَتْ صَدَقَةٌ مِنْ مَالٍ",
+    latin: "Mā naqaṣat ṣadaqatun min mālin.",
+    translation: "Sedekah itu tidak akan pernah mengurangi harta sedikit pun.",
+    explanation: "Secara lahiriah nominal uang berkurang, namun sedekah membawa keberkahan spiritual berupa kelapangan rezeki, ketenangan, serta perlindungan musibah.",
+    sourceKitab: "Kitab Shahih Muslim No. 2588, Kitab Al-Birr was-Silah",
+    verificationAgency: "Kementerian Agama RI"
+  },
+  {
+    number: "1429",
+    narrator: "HR. Bukhari",
+    category: "Amal & Sedekah",
+    arabic: "الْيَدُ الْعُلْيَا خَيْرٌ مِنَ الْيَدِ السُّفْلَى",
+    latin: "Al-yadul-'ulyā khayrun minal-yadis-suflā.",
+    translation: "Tangan yang di atas (pemberi) itu lebih baik daripada tangan yang di bawah (penerima).",
+    explanation: "Ajaran mulia bagi umat Islam untuk mandiri secara ekonomi, bekerja keras mencari rezeki yang halal, dan aktif membantu sesama.",
+    sourceKitab: "Kitab Shahih Bukhari No. 1429 & Shahih Muslim No. 1033",
+    verificationAgency: "Lembaga Pentashihan & Lajnah Kemenag RI"
+  },
+  {
+    number: "1005",
+    narrator: "HR. Muslim",
+    category: "Amal & Sedekah",
+    arabic: "كُلُّ مَعْرُوفٍ صَدَقَةٌ",
+    latin: "Kullu ma'rūfin ṣadaqatun.",
+    translation: "Setiap perbuatan baik (makruf) adalah sedekah.",
+    explanation: "Mempermudah urusan orang lain, menyingkirkan duri di jalan, berkata lembut, mengarahkan jalan tersesat, semuanya tercatat berpahala sedekah.",
+    sourceKitab: "Kitab Shahih Muslim No. 1005 & Shahih Bukhari No. 6021",
+    verificationAgency: "Majelis Ulama Indonesia (MUI)"
+  },
+  {
+    number: "6412",
+    narrator: "HR. Bukhari",
+    category: "Amal & Sedekah",
+    arabic: "نِعْمَتَانِ مَغْبُونٌ فِيهِمَا كَثِيرٌ مِنَ النَّاسِ الصِّحَّةُ وَالْفَرَاغُ",
+    latin: "Ni'matāni magbūnun fīhimā kaṡīrum-minan-nāsi: aṣ-ṣiḥḥatu wal-farāg.",
+    translation: "Dua kenikmatan yang kebanyakan manusia tertipu dan lalai di dalamnya, yaitu: kesehatan fisik dan waktu luang.",
+    explanation: "Pesona kesehatan dan santainya waktu senggang sering melalaikan mukmin untuk produktif beramal saleh hingga tersadar saat keduanya sirna.",
+    sourceKitab: "Kitab Shahih Bukhari No. 6412, Kitab Al-Riqaq (Kelembutan Hati)",
+    verificationAgency: "Lembaga Pentashihan & Kementerian Agama RI"
+  },
+  {
+    number: "6682",
+    narrator: "HR. Bukhari",
+    category: "Keutamaan Zikir & Doa",
+    arabic: "كَلِمَتَانِ خَفِيفَتَانِ عَلَى اللِّسَانِ ثَقِيلَتَانِ فِي الْمِيزَانِ حَبِيبَتَانِ إِلَى الرَّحْمَنِ سُبْحَانَ اللَّهِ وَبِحَمْدِهِ سُبْحَانَ اللَّهِ الْعَظِيمِ",
+    latin: "Kalimatāni khafīfatāni 'alal-lisāni ṡaqīlatāni fīl-mīzāni ḥabībatāni ilar-Raḥmāni: Subḥānal-lāhi wa biḥamdihī Subḥānal-lāhil-'Aẓīm.",
+    translation: "Dua kalimat yang ringan di lisan, berat di timbangan kiamat, dan dicintai Ar-Rahman: Subhanallahi wa bihamdih, Subhanallahil Adzim.",
+    explanation: "Keutamaan zikir tasbih penenang jiwa. Kalimat yang sangat mudah dideklarasikan lisan namun bernilai luar biasa dalam catatan amal.",
+    sourceKitab: "Kitab Shahih Bukhari No. 6682 & Shahih Muslim No. 2694",
+    verificationAgency: "Darul Ifta & Lajnah Pentashih Hadits"
+  },
+  {
+    number: "3377",
+    narrator: "HR. Tirmidzi",
+    category: "Keutamaan Zikir & Doa",
+    arabic: "أَلَا أُنَبِّئُكُمْ بِخَيْرِ أَعْمَالِكُمْ وَأَزْكَاهَا عِنْدَ مَلِيكِكُمْ وَأَرْfَعِهَا فِي دَرَجَاتِكُمْ... ذِكْرُ اللَّهِ",
+    latin: "Alā unabbi'ukum bikhayri a'mālikum wa azkāhā 'inda malīkikum... Żikrullāh.",
+    translation: "Maukah aku kabarkan tentang sebaik-baik amal dan paling suci di sisi Penguasa kalian serta tertinggi pada derajat kalian? Yaitu mengingat Allah (zikir).",
+    explanation: "Zikir berkelanjutan melahirkan kesadaran batin yang dalam, menjaga diri dari kelalaian moral, serta mengangkat derajat ketakwaan di sisi Tuhan.",
+    sourceKitab: "Kitab Sunan Tirmidzi No. 3377, Dinilai Shahih oleh Al-Albani",
+    verificationAgency: "Majelis Ulama Indonesia (MUI)"
+  },
+  {
+    number: "2969",
+    narrator: "HR. Tirmidzi",
+    category: "Keutamaan Zikir & Doa",
+    arabic: "الدُّعَاءُ هُوَ الْعِبَادَةُ",
+    latin: "Ad-du'ā'u huwal-'ibādah.",
+    translation: "Doa itu adalah ibadah itu sendiri.",
+    explanation: "Doa menunjukkan kehambaan yang murni, kepasrahan emosional, serta pengakuan mutlak akan ketidakberdayaan diri di hadapan kebesaran Allah.",
+    sourceKitab: "Kitab Sunan Tirmidzi No. 2969, Dinilai Shahih oleh Syekh Al-Albani",
+    verificationAgency: "Komisi Fatwa Majelis Ulama Indonesia (MUI)"
+  },
+  {
+    number: "408",
+    narrator: "HR. Muslim",
+    category: "Keutamaan Zikir & Doa",
+    arabic: "مَنْ صَلَّى عَلَيَّ وَاحِدَةً صَلَّى اللَّهُ عَلَيْهِ عَشْرًا",
+    latin: "Man ṣallā 'alayya wāḥidatan ṣallallāhu 'alayhi 'asyrā.",
+    translation: "Barangsiapa yang bershalawat kepadaku sekali, maka Allah akan bershalawat (memberikan rahmat) kepadanya sepuluh kali.",
+    explanation: "Anjuran memperbanyak shalawat atas Nabi Muhammad ﷺ sebagai saluran mendatangkan limpahan kasih sayang dan keberkahan vertikal dari Allah.",
+    sourceKitab: "Kitab Shahih Muslim No. 408, Kitab Shalat Utama",
+    verificationAgency: "Lembaga Pentashihan & Kementerian Agama RI"
   }
 ];
 
-const CATEGORIES = ["Semua", "Akhlak & Adab", "Niat & Keikhlasan", "Kasih Sayang & Sosial", "Ilmu & Pembelajaran", "Amal & Sedekah"];
+const CATEGORIES = ["Semua", "Akhlak & Adab", "Niat & Keikhlasan", "Kasih Sayang & Sosial", "Ilmu & Pembelajaran", "Amal & Sedekah", "Keutamaan Zikir & Doa"];
 
 interface HadithCollectionProps {
   theme?: string;
