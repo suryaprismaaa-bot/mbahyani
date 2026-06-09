@@ -40,6 +40,7 @@ export default function MosqueFinder() {
   const [filterRadius, setFilterRadius] = useState<number>(2); // Default 2km as requested
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [gpsErrorMessage, setGpsErrorMessage] = useState<string>('');
+  const [searchSource, setSearchSource] = useState<'google_maps' | 'overpass' | 'local_fallback'>('local_fallback');
   
   // Custom Street/Road Geocoding State
   const [userStreetAddress, setUserStreetAddress] = useState<string>('');
@@ -162,15 +163,104 @@ export default function MosqueFinder() {
     );
   };
 
-  // Fetch from free OpenStreetMap Overpass live API query
+  // Fetch from Google Maps Places live API with failover to OpenStreetMap Overpass
   const fetchNearbyMosques = async (userLat: number, userLng: number) => {
     setLoadingMosques(true);
+    const key = process.env.GOOGLE_MAPS_PLATFORM_KEY || (import.meta as any).env?.VITE_GOOGLE_MAPS_PLATFORM_KEY || '';
+
+    // Dynamically inject the Google Maps places library and search
+    const loadGoogleMapsScript = (callback: (loaded: boolean) => void) => {
+      const win = window as any;
+      if (win.google && win.google.maps && win.google.maps.places) {
+        callback(true);
+        return;
+      }
+      if (!key) {
+        callback(false);
+        return;
+      }
+
+      const existing = document.getElementById('google-maps-places-script');
+      if (existing) {
+        existing.addEventListener('load', () => callback(true));
+        existing.addEventListener('error', () => callback(false));
+        return;
+      }
+
+      const script = document.createElement('script');
+      script.id = 'google-maps-places-script';
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
+      script.async = true;
+      script.defer = true;
+      script.onload = () => callback(true);
+      script.onerror = () => callback(false);
+      document.head.appendChild(script);
+    };
+
+    loadGoogleMapsScript((googleAvailable) => {
+      const win = window as any;
+      if (googleAvailable && win.google && win.google.maps && win.google.maps.places) {
+        try {
+          const dummy = document.createElement('div');
+          const service = new win.google.maps.places.PlacesService(dummy);
+
+          service.nearbySearch(
+            {
+              location: new win.google.maps.LatLng(userLat, userLng),
+              radius: 5000, 
+              type: 'mosque',
+              keyword: 'masjid'
+            },
+            (results: any, status: any) => {
+              if (status === win.google.maps.places.PlacesServiceStatus.OK && results) {
+                const parsed: Mosque[] = results.map((place: any, idx: number) => {
+                  const mLat = place.geometry?.location?.lat() || userLat;
+                  const mLng = place.geometry?.location?.lng() || userLng;
+                  const distance = getDistanceFromLatLonInKm(userLat, userLng, mLat, mLng);
+                  const durationWalk = Math.max(1, Math.round(distance * 12.5));
+                  const durationMotor = Math.max(1, Math.round(distance * 2.13));
+
+                  return {
+                    id: place.place_id || `gmaps-${idx}`,
+                    name: place.name || 'Masjid Jami',
+                    address: place.vicinity || 'Sekitar Wilayah Pencarian Google Maps',
+                    latitude: mLat,
+                    longitude: mLng,
+                    distance: Number(distance.toFixed(2)),
+                    durationWalk,
+                    durationMotor,
+                    source: 'gps_live' as const
+                  };
+                });
+
+                const sorted = parsed.sort((a, b) => a.distance - b.distance);
+                setMosques(sorted);
+                (window as any).__mosque_list = sorted;
+                setSearchSource('google_maps');
+                setLoadingMosques(false);
+              } else {
+                console.warn("Google Maps Places nearbySearch returned status:", status, ". Trying Overpass.");
+                fetchOverpassMosques(userLat, userLng);
+              }
+            }
+          );
+        } catch (e) {
+          console.error("Failed to execute Google Maps Places nearbySearch:", e);
+          fetchOverpassMosques(userLat, userLng);
+        }
+      } else {
+        console.warn("Google Maps Places API not available or key missing. Swapping to Overpass.");
+        fetchOverpassMosques(userLat, userLng);
+      }
+    });
+  };
+
+  // Live Overpass API Search as robust secondary real-time source
+  const fetchOverpassMosques = async (userLat: number, userLng: number) => {
     try {
-      // Query both nodes, ways, and relations within 2km (2000 meters) of user coords
-      // We look for both religious places of worship for Muslims, or explicit mosque buildings
       const query = `[out:json];(
-        nwr(around:2000,${userLat},${userLng})[amenity=place_of_worship][religion=muslim];
-        nwr(around:2000,${userLat},${userLng})[building=mosque];
+        nwr(around:3000,${userLat},${userLng})[amenity=place_of_worship][religion=muslim];
+        nwr(around:3000,${userLat},${userLng})[building=mosque];
       );out center;`;
       const url = `https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`;
 
@@ -185,12 +275,10 @@ export default function MosqueFinder() {
               if (!mLat || !mLng) return null;
 
               const distance = getDistanceFromLatLonInKm(userLat, userLng, mLat, mLng);
-
-              // Speeds: Walk=4.8 km/h (12.5 mins per km), Motorbike=28 km/h (2.15 mins per km)
               const durationWalk = Math.max(1, Math.round(distance * 12.5));
               const durationMotor = Math.max(1, Math.round(distance * 2.13));
 
-              let addr = element.tags?.['addr:street'] || element.tags?.['addr:full'] || 'Jalan Sekitar Lokasi Wilayah Masjid';
+              let addr = element.tags?.['addr:street'] || element.tags?.['addr:full'] || 'Jalan Sekitar Wilayah Masjid';
               if (element.tags?.['addr:housenumber']) {
                 addr = `${addr} No. ${element.tags['addr:housenumber']}`;
               }
@@ -209,21 +297,18 @@ export default function MosqueFinder() {
             })
             .filter((m): m is Mosque => m !== null);
 
-          // Sort strictly by distance ASCENDING
           const sorted = parsedMosques.sort((a, b) => a.distance - b.distance);
-          // Show ONLY mosques within 2km limit
-          const filtered = sorted.filter(m => m.distance <= 2);
-
-          if (filtered.length > 0) {
-            setMosques(filtered);
-            (window as any).__mosque_list = filtered;
+          if (sorted.length > 0) {
+            setMosques(sorted);
+            (window as any).__mosque_list = sorted;
+            setSearchSource('overpass');
             setLoadingMosques(false);
             return;
           }
         }
       }
     } catch (e) {
-      console.warn("Overpass API mosque fetch failed. Swapping to high fidelity fallback calculation.", e);
+      console.warn("Overpass API mosque fetch failed:", e);
     }
     generateAdaptiveMosques(userLat, userLng);
   };
@@ -262,13 +347,13 @@ export default function MosqueFinder() {
       };
     });
 
-    // Sort strictly by distance ascending and filter < 2km limit
     const filteredAndSorted = generated
       .filter(m => m.distance <= 2)
       .sort((a, b) => a.distance - b.distance);
 
     setMosques(filteredAndSorted);
     (window as any).__mosque_list = filteredAndSorted;
+    setSearchSource('local_fallback');
     setLoadingMosques(false);
   };
 
@@ -397,12 +482,33 @@ export default function MosqueFinder() {
       <div className="space-y-4">
         
         {/* Results Metadata Bar */}
-        <div className="flex items-center justify-between pb-3 border-b border-slate-150 dark:border-slate-800 text-left">
-          <h2 className="text-base font-serif font-extrabold text-slate-900 dark:text-emerald-50 flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shrink-0" />
-            Daftar Masjid Terdekat (<span className="text-orange-550">{visibleMosques.length} Terpilih</span>)
-          </h2>
-          <span className="text-[10.5px] font-black text-slate-450 dark:text-slate-400">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-3 border-b border-slate-150 dark:border-slate-800 gap-2 text-left">
+          <div className="flex items-center gap-2 flex-wrap">
+            <h2 className="text-base font-serif font-extrabold text-slate-900 dark:text-emerald-50 flex items-center gap-2">
+              <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shrink-0" />
+              Daftar Masjid Terdekat (<span className="text-orange-550">{visibleMosques.length} Terpilih</span>)
+            </h2>
+            
+            {searchSource === 'google_maps' && (
+              <span className="px-2 py-0.5 bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 text-[10px] font-black rounded-lg border border-blue-200/50 dark:border-blue-900/60 inline-flex items-center gap-1 shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shrink-0" />
+                Live Google Maps Places API
+              </span>
+            )}
+            {searchSource === 'overpass' && (
+              <span className="px-2 py-0.5 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 text-[10px] font-black rounded-lg border border-emerald-200/50 dark:border-emerald-900/60 inline-flex items-center gap-1 shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0 animate-pulse" />
+                Live OpenStreetMap API
+              </span>
+            )}
+            {searchSource === 'local_fallback' && (
+              <span className="px-2 py-0.5 bg-amber-50 dark:bg-amber-950/40 text-amber-650 dark:text-amber-400 text-[10px] font-black rounded-lg border border-amber-200/50 dark:border-amber-900/60 inline-flex items-center gap-1 shrink-0">
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                Adaptif Fallback Geolocation
+              </span>
+            )}
+          </div>
+          <span className="text-[10px] font-black text-slate-450 dark:text-slate-400 shrink-0">
             STRUKTUR URUTAN TERDEKAT ➔ TERJAUH
           </span>
         </div>

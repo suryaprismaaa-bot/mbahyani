@@ -105,6 +105,28 @@ const getCalculatedHijriDate = (d: Date = new Date()): string => {
   }
 };
 
+// Helper function to map external API results keys to the app's Indonesian keys
+const remapKeys = (rawTimings: any): { [key: string]: string } => {
+  if (!rawTimings) return {};
+  const cleaned: { [key: string]: string } = {};
+  const keyMap: { [key: string]: string } = {
+    fajr: 'subuh',
+    sunrise: 'terbit',
+    dhuhr: 'dzuhur',
+    asr: 'ashar',
+    maghrib: 'maghrib',
+    isha: 'isya',
+    imsak: 'imsak'
+  };
+
+  Object.keys(rawTimings).forEach(k => {
+    const lowerK = k.toLowerCase();
+    const targetKey = keyMap[lowerK] || lowerK;
+    cleaned[targetKey] = String(rawTimings[k]).substring(0, 5);
+  });
+  return cleaned;
+};
+
 export default function PrayerSchedule() {
   const [calcMethod, setCalcMethod] = useState<'kemenag' | 'muhammadiyah'>(() => {
     return (localStorage.getItem('pr_calcMethod') as 'kemenag' | 'muhammadiyah') || 'kemenag';
@@ -128,7 +150,7 @@ export default function PrayerSchedule() {
     const saved = localStorage.getItem(`pr_timings_${savedMethod}`) || localStorage.getItem('pr_timings');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        return remapKeys(JSON.parse(saved));
       } catch (e) {}
     }
     return savedMethod === 'muhammadiyah' ? MUHAMMADIYAH_FALLBACK_TIMES : KEMENAG_FALLBACK_TIMES;
@@ -177,7 +199,7 @@ export default function PrayerSchedule() {
     const cachedForMethod = localStorage.getItem(`pr_timings_${method}`);
     if (cachedForMethod) {
       try {
-        setTimings(JSON.parse(cachedForMethod));
+        setTimings(remapKeys(JSON.parse(cachedForMethod)));
       } catch (e) {}
     } else {
       setTimings(method === 'muhammadiyah' ? MUHAMMADIYAH_FALLBACK_TIMES : KEMENAG_FALLBACK_TIMES);
@@ -250,7 +272,7 @@ export default function PrayerSchedule() {
     if (storedCacheKey === cacheKey && cachedTimingsForMethod) {
       try {
         const cached = JSON.parse(cachedTimingsForMethod);
-        setTimings(cached);
+        setTimings(remapKeys(cached));
         const cachedHijri = localStorage.getItem('pr_hijriDate');
         if (cachedHijri) setHijriDate(cachedHijri);
         setLocationName(name);
@@ -272,10 +294,7 @@ export default function PrayerSchedule() {
       const resJson = await response.json();
       if (resJson && resJson.data) {
         const remoteTimings = resJson.data.timings;
-        const cleaned: { [key: string]: string } = {};
-        Object.keys(remoteTimings).forEach(k => {
-          cleaned[k.toLowerCase()] = remoteTimings[k].substring(0, 5);
-        });
+        const cleaned = remapKeys(remoteTimings);
         setTimings(cleaned);
         
         const hijri = resJson.data.date.hijri;
@@ -501,75 +520,66 @@ export default function PrayerSchedule() {
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left pane: Active Countdown Panel */}
-        <div className="lg:col-span-4 space-y-6">
-          {/* Current clock display with rich luxury NU green to Muhammadiyah blue gradient */}
-          <div className="bg-gradient-to-br from-emerald-600 via-teal-700 to-blue-600 rounded-3xl p-6 text-white text-center shadow-lg select-none relative overflow-hidden border border-white/10">
-            <div className="absolute right-0 top-0 opacity-10 transform -translate-y-6 translate-x-6">
-              <Clock className="w-48 h-48" />
+        <div className="lg:col-span-4 space-y-4">
+          {/* Sederhana hanya menampilkan jam saja agar hemat ruang */}
+          <div className="bg-gradient-to-r from-emerald-600 to-teal-700 dark:from-emerald-950 dark:to-teal-900 rounded-2xl p-4 text-white text-center shadow-md select-none border border-white/10 flex items-center justify-between gap-2.5">
+            <div className="flex items-center gap-2">
+              <Clock className="w-4 h-4 text-emerald-100 animate-pulse shrink-0" />
+              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-100 font-sans">
+                Jam Realtime ({getTzLabel()})
+              </span>
             </div>
-            
-            <span className="text-xs font-semibold text-emerald-100 uppercase tracking-widest block font-mono">
-              WAKTU HARI INI ({getTzLabel()})
-            </span>
-            <div className="text-4xl font-extrabold font-mono tracking-tight my-2.5">
+            <div className="text-xl font-mono font-black tracking-widest bg-emerald-900/45 px-3 py-1 rounded-lg border border-white/10">
               {systemTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </div>
-            <p className="text-xs text-white/95 font-medium font-sans">
-              {gregorianDate}
-            </p>
-            <div className="h-px bg-white/20 my-4" />
-            <div className="flex justify-center items-center text-xs text-amber-200 font-semibold bg-emerald-900/40 py-1.5 px-3 rounded-2xl border border-emerald-500/10">
-              <span className="w-2.5 h-2.5 bg-amber-400 rounded-full mr-2 animate-pulse" />
-              {hijriDate}
             </div>
           </div>
 
           {/* Target count clock banner */}
-          <div className="bg-white dark:bg-emerald-950/20 rounded-3xl p-6 border border-emerald-100 dark:border-emerald-900 shadow-sm text-center">
-            <span className="text-xs font-bold text-slate-400 dark:text-emerald-300 uppercase block tracking-wider mb-1">
-              MENUJU SHOLAT BERIKUTNYA
+          <div className="bg-white dark:bg-emerald-950/20 rounded-2xl p-5 border border-emerald-100 dark:border-emerald-900 shadow-xxs text-center">
+            <span className="text-[10px] font-black text-slate-400 dark:text-emerald-450 uppercase block tracking-wider mb-0.5">
+              SHOLAT BERIKUTNYA
             </span>
-            <h3 className="font-extrabold text-2xl text-slate-800 dark:text-emerald-50 font-sans flex justify-center items-center">
-              <Sparkles className="w-5 h-5 text-amber-500 mr-2 shrink-0 animate-spin" />
+            <h3 className="font-extrabold text-lg text-slate-800 dark:text-emerald-100 font-sans flex justify-center items-center gap-1.5">
+              <Sparkles className="w-4 h-4 text-amber-500 shrink-0 animate-spin" />
               Sholat {activeNextInfo.nama}
             </h3>
-            <p className="text-lg font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-2 bg-emerald-50/50 dark:bg-emerald-900/30 py-2.5 px-4 rounded-2xl border border-emerald-100 dark:border-emerald-800 inline-block">
+            <p className="text-base font-mono font-bold text-emerald-600 dark:text-emerald-400 mt-1.5 bg-emerald-50/40 dark:bg-emerald-900/20 py-1.5 px-3 rounded-xl border border-emerald-100 dark:border-emerald-800 inline-block font-black">
               {activeNextInfo.countdown}
             </p>
-            <div className="text-xs text-slate-400 mt-2 font-mono">
+            <div className="text-[10px] text-slate-400 mt-1.5 font-mono">
               Pukul {activeNextInfo.waktu} {getTzLabel()}
             </div>
           </div>
 
           {/* Test Adzan reminder */}
-          <div className="p-4 bg-amber-500/10 border border-amber-500/20 rounded-2xl">
+          <div className="p-3 bg-amber-500/10 border border-amber-500/20 rounded-xl">
             <button
               id="test-adzan-bell"
               onClick={handlePlayAdzanDemo}
-              className="w-full flex items-center justify-center space-x-2 text-xs font-bold text-amber-700 dark:text-amber-400 bg-transparent cursor-pointer"
+              className="w-full flex items-center justify-center space-x-2 text-[10px] font-bold text-amber-700 dark:text-amber-400 bg-transparent cursor-pointer"
             >
-              <Volume2 className="w-4 h-4 animate-bounce" />
-              <span>Dengarkan Alarm Bell Pengingat</span>
+              <Volume2 className="w-3.5 h-3.5 animate-bounce" />
+              <span>Alarm Bell Pengingat</span>
             </button>
             {showAzzanNote && (
-              <p className="text-[11px] text-amber-600 dark:text-amber-500 text-center mt-2 font-sans animate-pulse font-semibold">
-                🔔 Ucapkan &ldquo;Asyhadu an laa ilaaha illallah...&rdquo; – persiapkan wudhu untuk sholat segera.
+              <p className="text-[10px] text-amber-600 dark:text-amber-500 text-center mt-1 font-sans animate-pulse font-semibold">
+                🔔 Bersiap berwudhu untuk sholat fardhu.
               </p>
             )}
           </div>
         </div>
 
         {/* Right pane: Timings complete list */}
-        <div className="lg:col-span-8 bg-white dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900 rounded-3xl p-6 shadow-sm">
+        <div className="lg:col-span-8 bg-white dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900 rounded-2xl p-5 shadow-xxs">
           
           {/* Header of timing table */}
-          <div className="flex flex-col sm:flex-row justify-between sm:items-center space-y-4 sm:space-y-0 mb-5 border-b border-emerald-55/20 pb-4">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center space-y-3 sm:space-y-0 mb-4 border-b border-emerald-55/20 pb-4">
             <div>
-              <h3 className="font-bold text-lg text-slate-800 dark:text-emerald-100 flex items-center">
-                <MapPin className="w-5 h-5 text-emerald-600 mr-2 shrink-0" />
+              <h3 className="font-bold text-base text-slate-800 dark:text-emerald-100 flex items-center">
+                <MapPin className="w-4 h-4 text-emerald-600 mr-1.5 shrink-0" />
                 Jadwal Kota Aktif
               </h3>
-              <p className="text-xs text-slate-500 dark:text-emerald-300 font-mono mt-0.5">
+              <p className="text-[10px] text-slate-500 dark:text-emerald-300 font-mono mt-0.5">
                 Wilayah: {locationName}
               </p>
             </div>
@@ -579,67 +589,66 @@ export default function PrayerSchedule() {
               id="gps-schedule-button"
               onClick={handleRequestGps}
               disabled={isGpsLoading}
-              className="flex items-center justify-center px-4.5 py-2.5 bg-emerald-50 dark:bg-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-700 hover:text-emerald-950 text-emerald-800 dark:text-white font-semibold text-xs border border-emerald-100 dark:border-emerald-700 rounded-xl cursor-pointer transition-colors disabled:opacity-40 h-[38px] active:scale-95"
+              className="flex items-center justify-center px-3 py-1.5 bg-emerald-50 dark:bg-emerald-600 hover:bg-emerald-100 dark:hover:bg-emerald-700 text-emerald-800 dark:text-white font-semibold text-xs border border-emerald-100 dark:border-emerald-700 rounded-xl cursor-pointer transition-colors disabled:opacity-40 h-[34px] active:scale-95 animate-pulse"
             >
               {isGpsLoading ? (
                 <>
-                  <RefreshCw className="w-3.5 h-3.5 mr-1.5 animate-spin" />
+                  <RefreshCw className="w-3 h-3 mr-1 animate-spin" />
                   Mengakses GPS...
                 </>
               ) : (
                 <>
-                  <MapPin className="w-3.5 h-3.5 mr-1.5" />
-                  Sesuaikan GPS Saya
+                  <MapPin className="w-3 h-3 mr-1" />
+                  Sesuaikan GPS
                 </>
               )}
             </button>
           </div>
 
-          {/* Segmented Reference Selector (Highly Space-Efficient and Beautiful) */}
-          <div className="mb-6 bg-slate-50 dark:bg-emerald-950/30 p-2 rounded-2xl border border-slate-100 dark:border-emerald-900/35">
-            <span className="text-[10px] font-extrabold uppercase text-slate-400 dark:text-emerald-450 tracking-wider block mb-2 px-1">
-              Dasar Hisab Perhitungan Waktu Shalat
-            </span>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-1.5">
-              <button
-                id="ref-btn-kemenag"
-                onClick={() => handleCalcMethodChange('kemenag')}
-                className={`py-2.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between gap-1.5 ${
-                  calcMethod === 'kemenag'
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'text-slate-600 dark:text-emerald-355 hover:bg-white dark:hover:bg-emerald-900/10'
-                }`}
+          {/* Segmented Reference Selector (Converted to Dropdown with Striking Background) */}
+          <div className="mb-4 bg-gradient-to-r from-amber-500 via-orange-500 to-orange-600 dark:from-amber-600 dark:via-orange-600 dark:to-orange-700 p-4 rounded-xl border border-amber-400 dark:border-amber-700 shadow-md text-white animate-pulse-slow">
+            <label htmlFor="calc-method-select" className="text-[10px] font-black uppercase tracking-wider block mb-2 text-amber-50 drop-shadow-sm">
+              ⚡ DASAR ACUAN PERHITUNGAN JADWAL SHALAT:
+            </label>
+            <div className="relative">
+              <select
+                id="calc-method-select"
+                value={calcMethod}
+                onChange={(e) => handleCalcMethodChange(e.target.value as 'kemenag' | 'muhammadiyah')}
+                className="w-full bg-white dark:bg-slate-900 text-slate-100 dark:text-white font-black text-xs py-2.5 px-3.5 pr-10 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-amber-300 cursor-pointer appearance-none shadow-sm"
               >
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm shrink-0">🇮🇩</span>
-                  <span className="text-left font-sans">Kementerian Agama RI</span>
-                </div>
-                <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded-md font-mono ${
-                  calcMethod === 'kemenag' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500 dark:bg-emerald-900/40 dark:text-emerald-300'
-                }`}>
-                  Subuh -20°
-                </span>
-              </button>
-              
-              <button
-                id="ref-btn-muhammadiyah"
-                onClick={() => handleCalcMethodChange('muhammadiyah')}
-                className={`py-2.5 px-3.5 rounded-xl text-xs font-bold transition-all cursor-pointer flex items-center justify-between gap-1.5 ${
-                  calcMethod === 'muhammadiyah'
-                    ? 'bg-blue-600 text-white shadow-md'
-                    : 'text-slate-600 dark:text-emerald-355 hover:bg-white dark:hover:bg-emerald-900/10'
-                }`}
-              >
-                <div className="flex items-center space-x-2">
-                  <span className="text-sm shrink-0">🕌</span>
-                  <span className="text-left font-sans">Muhammadiyah (KHGT)</span>
-                </div>
-                <span className={`text-[9px] uppercase px-1.5 py-0.5 rounded-md font-mono ${
-                  calcMethod === 'muhammadiyah' ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-500 dark:bg-emerald-900/40 dark:text-emerald-300'
-                }`}>
-                  Subuh -18°
-                </span>
-              </button>
+                <option value="kemenag">🇮🇩 Kementerian Agama RI (Bimas Islam Kisaran)</option>
+                <option value="muhammadiyah">🕌 Muhammadiyah / Kalender Hijriah Global Tunggal (KHGT)</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-800 dark:text-white-450">
+                <svg className="fill-current h-4 w-4 text-slate-650 dark:text-emerald-150" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
+            </div>
+            
+            {/* Clickable web link to official references */}
+            <div className="mt-3 flex flex-wrap items-center justify-between text-[11px] font-black tracking-tight gap-1.5 border-t border-white/20 pt-2.5">
+              <span className="text-amber-105">Situs Resmi Acuan:</span>
+              {calcMethod === 'kemenag' ? (
+                <a
+                  href="https://bimasislam.kemenag.go.id/jadwalshalat"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/20 hover:bg-white/30 text-white px-2 py-1 rounded-lg border border-white/10 transition-all flex items-center gap-1 active:scale-95"
+                >
+                  bimasislam.kemenag.go.id ↗
+                </a>
+              ) : (
+                <a
+                  href="https://khgt.muhammadiyah.or.id/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="bg-white/20 hover:bg-white/30 text-white px-2 py-1 rounded-lg border border-white/10 transition-all flex items-center gap-1 active:scale-95"
+                >
+                  khgt.muhammadiyah.or.id ↗
+                </a>
+              )}
             </div>
           </div>
 
@@ -696,18 +705,18 @@ export default function PrayerSchedule() {
             </div>
           )}
 
-          {/* Informational help */}
-          <div className="mt-6 p-4 bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900 rounded-2xl flex items-start text-xs text-slate-500 dark:text-emerald-300/60 leading-relaxed">
-            <HelpCircle className="w-4.5 h-4.5 mr-2 text-emerald-600 shrink-0 mt-0.5" />
+          {/* Informational help - blinking border */}
+          <div className="mt-6 p-4 bg-amber-500/5 dark:bg-amber-955/10 border-2 border-amber-500 animate-blink-border rounded-2xl flex items-start text-xs text-slate-705 dark:text-emerald-200 leading-relaxed">
+            <HelpCircle className="w-4.5 h-4.5 mr-2 text-amber-500 shrink-0 mt-0.5" />
             <div>
-              <p className="font-bold text-slate-700 dark:text-emerald-100 mb-0.5">Konvensi Perhitungan:</p>
+              <p className="font-extrabold text-slate-800 dark:text-amber-450 mb-0.5 uppercase tracking-wider">Konvensi Perhitungan Resmi:</p>
               {calcMethod === 'kemenag' ? (
                 <span>
-                  Mengadopsi kriteria Kementerian Agama Republik Indonesia (Kemenag RI - Metode Standardisasi Hisab) dengan sudut Fajar -20° dan Isya -18°. Dilengkapi ikhtiyat +2 menit demi ketenangan pengamalan ibadah fardhu.
+                  Mengadopsi kriteria Kementerian Agama RI sesuai dengan situs resmi <a href="https://bimasislam.kemenag.go.id/jadwalshalat" target="_blank" rel="noopener noreferrer" className="underline font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500">bimasislam.kemenag.go.id</a> dengan sudut Fajar -20° dan Isya -18°. Seluruh jadwal jam shalat realtime telah disinkronkan sepenuhnya mengacu pada satelit lokasi aktif Anda.
                 </span>
               ) : (
                 <span>
-                  Mengadopsi kriteria terbaru Majelis Tarjih PP Muhammadiyah (KHGT - Kalender Hijriah Global Tunggal) dengan penyesuaian sudut Fajar (Subuh) menjadi -18° dan Isya -18° demi ketepatan telaah fajar shodiq astronomis.
+                  Mengadopsi kriteria resmi Kalender Hijriah Global Tunggal (KHGT) dari Pimpinan Pusat Muhammadiyah sesuai <a href="https://khgt.muhammadiyah.or.id/" target="_blank" rel="noopener noreferrer" className="underline font-bold text-emerald-600 dark:text-emerald-400 hover:text-emerald-500">khgt.muhammadiyah.or.id</a> dengan sudut Fajar (Subuh) -18° dan Isya -18° demi akurasi fajar sidiq astronomis.
                 </span>
               )}
             </div>

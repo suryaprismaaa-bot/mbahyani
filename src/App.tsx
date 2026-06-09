@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Compass, BookOpen, HeartHandshake, BookHeart, Calendar, Sparkles, MoveRight, Moon, Sun, Star, Play, Pause, X, SkipForward, Volume2, Clock, Tv, GraduationCap, BookMarked, Scale, MapPin, ChevronDown, ChevronUp } from 'lucide-react';
+import { Compass, BookOpen, HeartHandshake, BookHeart, Calendar, Sparkles, MoveRight, Moon, Sun, Star, Play, Pause, X, SkipForward, Volume2, Clock, Tv, GraduationCap, BookMarked, Scale, MapPin, ChevronDown, ChevronUp, History } from 'lucide-react';
 import { ActiveTab, GlobalAudioState, Ayat } from './types';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
@@ -20,6 +20,7 @@ import TilawatiLearning from './components/TilawatiLearning';
 import HomeQuranReminder from './components/HomeQuranReminder';
 import TajweedLearning from './components/TajweedLearning';
 import ZakatCalculator from './components/ZakatCalculator';
+import HijriCalendarHistory from './components/HijriCalendarHistory';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
@@ -716,17 +717,17 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Grid Menu Section - Tiru konsep Healing Bareng */}
+              {/* Grid Menu Section - Tampilkan layanan utama dengan sangat sederhana & hemat ruang */}
               <div className="space-y-6">
                 
                 {/* Centered and Highly Polished Layout Title */}
                 <div className="border-b border-emerald-100 dark:border-emerald-950 pb-4 text-center max-w-2xl mx-auto mb-6 animate-in fade-in slide-in-from-bottom-3 duration-500">
                   <div className="flex flex-col items-center">
-                    <div className="w-11 h-11 bg-emerald-50 dark:bg-emerald-950/45 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-3 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+                    <div className="w-11 h-11 bg-emerald-50 dark:bg-emerald-950/45 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-2 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
                       <Sparkles className="w-5.5 h-5.5 animate-pulse" />
                     </div>
-                    <h2 className="text-2xl sm:text-3xl font-serif font-bold text-slate-900 dark:text-emerald-50 tracking-tight leading-tight">
-                      Portal Islami Keluarga Mbah Yani
+                    <h2 className="text-xl sm:text-2xl font-serif font-bold text-slate-900 dark:text-emerald-50 tracking-tight leading-tight">
+                      Layanan Portal Islami Nusantara
                     </h2>
                   </div>
                 </div>
@@ -734,113 +735,40 @@ export default function App() {
                 {/* Ayat & Pengingat Hari Ini */}
                 <HomeQuranReminder theme={theme} arabicFontSize={arabicFontSize} />
 
-                {/* Dynamic Category Filtering Tabs */}
-                <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 mb-8 bg-slate-100/60 dark:bg-slate-900/60 p-1.5 rounded-2xl max-w-3xl mx-auto border border-slate-200/40 dark:border-slate-800/40 animate-in fade-in slide-in-from-bottom-3 duration-400">
+                {/* Highly compact, sleek, responsive bento grid of all 11 core services */}
+                <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pt-2">
                   {[
-                    { id: 'all', label: 'Semua Layanan', icon: Sparkles, color: 'text-amber-500' },
-                    { id: 'ibadah', label: 'Ibadah Harian', icon: Calendar, color: 'text-sky-500' },
-                    { id: 'pembelajaran', label: "Belajar & Qur'an", icon: BookOpen, color: 'text-emerald-500' },
-                    { id: 'kajian', label: 'Khazanah & Syiar', icon: BookHeart, color: 'text-rose-500' }
-                  ].map((cat) => {
-                    const isActive = menuCategory === cat.id;
-                    const Icon = cat.icon;
+                    { id: 'quran', icon: BookOpen, label: "Al-Qur'an", color: 'bg-emerald-55 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300' },
+                    { id: 'jadwal', icon: Calendar, label: 'Jadwal Sholat', color: 'bg-blue-55 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300' },
+                    { id: 'masid', icon: MapPin, label: 'Masjid Terdekat', color: 'bg-orange-55 dark:bg-orange-950/60 text-orange-605 dark:text-orange-405', actualId: 'masjid' },
+                    { id: 'qibla', icon: Compass, label: 'Arah Kiblat', color: 'bg-sky-55 dark:bg-sky-950/60 text-sky-600 dark:text-sky-350' },
+                    { id: 'doa', icon: BookHeart, label: 'Doa Harian', color: 'bg-rose-55 dark:bg-rose-950/60 text-rose-600 dark:text-rose-350' },
+                    { id: 'tasbih', icon: HeartHandshake, label: 'Tasbih Digital', color: 'bg-teal-55 dark:bg-teal-950/60 text-teal-600 dark:text-teal-350' },
+                    { id: 'asmaul', icon: Sparkles, label: 'Asmaul Husna', color: 'bg-amber-55 dark:bg-amber-950/60 text-amber-600 dark:text-amber-350' },
+                    { id: 'tilawati', icon: GraduationCap, label: 'Kajian Tilawati', color: 'bg-indigo-55 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-350' },
+                    { id: 'tajwid', icon: BookMarked, label: 'Hukum Tajwid', color: 'bg-purple-55 dark:bg-purple-950/60 text-purple-600 dark:text-purple-355' },
+                    { id: 'makkah', icon: Tv, label: 'Kamera Makkah', color: 'bg-red-55 dark:bg-red-950/60 text-red-600 dark:text-red-350' },
+                    { id: 'zakat', icon: Scale, label: 'Takar Zakat', color: 'bg-cyan-55 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-350' },
+                    { id: 'hijriah', icon: History, label: 'Bulan Hijriah', color: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300' },
+                  ].map((item) => {
+                    const Icon = item.icon;
+                    const destinationId = item.actualId || item.id;
                     return (
                       <button
-                        key={cat.id}
-                        onClick={() => setMenuCategory(cat.id as any)}
-                        className={`flex items-center gap-1.5 sm:gap-2 px-3.5 sm:px-4 py-2 rounded-xl text-xs font-black cursor-pointer transition-all duration-200 ${
-                          isActive
-                            ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md shadow-emerald-600/10'
-                            : 'text-slate-600 dark:text-emerald-250 hover:bg-slate-200/50 dark:hover:bg-slate-800/40'
-                        }`}
+                        key={item.id}
+                        id={`menu-${item.id}`}
+                        onClick={() => setActiveTab(destinationId as any)}
+                        className="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 border border-slate-150/80 dark:border-slate-800/80 hover:border-emerald-500/50 dark:hover:border-emerald-600 rounded-2xl text-center shadow-3xs hover:shadow-sm transition-all active:scale-95 duration-200 cursor-pointer group"
                       >
-                        <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : cat.color}`} />
-                        <span>{cat.label}</span>
+                        <div className={`w-9 h-9 ${item.color} rounded-xl flex items-center justify-center mb-2 group-hover:scale-105 transition-transform shrink-0`}>
+                          <Icon className="w-5 h-5" />
+                        </div>
+                        <span className="text-[11px] font-black tracking-tight text-slate-800 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                          {item.label}
+                        </span>
                       </button>
                     );
                   })}
-                </div>
-
-                {/* Main Menu Cards list - Categorized and Sorted */}
-                <div className="space-y-6">
-                  {[
-                    {
-                      id: 'ibadah',
-                      title: '🕌 Ibadah Harian & Panduan Praktis',
-                      desc: 'Amanah penunjang ibadah wajib dan sunnah harian bagi keluarga tercinta',
-                      items: [
-                        { id: 'jadwal', icon: Calendar, label: 'Jadwal Sholat', desc: 'Waktu sholat otomatis GPS, countdown presisi kembalian alarm wudhu.', badge: 'Satelit' },
-                        { id: 'qibla', icon: Compass, label: 'Cari Arah Kiblat', desc: "Kompas penunjuk arah Ka'bah magnetis presisi menggunakan GPS browser.", badge: 'Arah' },
-                        { id: 'tasbih', icon: HeartHandshake, label: 'Tasbih Digital', desc: 'Dzikir dinamis dengan setelan preset, feedback audio, & getaran HP.', badge: 'Dzikir' },
-                        { id: 'masjid', icon: MapPin, label: 'Masjid Terdekat', desc: 'Cari masjid terdekat dari lokasi GPS Anda lengkap dengan rute, navigasi & estimasi waktu perjalanan.', badge: 'GPS Baru' },
-                      ]
-                    },
-                    {
-                      id: 'pembelajaran',
-                      title: "📖 Al-Qur'an & Pembelajaran",
-                      desc: 'Mulia bersama kalamullah, sarana belajar melafalkan kata demi kata secara murni',
-                      items: [
-                        { id: 'quran', icon: BookOpen, label: "Al-Qur'an Digital", desc: 'Surat lengkap dengan transliterasi latin, terjemahan Indonesia, & audio murottal.', badge: 'Mushaf' },
-                        { id: 'tilawati', icon: GraduationCap, label: 'Belajar Tilawati', desc: "Media interaktif belajar baca Hijaiyah & Qur'an menyenangkan untuk anak-anak.", badge: 'Anak-anak' },
-                        { id: 'tajwid', icon: BookMarked, label: 'Belajar Tajwid', desc: 'Kajian hukum bacaan lengkap secara tertulis lengkap tanpa contoh suara.', badge: 'Tajwid' },
-                      ]
-                    },
-                    {
-                      id: 'kajian',
-                      title: '✨ Doa, Asmaul Husna & Muamalah',
-                      desc: 'Sajian ringkasan keilmuan berkah syiar harian keluarga Mbah Yani',
-                      items: [
-                        { id: 'doa', icon: BookHeart, label: 'Doa Sehari-hari', desc: 'Tuntunan doa lengkap, salin & kirim instan ke WhatsApp grup keluarga.', badge: 'Harian' },
-                        { id: 'asmaul', icon: Sparkles, label: 'Asmaul Husna', desc: '99 Nama Allah Yang Indah beserta asbab khasiat, transliterasi & makna.', badge: 'Khasiat' },
-                        { id: 'makkah', icon: Tv, label: 'Live Makkah', desc: "Siaran langsung 24 jam realtime Masjidil Haram, Ka'bah, & Masjidil Nabawi.", badge: 'Live Stream' },
-                        { id: 'zakat', icon: Scale, label: 'Kalkulator Zakat', desc: 'Hitung zakat fitrah, mal, profesi & emas merujuk harga realtime Antam.', badge: 'Muamalah' },
-                      ]
-                    }
-                  ]
-                    .filter(section => menuCategory === 'all' || menuCategory === section.id)
-                    .map((section) => (
-                      <div key={section.id} className="space-y-3 animate-in fade-in slide-in-from-bottom-2 duration-300">
-                        <div className="border-l-4 border-emerald-500 pl-4 py-0.5">
-                          <h3 className="font-serif font-bold text-[15px] dark:text-emerald-50 text-slate-900 leading-tight">
-                            {section.title}
-                          </h3>
-                          <p className="text-[10px] text-slate-500 dark:text-emerald-400/60 font-semibold mt-0.5">
-                            {section.desc}
-                          </p>
-                        </div>
-                        
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5">
-                          {section.items.map((item) => {
-                            const Icon = item.icon;
-                            return (
-                              <button
-                                key={item.id}
-                                id={`menu-${item.id}`}
-                                onClick={() => setActiveTab(item.id as any)}
-                                className="p-3.5 bg-white dark:bg-slate-900 rounded-xl shadow-xs border border-emerald-100/70 hover:border-emerald-300 dark:border-emerald-900/40 dark:hover:border-emerald-700 text-left hover:shadow-md transition-all duration-300 cursor-pointer group flex items-center gap-3 relative overflow-hidden animate-shine-beam glow-on-click transform hover:-translate-y-1"
-                              >
-                                <div className="w-10 h-10 bg-emerald-50 dark:bg-emerald-950/45 rounded-lg flex items-center justify-center text-emerald-600 dark:text-emerald-400 group-hover:scale-105 transition-transform duration-300 shrink-0">
-                                  <Icon className="w-5 h-5" />
-                                </div>
-                                <div className="min-w-0 flex-1">
-                                  <div className="flex items-center justify-between gap-1.5">
-                                    <h4 className="font-extrabold text-xs text-slate-800 dark:text-emerald-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors truncate">
-                                      {item.label}
-                                    </h4>
-                                    <span className="text-[8px] font-black uppercase tracking-wider px-1.5 py-0.5 rounded-md bg-slate-100 dark:bg-slate-850 text-slate-500 dark:text-emerald-350 shrink-0">
-                                      {item.badge}
-                                    </span>
-                                  </div>
-                                  <p className="text-[10px] text-slate-400 dark:text-emerald-400/50 mt-1 lines-normal truncate">
-                                    {item.desc}
-                                  </p>
-                                </div>
-                              </button>
-                            );
-                          })}
-                        </div>
-                      </div>
-                    ))}
                 </div>
               </div>
             </div>
@@ -870,6 +798,7 @@ export default function App() {
           {activeTab === 'tilawati' && <TilawatiLearning />}
           {activeTab === 'tajwid' && <TajweedLearning />}
           {activeTab === 'zakat' && <ZakatCalculator />}
+          {activeTab === 'hijriah' && <HijriCalendarHistory />}
             </motion.div>
           </AnimatePresence>
         </main>

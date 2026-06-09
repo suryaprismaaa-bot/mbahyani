@@ -317,4 +317,20 @@ html {
   animation: moving-border 2.5s linear infinite;
 }
 
+@keyframes blink-border {
+  0%, 100% {
+    border-color: #f59e0b;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.7);
+  }
+  50% {
+    border-color: rgba(245, 158, 11, 0.2);
+    box-shadow: 0 0 2px rgba(245, 158, 11, 0.1);
+  }
+}
+
+.animate-blink-border {
+  animation: blink-border 1s ease-in-out infinite;
+}
+
+
 

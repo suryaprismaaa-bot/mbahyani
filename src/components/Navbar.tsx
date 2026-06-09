@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Menu, X, Moon, Sun, Compass, BookOpen, HeartHandshake, Calendar, Sparkles, BookHeart, ChevronDown, Tv, GraduationCap, CheckSquare, BookMarked, Scale, MapPin } from 'lucide-react';
+import { Menu, X, Moon, Sun, Compass, BookOpen, HeartHandshake, Calendar, Sparkles, BookHeart, ChevronDown, Tv, GraduationCap, CheckSquare, BookMarked, Scale, MapPin, History } from 'lucide-react';
 import { ActiveTab } from '../types';
 
 interface NavbarProps {
@@ -34,7 +34,8 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
     { id: 'doa', label: 'Doa Harian', desc: 'Kumpulan doa pilihan islami', icon: BookHeart, group: 'Khazanah & Syiar' },
     { id: 'asmaul', label: 'Asmaul Husna', desc: '99 nama Allah luar biasa', icon: Sparkles, group: 'Khazanah & Syiar' },
     { id: 'makkah', label: 'Live Makkah', desc: 'Streaming Masjidil Haram realtime', icon: Tv, group: 'Khazanah & Syiar' },
-    { id: 'zakat', label: 'Kalkulator Zakat', desc: 'Hitung zakat emas/mal realtime', icon: Scale, group: 'Khazanah & Syiar' }
+    { id: 'zakat', label: 'Kalkulator Zakat', desc: 'Hitung zakat emas/mal realtime', icon: Scale, group: 'Khazanah & Syiar' },
+    { id: 'hijriah', label: 'Bulan Hijriah', desc: 'Nama bulan & peristiwa sejarah', icon: History, group: 'Khazanah & Syiar' }
   ] as const;
 
   const categorizedDropdown = [
@@ -59,7 +60,8 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
         { id: 'doa', label: 'Doa Harian', desc: 'Kumpulan doa pilihan islami', icon: BookHeart },
         { id: 'asmaul', label: 'Asmaul Husna', desc: '99 nama Allah luar biasa', icon: Sparkles },
         { id: 'makkah', label: 'Live Makkah', desc: 'Streaming Masjidil Haram realtime', icon: Tv },
-        { id: 'zakat', label: 'Kalkulator Zakat', desc: 'Hitung zakat emas/mal realtime', icon: Scale }
+        { id: 'zakat', label: 'Kalkulator Zakat', desc: 'Hitung zakat emas/mal realtime', icon: Scale },
+        { id: 'hijriah', label: 'Bulan Hijriah', desc: 'Nama bulan & peristiwa sejarah', icon: History }
       ]
     }
   ] as const;
