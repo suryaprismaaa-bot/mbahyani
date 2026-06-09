@@ -82,3 +82,16 @@ export interface GlobalAudioState {
 }
 
 export type ActiveTab = 'home' | 'qibla' | 'quran' | 'tasbih' | 'doa' | 'jadwal' | 'asmaul' | 'makkah' | 'tilawati' | 'tajwid' | 'zakat' | 'masjid' | 'hijriah' | 'hadith';
+
+export interface FamilyAgendaItem {
+  id: string;
+  title: string;
+  category: 'pengajian' | 'khitanan' | 'pernikahan' | 'syukuran' | 'silaturahmi' | 'lainnya';
+  date: string;
+  time: string;
+  location: string;
+  contactPerson: string;
+  notes?: string;
+  createdAt: string;
+}
+

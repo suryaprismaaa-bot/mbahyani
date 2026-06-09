@@ -22,6 +22,7 @@ import TajweedLearning from './components/TajweedLearning';
 import ZakatCalculator from './components/ZakatCalculator';
 import HijriCalendarHistory from './components/HijriCalendarHistory';
 import HadithCollection from './components/HadithCollection';
+import FamilyAgenda from './components/FamilyAgenda';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
@@ -752,6 +753,11 @@ export default function App() {
               <div className="mt-8">
                 <HomeQuranReminder theme={theme} arabicFontSize={arabicFontSize} />
               </div>
+
+              {/* Agenda / Kegiatan Keluarga */}
+              <div className="mt-8">
+                <FamilyAgenda />
+              </div>
             </div>
           )}
 
@@ -819,7 +825,23 @@ export default function App() {
                   </>
                 ) : globalAudioState.isPlaying ? (
                   <>
-                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="flex items-end gap-[1.5px] h-2.5 w-3 mr-1 flex-shrink-0 mb-[1px]">
+                      <motion.span 
+                        animate={{ height: ["35%", "100%", "35%"] }} 
+                        transition={{ duration: 0.8, repeat: Infinity, ease: "easeInOut" }} 
+                        className="w-[1.5px] bg-emerald-500 dark:bg-emerald-400 rounded-full inline-block" 
+                      />
+                      <motion.span 
+                        animate={{ height: ["65%", "100%", "45%", "95%", "65%"] }} 
+                        transition={{ duration: 0.6, repeat: Infinity, ease: "easeInOut", delay: 0.15 }} 
+                        className="w-[1.5px] bg-emerald-500 dark:bg-emerald-400 rounded-full inline-block" 
+                      />
+                      <motion.span 
+                        animate={{ height: ["20%", "85%", "20%"] }} 
+                        transition={{ duration: 0.7, repeat: Infinity, ease: "easeInOut", delay: 0.3 }} 
+                        className="w-[1.5px] bg-emerald-500 dark:bg-emerald-400 rounded-full inline-block" 
+                      />
+                    </span>
                     Sedang diputar belakang layar
                   </>
                 ) : (
@@ -833,23 +855,41 @@ export default function App() {
           </div>
 
           <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
-            {/* Play/Pause Button */}
-            <button
-              id="global-player-toggle"
-              onClick={globalAudioState.isPlaying ? pauseGlobalAudio : resumeGlobalAudio}
-              disabled={globalAudioState.isAudioLoading}
-              className={`p-1.5 sm:p-2 rounded-xl border transition-all cursor-pointer ${
-                globalAudioState.isAudioLoading
-                  ? 'border-slate-100 text-slate-300'
-                  : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-355 hover:bg-emerald-100 dark:hover:bg-emerald-900/50'
-              }`}
-            >
-              {globalAudioState.isPlaying && !globalAudioState.isAudioLoading ? (
-                <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-              ) : (
-                <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
+            {/* Play/Pause Button with Ripple Wave Effect */}
+            <div className="relative flex items-center justify-center">
+              {globalAudioState.isPlaying && !globalAudioState.isAudioLoading && (
+                <>
+                  <motion.span 
+                    initial={{ scale: 0.8, opacity: 0.6 }}
+                    animate={{ scale: 1.6, opacity: 0 }}
+                    transition={{ repeat: Infinity, duration: 1.6, ease: "easeOut" }}
+                    className="absolute inset-0 rounded-xl bg-emerald-500/35 dark:bg-emerald-400/25 pointer-events-none"
+                  />
+                  <motion.span 
+                    initial={{ scale: 0.8, opacity: 0.4 }}
+                    animate={{ scale: 2.1, opacity: 0 }}
+                    transition={{ repeat: Infinity, duration: 1.6, ease: "easeOut", delay: 0.45 }}
+                    className="absolute inset-0 rounded-xl bg-emerald-500/20 dark:bg-emerald-400/15 pointer-events-none"
+                  />
+                </>
               )}
-            </button>
+              <button
+                id="global-player-toggle"
+                onClick={globalAudioState.isPlaying ? pauseGlobalAudio : resumeGlobalAudio}
+                disabled={globalAudioState.isAudioLoading}
+                className={`relative z-10 p-1.5 sm:p-2 rounded-xl border transition-all cursor-pointer ${
+                  globalAudioState.isAudioLoading
+                    ? 'border-slate-100 text-slate-300'
+                    : 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-100 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-355 hover:bg-emerald-100 dark:hover:bg-emerald-900/50'
+                }`}
+              >
+                {globalAudioState.isPlaying && !globalAudioState.isAudioLoading ? (
+                  <Pause className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                ) : (
+                  <Play className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600 dark:text-emerald-400" />
+                )}
+              </button>
+            </div>
 
             {/* Skip Next Button */}
             <button
