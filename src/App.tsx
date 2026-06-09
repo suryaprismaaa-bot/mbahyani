@@ -90,6 +90,26 @@ export default function App() {
       return true;
     }
   });
+  const [modalTimeLeft, setModalTimeLeft] = useState<number>(15);
+
+  useEffect(() => {
+    if (!showDevModal) return;
+    setModalTimeLeft(15);
+    const interval = setInterval(() => {
+      setModalTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          try {
+            sessionStorage.setItem('portal_dev_alert_closed', 'true');
+          } catch (e) {}
+          setShowDevModal(false);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [showDevModal]);
 
   // Real-time timepiece states
   const [timeString, setTimeString] = useState<string>('');
@@ -861,19 +881,24 @@ export default function App() {
                 } catch (e) {}
                 setShowDevModal(false);
               }}
-              className="absolute inset-0 bg-slate-900/65 backdrop-blur-md"
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs"
             />
 
-            {/* Glowing modal card */}
+            {/* Glowing minimalist modal card */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 25 }}
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              transition={{ type: "spring", damping: 25, stiffness: 350 }}
-              className="relative w-full max-w-md bg-white dark:bg-slate-900 border border-emerald-100 dark:border-emerald-800 rounded-[32px] p-8 shadow-2xl overflow-hidden text-center z-130"
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ type: "spring", damping: 28, stiffness: 400 }}
+              className="relative w-full max-w-[325px] bg-white dark:bg-slate-900 border border-emerald-100 dark:border-emerald-800 rounded-[24px] p-5.5 shadow-xl overflow-hidden text-center z-130 flex flex-col justify-between"
             >
-              {/* Cute top sparkle lights */}
-              <div className="absolute top-0 inset-x-0 h-2.5 bg-gradient-to-r from-emerald-500 via-teal-400 to-blue-500" />
+              {/* Cute top sparkle lights with countdown progress bar overlay */}
+              <div className="absolute top-0 inset-x-0 h-1 bg-slate-100 dark:bg-slate-850">
+                <div 
+                  className="h-full bg-gradient-to-r from-emerald-500 via-teal-500 to-blue-500 transition-all duration-1000 ease-linear"
+                  style={{ width: `${(modalTimeLeft / 15) * 100}%` }}
+                />
+              </div>
               
               {/* Top corner close button */}
               <button
@@ -883,100 +908,96 @@ export default function App() {
                   } catch (e) {}
                   setShowDevModal(false);
                 }}
-                className="absolute top-5 right-5 p-2 rounded-full text-slate-400 hover:text-slate-600 dark:text-emerald-400/60 dark:hover:text-emerald-200 hover:bg-slate-50 dark:hover:bg-emerald-950/45 cursor-pointer transition-colors active:scale-90"
+                className="absolute top-3.5 right-3.5 p-1.5 rounded-full text-slate-400 hover:text-slate-600 dark:text-emerald-400/60 dark:hover:text-emerald-200 hover:bg-slate-50 dark:hover:bg-emerald-950/45 cursor-pointer transition-colors active:scale-90"
                 aria-label="Tutup"
               >
-                <X className="w-4 h-4" />
+                <X className="w-3.5 h-3.5" />
               </button>
 
-              {/* mascot/avatar character - "lucu dan humanis" (Smiling Muslim kid helper) */}
-              <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center">
+              {/* mascot/avatar character - "lucu dan humanis" (Smaller, minimalized) */}
+              <div className="relative w-16 h-16 mx-auto mb-4 flex items-center justify-center">
                 {/* Ping waves */}
-                <span className="absolute inset-x-0 inset-y-0 bg-emerald-400/20 dark:bg-emerald-500/10 rounded-full animate-ping duration-1000 opacity-60"></span>
+                <span className="absolute inset-0 bg-emerald-400/20 dark:bg-emerald-500/10 rounded-full animate-ping duration-1500 opacity-50"></span>
                 {/* Golden glowing rays */}
-                <div className="absolute -inset-2 bg-gradient-to-tr from-emerald-500/20 to-amber-400/20 rounded-full blur-lg opacity-80 animate-pulse"></div>
+                <div className="absolute -inset-1.5 bg-gradient-to-tr from-emerald-500/15 to-amber-400/15 rounded-full blur-md opacity-80 animate-pulse"></div>
                 
                 {/* Mascot Outer Circle */}
-                <div className="relative w-20 h-20 bg-amber-100 dark:bg-amber-100 rounded-full border-[3.5px] border-emerald-500 dark:border-emerald-400 shadow-lg overflow-hidden flex flex-col items-center justify-center">
+                <div className="relative w-14 h-14 bg-amber-100 dark:bg-amber-100 rounded-full border-[2.5px] border-emerald-500 dark:border-emerald-400 shadow-sm overflow-hidden flex flex-col items-center justify-center">
                   
                   {/* Cute Green Muslim Songkok / Peci */}
-                  <div className="absolute top-0 w-full h-5.5 bg-emerald-600 dark:bg-emerald-700 flex justify-center items-start shadow-sm">
+                  <div className="absolute top-0 w-full h-4 bg-emerald-600 dark:bg-emerald-700 flex justify-center items-start shadow-sm">
                     {/* Tiny stitch details */}
-                    <div className="w-[85%] h-[1.5px] bg-emerald-450 dark:bg-emerald-500 mt-[1px] opacity-70"></div>
+                    <div className="w-[85%] h-[1px] bg-emerald-450 dark:bg-emerald-500 mt-[0.5px] opacity-70 animate-pulse"></div>
                   </div>
-
-                  {/* Bouncing Peci Tassel/Star */}
-                  <div className="absolute top-1.5 right-6 w-1.5 h-1.5 bg-amber-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
 
                   {/* Smiling Sparkly Eyes */}
-                  <div className="flex gap-4 mt-5">
+                  <div className="flex gap-2.5 mt-3.5">
                     {/* Left Eye */}
-                    <div className="relative w-2.5 h-3 bg-slate-800 rounded-full flex items-center justify-center">
-                      <div className="absolute top-0.5 right-0.5 w-1 h-1 bg-white rounded-full"></div>
+                    <div className="relative w-1.5 h-2 bg-slate-800 rounded-full flex items-center justify-center">
+                      <div className="absolute top-0.5 right-0.5 w-0.5 h-0.5 bg-white rounded-full"></div>
                     </div>
                     {/* Right Eye */}
-                    <div className="relative w-2.5 h-3 bg-slate-800 rounded-full flex items-center justify-center">
-                      <div className="absolute top-0.5 right-0.5 w-1 h-1 bg-white rounded-full"></div>
+                    <div className="relative w-1.5 h-2 bg-slate-800 rounded-full flex items-center justify-center">
+                      <div className="absolute top-0.5 right-0.5 w-0.5 h-0.5 bg-white rounded-full"></div>
                     </div>
                   </div>
 
-                  {/* Cuteness blush cheeks cheeks cheeks */}
-                  <div className="flex justify-between w-12 px-0.5 mt-0.5 z-10">
-                    <div className="w-3 h-1.5 rounded-full bg-rose-400/80 dark:bg-rose-400/70 blur-[0.6px] animate-pulse"></div>
-                    <div className="w-3 h-1.5 rounded-full bg-rose-400/80 dark:bg-rose-400/70 blur-[0.6px] animate-pulse"></div>
+                  {/* Blush cheeks */}
+                  <div className="flex justify-between w-8 px-0.5 mt-0.5 z-10">
+                    <div className="w-1.5 h-1 rounded-full bg-rose-400/80 dark:bg-rose-400/70 blur-[0.4px]"></div>
+                    <div className="w-1.5 h-1 rounded-full bg-rose-400/80 dark:bg-rose-400/70 blur-[0.4px]"></div>
                   </div>
 
-                  {/* Smiling mouth of absolute delight */}
-                  <div className="w-4.5 h-2.5 border-b-[2.5px] border-slate-800 rounded-b-full -mt-0.5"></div>
+                  {/* Smiling mouth */}
+                  <div className="w-3.5 h-1.5 border-b-[2px] border-slate-800 rounded-b-full -mt-0.5"></div>
                 </div>
 
                 {/* Floating mini heart */}
-                <div className="absolute -bottom-1 -right-1 w-6 h-6 bg-rose-500 dark:bg-rose-600 rounded-full flex items-center justify-center text-[10px] text-white shadow-md animate-bounce transform rotate-12">
+                <div className="absolute -bottom-0.5 -right-0.5 w-4.5 h-4.5 bg-rose-500 dark:bg-rose-600 rounded-full flex items-center justify-center text-[8px] text-white shadow-xs animate-bounce transform rotate-12">
                   💖
                 </div>
               </div>
 
               {/* Greeting Header */}
-              <div className="mb-5">
-                <span className="inline-flex items-center px-3 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 font-extrabold text-[10px] uppercase tracking-wider rounded-full mb-2.5 border border-amber-100 dark:border-amber-900/60 animate-bounce">
+              <div className="mb-3.5">
+                <span className="inline-flex items-center px-2 py-0.5 bg-amber-50 dark:bg-amber-955/40 text-amber-800 dark:text-amber-300 font-extrabold text-[9px] uppercase tracking-wide rounded-full mb-1.5 border border-amber-100 dark:border-amber-900/60 transition-all">
                   ✨ Assalamu&apos;alaikum! 👋
                 </span>
-                <h3 className="font-serif font-black text-xl text-slate-800 dark:text-emerald-100 tracking-tight leading-tight">
-                  Ada Kabar Baik untuk Kita Semua!
+                <h3 className="font-serif font-black text-sm text-slate-800 dark:text-emerald-100 tracking-tight leading-tight">
+                  Update & Pemeliharaan Sistem
                 </h3>
               </div>
 
-              {/* Warm Message Body */}
-              <div className="space-y-3.5 text-xs text-slate-600 dark:text-emerald-250/90 leading-relaxed font-sans mb-7 text-justify px-1">
+              {/* Warm Message Body - highly compact & direct */}
+              <div className="space-y-2 text-[11px] text-slate-600 dark:text-emerald-200/90 leading-relaxed font-sans mb-4 px-1 text-center">
                 <p>
-                  Halo, Keluarga Besar <strong>Mbah Yani</strong>! Saat ini, portal Islami kebanggaan kita sedang berada dalam <strong>proses pengembangan berkala & perbaikan sistem secara kontinu</strong>.
+                  Sistem kebanggaan <strong>Mbah Yani</strong> sedang dalam masa peningkatan kualitas secara berkala dan realtime di belakang layar.
                 </p>
-                <p>
-                  Ini dilakukan agar seluruh fitur mulai dari jadwal shalat, mutaba&apos;ah amal harian, hingga murottal Al-Qur&apos;an dapat senantiasa loading dengan <strong>sangat cepat, stabil, akurat, dan ramah digunakan (friendly)</strong> oleh seluruh bapak, ibu, anak, cucu, cicit serta para lansia. 🕌📚
-                </p>
-                <p className="text-center font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50/60 dark:bg-emerald-950/20 py-2 px-3 rounded-2xl border border-emerald-100/30">
-                  Insya Allah, beberapa perbaikan minor sedang berjalan secara realtime di belakang layar. ✨🤲
+                <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold bg-emerald-50/50 dark:bg-emerald-950/20 py-1 px-2 rounded-xl border border-emerald-100/30">
+                  Seluruh fitur tetap dapat diakses dengan lancar! ✨🤲
                 </p>
               </div>
 
-              {/* Close Button / Call to Action */}
-              <button
-                id="close-dev-modal"
-                onClick={() => {
-                  try {
-                    sessionStorage.setItem('portal_dev_alert_closed', 'true');
-                  } catch (e) {}
-                  setShowDevModal(false);
-                }}
-                className="w-full py-3.5 px-6 bg-gradient-to-r from-emerald-600 via-teal-600 to-emerald-700 hover:from-emerald-500 hover:to-teal-600 text-white font-extrabold text-sm rounded-2xl shadow-lg hover:shadow-emerald-600/25 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 glow-on-click"
-              >
-                <span>Mulai Amaliyah Harian</span>
-                <MoveRight className="w-4 h-4 animate-pulse" />
-              </button>
-
-              <p className="text-[10px] text-slate-400 dark:text-emerald-500/50 mt-3.5 text-center font-medium">
-                Saling mendoakan & istiqomah beramal • Ver 2.0
-              </p>
+              {/* Action Buttons: Tutup & Timer information */}
+              <div className="space-y-2 w-full">
+                <button
+                  id="close-dev-modal"
+                  onClick={() => {
+                    try {
+                      sessionStorage.setItem('portal_dev_alert_closed', 'true');
+                    } catch (e) {}
+                    setShowDevModal(false);
+                  }}
+                  className="w-full py-2.5 px-4 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 hover:to-teal-500 text-white font-extrabold text-xs rounded-xl shadow-md hover:shadow-emerald-600/15 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-1.5"
+                >
+                  <span>Tutup Notifikasi ({modalTimeLeft}s)</span>
+                  <MoveRight className="w-3.5 h-3.5 animate-pulse" />
+                </button>
+                
+                <div className="text-[9px] text-slate-400 dark:text-emerald-500/50 text-center font-semibold">
+                  Tutup otomatis dalam {modalTimeLeft} detik • Ver 2.0
+                </div>
+              </div>
             </motion.div>
           </div>
         )}
