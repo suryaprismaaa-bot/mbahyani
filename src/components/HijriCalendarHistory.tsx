@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useMemo } from 'react';
-import { Search, Calendar, Sparkles, BookOpen, Clock, Heart, Award, ShieldAlert, Swords, History, Info, ChevronRight, Check, X, Filter } from 'lucide-react';
+import { Search, Calendar, Sparkles, BookOpen, Clock, Heart, Award, ShieldAlert, Swords, History, Info, ChevronRight, Check, X, Filter, ChevronLeft, ArrowLeft } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
 export interface HijriEvent {
@@ -394,13 +394,14 @@ export const HIJRI_MONTHS_DATA: HijriMonth[] = [
 ];
 
 export default function HijriCalendarHistory() {
-  const [selectedMonthNum, setSelectedMonthNum] = useState<number>(1);
+  const [selectedMonthNum, setSelectedMonthNum] = useState<number | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [eraFilter, setEraFilter] = useState<'semua' | 'pra_kerasulan' | 'kerasulan' | 'kekhalifahan' | 'pasca_sahabat'>('semua');
   const [selectedEvent, setSelectedEvent] = useState<HijriEvent | null>(null);
 
   // Smooth Month Navigation
   const selectedMonth = useMemo(() => {
+    if (selectedMonthNum === null) return HIJRI_MONTHS_DATA[0];
     return HIJRI_MONTHS_DATA.find(m => m.number === selectedMonthNum) || HIJRI_MONTHS_DATA[0];
   }, [selectedMonthNum]);
 
@@ -424,7 +425,7 @@ export default function HijriCalendarHistory() {
 
   // Filter events based on active tab and filters
   const filteredEvents = useMemo(() => {
-    if (viewMode === 'month-by-month') {
+    if (viewMode === 'month-by-month' && selectedMonthNum !== null) {
       return selectedMonth.events.filter(event => {
         const matchesSearch = searchQuery === "" || 
           event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -442,21 +443,21 @@ export default function HijriCalendarHistory() {
         return matchesSearch && matchesEra;
       });
     }
-  }, [viewMode, selectedMonth, allEventsWithMonths, searchQuery, eraFilter]);
+  }, [viewMode, selectedMonth, selectedMonthNum, allEventsWithMonths, searchQuery, eraFilter]);
 
   // Helper colors based on Event Type
   const getEventBadgeStyle = (era: string) => {
     switch(era) {
       case 'pra_kerasulan': 
-        return { bg: 'bg-purple-50 dark:bg-purple-950/40 text-purple-600 dark:text-purple-400 border-purple-100 dark:border-purple-900/50', label: 'Zaman Pra-Kerasulan' };
+        return { bg: 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-2 border-purple-400 dark:border-purple-805', label: 'Zaman Pra-Kerasulan' };
       case 'kerasulan': 
-        return { bg: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border-emerald-100 dark:border-emerald-900/50', label: 'Zaman Kerasulan Nabi' };
+        return { bg: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-2 border-emerald-400 dark:border-emerald-805', label: 'Zaman Kerasulan Nabi' };
       case 'kekhalifahan': 
-        return { bg: 'bg-blue-50 dark:bg-blue-950/40 text-blue-600 dark:text-blue-400 border-blue-100 dark:border-blue-900/50', label: 'Khulafaur Rasyidin' };
+        return { bg: 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-2 border-blue-400 dark:border-blue-805', label: 'Khulafaur Rasyidin' };
       case 'pasca_sahabat': 
-        return { bg: 'bg-rose-50 dark:bg-rose-955/20 text-rose-600 dark:text-rose-400 border-rose-100 dark:border-rose-900/40', label: 'Pasca Sahabat / Kekhalifahan' };
+        return { bg: 'bg-rose-100 dark:bg-rose-955/40 text-rose-800 dark:text-rose-300 border-2 border-rose-400 dark:border-rose-850', label: 'Pasca Sahabat / Kekhalifahan' };
       default: 
-        return { bg: 'bg-slate-50 dark:bg-slate-900 text-slate-705 border-slate-200', label: 'Sejarah Islam' };
+        return { bg: 'bg-slate-100 dark:bg-slate-900 text-slate-805 border-2 border-slate-400', label: 'Sejarah Islam' };
     }
   };
 
@@ -469,6 +470,69 @@ export default function HijriCalendarHistory() {
       case 'miracle': return 'bg-purple-100 dark:bg-purple-950/45 text-purple-600 dark:text-purple-400';
       case 'diplomacy': return 'bg-teal-100 dark:bg-teal-950/45 text-teal-600 dark:text-teal-400';
       default: return 'bg-emerald-100 text-emerald-600';
+    }
+  };
+
+  // Redesigned layouts according to request:
+  // "berikan background yang mencolok dan pembatas garis yang tegas dan tebal pada setiap peristiwa sejarah"
+  const getStrikingEventStyle = (iconType: string) => {
+    switch(iconType) {
+      case 'victory':
+        return {
+          bg: 'bg-gradient-to-br from-amber-50 to-amber-100/50 dark:from-slate-900/90 dark:to-slate-950/90 hover:from-amber-100/40 dark:hover:from-slate-850',
+          border: 'border-2 border-amber-500/80 dark:border-amber-500/40',
+          leftBorder: 'border-l-[10px] border-l-amber-500 dark:border-l-amber-500',
+          badgeText: 'text-amber-850 dark:text-amber-300',
+          badgeBg: 'bg-amber-100 dark:bg-amber-955/40 border border-amber-205 dark:border-amber-900/60'
+        };
+      case 'struggle':
+        return {
+          bg: 'bg-gradient-to-br from-indigo-50 to-indigo-100/50 dark:from-slate-900/90 dark:to-slate-950/90 hover:from-indigo-100/40 dark:hover:from-slate-850',
+          border: 'border-2 border-indigo-550/80 dark:border-indigo-500/40',
+          leftBorder: 'border-l-[10px] border-l-indigo-550 dark:border-l-indigo-500',
+          badgeText: 'text-indigo-805 dark:text-indigo-300',
+          badgeBg: 'bg-indigo-100 dark:bg-indigo-950/40 border border-indigo-200 dark:border-indigo-900/60'
+        };
+      case 'death':
+        return {
+          bg: 'bg-gradient-to-br from-rose-50 to-rose-100/50 dark:from-slate-900/95 dark:to-slate-950/95 hover:from-rose-100/45 dark:hover:from-slate-850',
+          border: 'border-2 border-rose-500/80 dark:border-rose-555/45',
+          leftBorder: 'border-l-[10px] border-l-rose-500 dark:border-l-rose-500',
+          badgeText: 'text-rose-805 dark:text-rose-305',
+          badgeBg: 'bg-rose-100 dark:bg-rose-955/35 border border-rose-200 dark:border-rose-900/60'
+        };
+      case 'birth':
+        return {
+          bg: 'bg-gradient-to-br from-pink-50 to-pink-100/50 dark:from-slate-900/95 dark:to-slate-950/95 hover:from-pink-100/40 dark:hover:from-slate-850',
+          border: 'border-2 border-pink-505/80 dark:border-pink-550/40',
+          leftBorder: 'border-l-[10px] border-l-pink-500 dark:border-l-pink-500',
+          badgeText: 'text-pink-850 dark:text-pink-300',
+          badgeBg: 'bg-pink-100 dark:bg-pink-955/30 border border-pink-250 dark:border-pink-900/60'
+        };
+      case 'miracle':
+        return {
+          bg: 'bg-gradient-to-br from-purple-50 to-purple-100/50 dark:from-slate-900/90 dark:to-slate-950/90 hover:from-purple-100/40 dark:hover:from-slate-850',
+          border: 'border-2 border-purple-500/80 dark:border-purple-500/40',
+          leftBorder: 'border-l-[10px] border-l-purple-500 dark:border-l-purple-500',
+          badgeText: 'text-purple-805 dark:text-purple-300',
+          badgeBg: 'bg-purple-100 dark:bg-purple-950/40 border border-purple-200 dark:border-purple-900/60'
+        };
+      case 'diplomacy':
+        return {
+          bg: 'bg-gradient-to-br from-teal-50 to-teal-100/50 dark:from-slate-900/90 dark:to-slate-950/90 hover:from-teal-100/40 dark:hover:from-slate-850',
+          border: 'border-2 border-teal-500/80 dark:border-teal-500/40',
+          leftBorder: 'border-l-[10px] border-l-teal-500 dark:border-l-teal-500',
+          badgeText: 'text-teal-850 dark:text-teal-300',
+          badgeBg: 'bg-teal-100 dark:bg-teal-955/30 border border-teal-200 dark:border-teal-900/60'
+        };
+      default:
+        return {
+          bg: 'bg-gradient-to-br from-emerald-50 to-emerald-100/50 dark:from-slate-900/90 dark:to-slate-950/90 hover:from-emerald-100/40 dark:hover:from-slate-850',
+          border: 'border-2 border-emerald-505/80 dark:border-emerald-555/40',
+          leftBorder: 'border-l-[10px] border-l-emerald-500 dark:border-l-emerald-500',
+          badgeText: 'text-emerald-850 dark:text-emerald-305',
+          badgeBg: 'bg-emerald-100 dark:bg-emerald-955/30 border border-emerald-202 dark:border-emerald-900/60'
+        };
     }
   };
 
@@ -497,264 +561,339 @@ export default function HijriCalendarHistory() {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        {/* LEFT COLUMN: Month Selection Sidebar (12 Months Grid/Vertical) */}
-        <div className="lg:col-span-4 space-y-4">
-          <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 p-4.5 rounded-2xl shadow-3xs">
-            <div className="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 mb-4 text-left">
-              <h3 className="font-serif font-extrabold text-sm text-slate-805 dark:text-emerald-50">
-                12 Bulan Hijriah
-              </h3>
-              <span className="text-[10px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2 py-0.5 rounded-md">
-                Tahun Hijriah
-              </span>
-            </div>
-            
-            {/* Horizontal scroll on mobile, vertical stack on desktop */}
-            <div className="flex lg:flex-col gap-2 overflow-x-auto lg:overflow-x-visible pb-2 lg:pb-0 scrollbar-none snap-x">
-              {HIJRI_MONTHS_DATA.map((m) => {
-                const isActive = selectedMonthNum === m.number && viewMode === 'month-by-month';
-                return (
-                  <button
-                    key={m.number}
-                    onClick={() => {
-                      setSelectedMonthNum(m.number);
-                      setViewMode('month-by-month');
-                    }}
-                    className={`flex items-center gap-3 w-44 lg:w-full p-2.5 rounded-xl transition-all border shrink-0 snap-align-start text-left cursor-pointer ${
-                      isActive
-                        ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white border-transparent shadow-md font-bold'
-                        : 'bg-slate-50 hover:bg-slate-100/80 dark:bg-slate-950/30 dark:hover:bg-slate-950/60 text-slate-700 dark:text-emerald-200 border-slate-150 dark:border-slate-800/60'
-                    }`}
-                  >
-                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-xs font-black font-mono shrink-0 ${
-                      isActive 
-                        ? 'bg-white/20 text-white' 
-                        : 'bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300'
-                    }`}>
-                      {String(m.number).padStart(2, '0')}
-                    </div>
-                    
-                    <div className="min-w-0 flex-1 leading-tight">
-                      <div className="flex items-center justify-between gap-1">
-                        <span className="block text-xs font-bold truncate">
-                          {m.name}
-                        </span>
-                        {m.isHaram && (
-                          <span className={`text-[8.5px] font-black uppercase tracking-wider px-1 rounded-sm ${isActive ? 'bg-white/20 text-white' : 'bg-rose-50 dark:bg-rose-955/30 text-rose-500'}`} title="Bulan Haram (Mulia)">
-                            Haram
-                          </span>
-                        )}
-                      </div>
-                      <span className={`block text-[10px] truncate ${isActive ? 'text-white/80' : 'text-slate-400 dark:text-emerald-500/60'}`} style={{ fontFamily: 'monospace' }}>
-                        {m.arabic}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
+      {selectedMonthNum === null && viewMode !== 'search-all' ? (
+        /* ==================== STATE 1: 12 MONTHS GRID VIEW ==================== */
+        <div className="space-y-8 text-left">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-150 dark:border-slate-800 pb-5">
+            <div>
+              <h2 className="text-xl md:text-2xl font-serif font-black text-slate-900 dark:text-emerald-50 flex items-center gap-2.5">
+                <Calendar className="w-6 h-6 text-emerald-600" />
+                Pilih Bulan Hijriah
+              </h2>
+              <p className="text-xs text-slate-500 dark:text-emerald-400 mt-1">
+                Silakan klik pada salah satu bulan di bawah untuk mengeksplorasi kronik peristiwa sejarah Islam di bulan tersebut.
+              </p>
             </div>
 
-            <div className="h-px bg-slate-100 dark:bg-slate-850 my-4" />
-            
             {/* Global Search Option Tool */}
             <button
-              onClick={() => setViewMode(prev => prev === 'search-all' ? 'month-by-month' : 'search-all')}
-              className={`w-full py-2.5 px-4 rounded-xl border font-extrabold text-xs transition-all flex items-center justify-center gap-2 cursor-pointer ${
-                viewMode === 'search-all'
-                  ? 'bg-amber-500 hover:bg-amber-650 border-amber-400 text-slate-950 font-black shadow-md'
-                  : 'bg-white dark:bg-slate-900 hover:bg-slate-50 text-slate-705 dark:text-emerald-250 border-slate-205 dark:border-slate-800'
-              }`}
+              onClick={() => setViewMode('search-all')}
+              className="px-5 py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-500 text-white font-extrabold text-xs rounded-xl shadow-sm hover:shadow-md transition-all flex items-center gap-2 cursor-pointer animate-none"
             >
-              <Filter className="w-3.5 h-3.5" />
-              <span>{viewMode === 'search-all' ? 'Kembali ke Bulan Aktif' : 'Cari Semua Peristiwa'}</span>
+              <Search className="w-3.5 h-3.5" />
+              <span>Cari Semua Peristiwa Sejarah</span>
             </button>
           </div>
 
-          {/* Month Intro Card (Hanya muncul jika mode month-by-month) */}
-          {viewMode === 'month-by-month' && (
-            <div className="bg-gradient-to-br from-amber-500/5 to-amber-550/10 dark:from-amber-955/5 dark:to-orange-955/10 border-2 border-amber-500/60 p-4.5 rounded-2xl text-left">
-              <div className="flex items-center gap-2 mb-2">
-                <Info className="w-4 h-4 text-amber-650 dark:text-amber-400 shrink-0" />
-                <h4 className="font-serif font-black text-xs text-slate-850 dark:text-amber-400 uppercase tracking-wider">
-                  Makna & Maklumat Bulan:
-                </h4>
-              </div>
-              <h3 className="font-serif font-black text-lg text-slate-900 dark:text-amber-350 leading-tight mb-2 flex items-baseline gap-2">
-                {selectedMonth.name}
-                <span className="text-xs font-normal text-slate-500 dark:text-emerald-400/70">
-                  ({selectedMonth.meaning})
-                </span>
-              </h3>
-              <p className="text-[11.5px] text-slate-650 dark:text-emerald-200/90 leading-relaxed font-sans mb-3 text-justify">
-                {selectedMonth.description}
-              </p>
-              {selectedMonth.isHaram && (
-                <div className="py-1.5 px-2.5 bg-rose-50 dark:bg-rose-955/20 border border-rose-100 dark:border-rose-950/50 rounded-xl text-[10.5px] text-rose-700 dark:text-rose-300 font-extrabold flex items-center gap-1.5 leading-tight">
-                  <span className="w-1.5 h-1.5 rounded-full bg-rose-500 shrink-0" />
-                  Bulan ini dilipatgandakan pahala amalan sunnah!
+          {/* Minimalist 12 Months List layout: ultra space-saving row items */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {HIJRI_MONTHS_DATA.map((m) => {
+              const eventCount = m.events.length;
+              return (
+                <button
+                  key={m.number}
+                  onClick={() => {
+                    setSelectedMonthNum(m.number);
+                    setViewMode('month-by-month');
+                  }}
+                  className="group flex items-center justify-between p-3 bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 hover:border-emerald-500 dark:hover:border-emerald-600 rounded-xl shadow-[0_1px_2px_rgba(0,0,0,0.02)] hover:shadow-xs transition-all duration-200 text-left w-full cursor-pointer"
+                >
+                  <div className="flex items-center gap-3 min-w-0">
+                    {/* Urutan Nomor */}
+                    <div className="w-7 h-7 rounded-lg bg-emerald-50 dark:bg-emerald-950 text-emerald-700 dark:text-emerald-400 font-extrabold font-mono text-xs flex items-center justify-center border border-emerald-100/50 dark:border-emerald-900/40 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-transparent transition-all duration-200 shrink-0">
+                      {String(m.number).padStart(2, '0')}
+                    </div>
+                    
+                    {/* Bulan Name & Detail */}
+                    <div className="min-w-0 leading-tight">
+                      <div className="flex items-center gap-1.5 flex-wrap">
+                        <span className="font-serif font-extrabold text-xs text-slate-850 dark:text-emerald-50 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
+                          {m.name}
+                        </span>
+                        <span className="text-[10px] text-slate-400 dark:text-slate-500 font-serif">
+                          {m.arabic}
+                        </span>
+                        {m.isHaram && (
+                          <span className="text-[8px] font-black uppercase tracking-wider px-1 bg-rose-50 dark:bg-rose-955/30 text-rose-500 rounded">
+                            Mulia
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-[10.5px] text-slate-500 dark:text-emerald-500/80 font-medium truncate mt-0.5" title={`${m.meaning} - ${eventCount} Peristiwa`}>
+                        {m.meaning} • <span className="font-bold text-emerald-600 dark:text-emerald-400">{eventCount} Peristiwa</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Klik Sini trigger to save space */}
+                  <div className="shrink-0 ml-2">
+                    <span className="text-[10px] font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 hover:bg-emerald-100 dark:bg-emerald-950/50 px-2 py-1 rounded-lg border border-emerald-100/40 dark:border-emerald-900/40 group-hover:bg-emerald-600 group-hover:text-white group-hover:border-transparent transition-all duration-200 flex items-center gap-0.5 whitespace-nowrap">
+                      <span>Klik Sini</span>
+                      <ChevronRight className="w-2.5 h-2.5" />
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ) : (
+        /* ==================== STATE 2 & 3: MONTH DUAL-PANEL VIEW OR SEARCH ALL ==================== */
+        <div className="text-left space-y-6">
+          
+          {/* Back Button / Navigation */}
+          <button
+            onClick={() => {
+              setSelectedMonthNum(null);
+              setViewMode('month-by-month');
+            }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-white dark:bg-slate-900 border-2 border-slate-205 dark:border-slate-800 hover:border-emerald-500 dark:hover:border-emerald-600 text-slate-705 dark:text-emerald-100 font-extrabold text-xs rounded-xl shadow-xs transition-all hover:-translate-x-1 cursor-pointer"
+          >
+            <ArrowLeft className="w-4 h-4 text-emerald-500" />
+            <span>← Kembali ke Daftar Bulan Hijriah</span>
+          </button>
+
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            {/* LEFT SIDEBAR: Selected Month Detail Profile Panel */}
+            <div className="lg:col-span-4 space-y-4">
+              {viewMode === 'search-all' ? (
+                <div className="bg-gradient-to-br from-amber-500 to-orange-600 text-slate-950 p-6 rounded-2xl shadow-md border-2 border-amber-400">
+                  <h3 className="font-serif font-black text-lg leading-tight mb-2.5">
+                    Pencarian Global
+                  </h3>
+                  <p className="text-xs text-slate-905/90 leading-relaxed font-semibold">
+                    Anda sedang mencari sejarah dari seluruh 12 bulan Hijriah sekaligus. Gunakan filter pencarian di samping untuk menemukan catatan spesifik.
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-gradient-to-br from-amber-500/5 to-amber-550/10 dark:from-amber-955/5 dark:to-orange-955/10 border-2 border-amber-500/60 p-5 rounded-2xl">
+                  <div className="flex items-center justify-between pb-3.5 border-b border-amber-250/20 mb-4">
+                    <span className="text-[10px] font-black tracking-widest text-amber-700 dark:text-amber-400 uppercase">
+                      BULAN {String(selectedMonth.number).padStart(2, '0')} / 12
+                    </span>
+                    {selectedMonth.isHaram && (
+                      <span className="text-[9px] font-black uppercase tracking-wider px-2 py-0.5 bg-rose-500 text-white rounded shadow-sm">
+                        BULAN HARAM
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="space-y-4">
+                    <div>
+                      <span className="text-3xl font-serif font-black block text-slate-300 dark:text-emerald-800/45 opacity-70 mb-1">
+                        {selectedMonth.arabic}
+                      </span>
+                      <h3 className="font-serif font-black text-2xl text-slate-900 dark:text-amber-300 leading-tight">
+                        {selectedMonth.name}
+                      </h3>
+                      <p className="text-xs font-bold text-slate-500 dark:text-emerald-400 uppercase mt-1">
+                        Artinya: {selectedMonth.meaning}
+                      </p>
+                    </div>
+
+                    <p className="text-xs text-slate-650 dark:text-emerald-200/95 leading-relaxed font-sans text-justify pt-1">
+                      {selectedMonth.description}
+                    </p>
+
+                    {selectedMonth.isHaram && (
+                      <div className="py-2.5 px-3 bg-rose-500/10 dark:bg-rose-955/20 border border-rose-500/30 rounded-xl text-[10.5px] text-rose-700 dark:text-rose-300 font-bold leading-relaxed">
+                        ⚠️ <strong>Bulan Mulia:</strong> Peperangan dilarang keras, dan seluruh amal ibadah sunnah & wajib diganjar berlipat ganda di sisi Allah SWT.
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
-            </div>
-          )}
-        </div>
 
-        {/* RIGHT COLUMN: Search Filter and Event Cards list */}
-        <div className="lg:col-span-8 space-y-4 text-left">
-          
-          {/* Controls Bar */}
-          <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 p-4 rounded-2xl shadow-3xs space-y-3">
-            <div className="flex flex-col sm:flex-row gap-3">
-              {/* Search input */}
-              <div className="relative flex-1">
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder={viewMode === 'search-all' ? "Cari peristiwa sejarah (misal: 'Karbala', 'Badar', 'Musa')..." : `Cari peristiwa di bulan ${selectedMonth.name}...`}
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="w-full pl-9.5 pr-4 py-2 bg-slate-50 dark:bg-slate-950/40 border border-slate-200 dark:border-slate-800 focus:border-emerald-500 dark:focus:border-emerald-600 rounded-xl text-xs text-slate-800 dark:text-white placeholder-slate-400 focus:outline-none"
-                />
-                {searchQuery && (
-                  <button onClick={() => setSearchQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
-                    <X className="w-3.5 h-3.5" />
-                  </button>
-                )}
-              </div>
-
-              {/* Era Selector dropdown */}
-              <div className="relative shrink-0">
-                <select
-                  value={eraFilter}
-                  onChange={(e) => setEraFilter(e.target.value as any)}
-                  className="w-full sm:w-48 py-2 pl-3.5 pr-8 bg-slate-50 dark:bg-slate-955 border border-slate-205 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-700 dark:text-emerald-200 cursor-pointer focus:outline-none appearance-none"
-                >
-                  <option value="semua">⏳ Semua Era Sejarah</option>
-                  <option value="pra_kerasulan">⏳ Zaman Pra-Kerasulan</option>
-                  <option value="kerasulan">🕌 Zaman Kerasulan Nabi</option>
-                  <option value="kekhalifahan">📜 Khulafaur Rasyidin</option>
-                  <option value="pasca_sahabat">⚔️ Pasca Sahabat / Dinasti</option>
-                </select>
-                <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-550">
-                  <ChevronRight className="w-4 h-4 rotate-90" />
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Event Listing */}
-          <div className="space-y-4">
-            <div className="flex items-center justify-between px-1">
-              <h2 className="text-base font-serif font-black text-slate-900 dark:text-emerald-50 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-orange-500 shrink-0" />
-                {viewMode === 'month-by-month' ? `Peristiwa Sejarah Bulan ${selectedMonth.name}` : `Semua Peristiwa Sejarah Terkait`}
-                <span className="text-xs text-blue-550 font-sans font-black bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-lg border border-blue-100 dark:border-blue-900/50">
-                  {filteredEvents.length} Hasil
-                </span>
-              </h2>
-              <span className="text-[10px] font-mono text-slate-400 font-extrabold uppercase">
-                UMAT NUSANTARA
-              </span>
-            </div>
-
-            <AnimatePresence mode="popLayout">
-              {filteredEvents.length === 0 ? (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="bg-white dark:bg-slate-900 border border-dashed border-slate-200 dark:border-slate-800 p-12 text-center rounded-3xl"
-                >
-                  <History className="w-12 h-12 text-slate-350 dark:text-slate-650 mx-auto mb-3" />
-                  <h3 className="font-serif font-extrabold text-base text-slate-800 dark:text-slate-100 mb-1">
-                    Tidak Ditemukan Peristiwa Sejarah
-                  </h3>
-                  <p className="text-xs text-slate-400 dark:text-emerald-500/60 max-w-md mx-auto">
-                    Kriteria pencarian atau filter kependudukan sejarah Anda kosong. Cobalah menggunakan kata kunci umum lain atau reset filter era.
-                  </p>
-                  {(searchQuery || eraFilter !== 'semua') && (
-                    <button
-                      onClick={() => { setSearchQuery(""); setEraFilter("semua"); }}
-                      className="mt-4 px-4 py-1.5 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs rounded-xl cursor-pointer"
-                    >
-                      Mulai Ulang Filter
-                    </button>
-                  )}
-                </motion.div>
-              ) : (
-                <div className="grid gap-4.5">
-                  {filteredEvents.map((event) => {
-                    const eraStyle = getEventBadgeStyle(event.era);
+              {/* Sidebar Menu Quick Change Month Grid */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800 p-4.5 rounded-2xl space-y-3">
+                <h4 className="font-serif font-bold text-xs text-slate-850 dark:text-emerald-400">
+                  Pindah Cepat ke Bulan Lain:
+                </h4>
+                <div className="grid grid-cols-3 gap-1.5">
+                  {HIJRI_MONTHS_DATA.map((m) => {
+                    const isCurrent = m.number === selectedMonthNum && viewMode !== 'search-all';
                     return (
-                      <motion.div
-                        layout
-                        initial={{ opacity: 0, y: 15 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        transition={{ type: "spring", damping: 25, stiffness: 350 }}
-                        key={event.id}
-                        className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 p-5 rounded-2xl shadow-3xs hover:border-emerald-500/50 dark:hover:border-emerald-800 transition-all flex flex-col sm:flex-row gap-4 group"
+                      <button
+                        key={m.number}
+                        onClick={() => {
+                          setSelectedMonthNum(m.number);
+                          setViewMode('month-by-month');
+                        }}
+                        className={`py-1.5 px-2 text-[10.5px] font-black rounded-lg transition-all border text-center cursor-pointer ${
+                          isCurrent
+                            ? 'bg-emerald-600 text-white border-transparent shadow-xs'
+                            : 'bg-slate-50 hover:bg-slate-100 dark:bg-slate-950/30 dark:hover:bg-slate-950/50 text-slate-705 dark:text-emerald-200 border-slate-150 dark:border-slate-800'
+                        }`}
+                        title={m.name}
                       >
-                        {/* Event icon box */}
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 ${getIconColorStyle(event.iconType)} shadow-3xs`}>
-                          {event.iconType === 'birth' && <Heart className="w-5.5 h-5.5 fill-current" />}
-                          {event.iconType === 'death' && <Info className="w-5.5 h-5.5 font-bold" />}
-                          {event.iconType === 'victory' && <Award className="w-5.5 h-5.5 font-bold animate-pulse" />}
-                          {event.iconType === 'struggle' && <Swords className="w-5.5 h-5.5" />}
-                          {event.iconType === 'miracle' && <Sparkles className="w-5.5 h-5.5" />}
-                          {event.iconType === 'diplomacy' && <BookOpen className="w-5.5 h-5.5" />}
-                        </div>
-
-                        {/* Content text block */}
-                        <div className="min-w-0 flex-grow text-left space-y-2">
-                          <div className="flex flex-wrap items-center gap-2">
-                            <span className={`px-2.5 py-0.5 rounded-lg border text-[9.5px] font-black uppercase tracking-wider ${eraStyle.bg}`}>
-                              {eraStyle.label}
-                            </span>
-                            <span className="text-[10px] font-black text-rose-650 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-950/20 px-2 py-0.5 rounded-lg border border-rose-100/30">
-                              📅 {event.hijriDate}
-                            </span>
-                            {viewMode === 'search-all' && (
-                              <span className="text-[10px] font-black text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-lg">
-                                🌙 Bulan { (event as any).monthName }
-                              </span>
-                            )}
-                          </div>
-
-                          <h3 className="font-serif font-extrabold text-base md:text-lg text-slate-850 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors leading-tight">
-                            {event.title}
-                          </h3>
-
-                          <p className="text-xs text-slate-600 dark:text-emerald-250 leading-relaxed text-justify line-clamp-3 md:line-clamp-none font-sans">
-                            {event.summary}
-                          </p>
-
-                          {/* Authentic reference citation block */}
-                          <div className="pt-2 border-t border-slate-100 dark:border-slate-800/60 flex flex-col md:flex-row md:items-center justify-between text-[11px] text-slate-400 font-semibold gap-2">
-                            <span className="inline-flex items-center gap-1.5 font-mono text-[9.5px] text-slate-450 dark:text-emerald-500">
-                              📚 RUJUKAN SHAHIH: <strong className="text-slate-600 dark:text-emerald-300 font-sans tracking-tight">{event.reference}</strong>
-                            </span>
-                            
-                            {/* Read details button */}
-                            <button
-                              onClick={() => setSelectedEvent(event)}
-                              className="px-3.5 py-1 bg-slate-50 hover:bg-emerald-50 hover:text-emerald-700 dark:bg-slate-950/30 dark:hover:bg-slate-950/80 text-slate-500 dark:text-emerald-400 font-extrabold rounded-lg border border-slate-200 dark:border-slate-800/85 transition-all text-left flex items-center justify-center gap-1 active:scale-95 ml-auto md:ml-0 cursor-pointer"
-                            >
-                              <span>Baca Selengkapnya</span>
-                              <ChevronRight className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-                      </motion.div>
+                        {String(m.number).padStart(2, '0')}
+                      </button>
                     );
                   })}
                 </div>
-              )}
-            </AnimatePresence>
+              </div>
+            </div>
+
+            {/* RIGHT MAIN CONTENT AREA: Event list & search filters */}
+            <div className="lg:col-span-8 space-y-4">
+              
+              {/* Controls Filter Bar */}
+              <div className="bg-white dark:bg-slate-900 border border-slate-150 dark:border-slate-800/80 p-4 rounded-2xl shadow-3xs space-y-3">
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {/* Search input */}
+                  <div className="relative flex-1">
+                    <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder={viewMode === 'search-all' ? "Cari sejarah (misal: 'Karbala', 'Badar', 'Musa')..." : `Cari peristiwa di bulan ${selectedMonth.name}...`}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="w-full pl-9.5 pr-4 py-2 bg-slate-50 dark:bg-slate-955/40 border border-slate-200 dark:border-slate-800 focus:border-emerald-500 dark:focus:border-emerald-600 rounded-xl text-xs text-slate-850 dark:text-white placeholder-slate-400 focus:outline-none"
+                    />
+                    {searchQuery && (
+                      <button onClick={() => setSearchQuery("")} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+                        <X className="w-3.5 h-3.5" />
+                      </button>
+                    )}
+                  </div>
+
+                  {/* Era Selector dropdown */}
+                  <div className="relative shrink-0">
+                    <select
+                      value={eraFilter}
+                      onChange={(e) => setEraFilter(e.target.value as any)}
+                      className="w-full sm:w-48 py-2 pl-3.5 pr-8 bg-slate-50 dark:bg-slate-955 border border-slate-205 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-705 dark:text-emerald-200 cursor-pointer focus:outline-none appearance-none"
+                    >
+                      <option value="semua">⏳ Semua Era Sejarah</option>
+                      <option value="pra_kerasulan">⏳ Zaman Pra-Kerasulan</option>
+                      <option value="kerasulan">🕌 Zaman Kerasulan Nabi</option>
+                      <option value="kekhalifahan">📜 Khulafaur Rasyidin</option>
+                      <option value="pasca_sahabat">⚔️ Pasca Sahabat / Dinasti</option>
+                    </select>
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-550">
+                      <ChevronRight className="w-4 h-4 rotate-90" />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Event Listing Headers and Grid */}
+              <div className="space-y-4">
+                <div className="flex items-center justify-between px-1">
+                  <h2 className="text-base font-serif font-black text-slate-900 dark:text-emerald-50 flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-orange-500 shrink-0" />
+                    {viewMode === 'month-by-month' ? `Peristiwa Sejarah Bulan ${selectedMonth.name}` : `Semua Peristiwa Sejarah Terkait`}
+                    <span className="text-xs text-blue-550 font-sans font-black bg-blue-50 dark:bg-blue-950/40 px-2 py-0.5 rounded-lg border border-blue-100 dark:border-blue-900/50">
+                      {filteredEvents.length} Hasil
+                    </span>
+                  </h2>
+                  <span className="text-[10px] font-mono text-slate-400 font-extrabold uppercase">
+                    KRONIK SHAHIH
+                  </span>
+                </div>
+
+                <AnimatePresence mode="popLayout">
+                  {filteredEvents.length === 0 ? (
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0, scale: 0.95 }}
+                      className="bg-white dark:bg-slate-900 border-2 border-dashed border-slate-200 dark:border-slate-800 p-12 text-center rounded-3xl"
+                    >
+                      <History className="w-12 h-12 text-slate-350 dark:text-slate-650 mx-auto mb-3" />
+                      <h3 className="font-serif font-extrabold text-base text-slate-805 dark:text-slate-100 mb-1">
+                        Tidak Ditemukan Peristiwa Sejarah
+                      </h3>
+                      <p className="text-xs text-slate-405 dark:text-emerald-500/60 max-w-md mx-auto">
+                        Kriteria pencarian atau filter kependudukan sejarah Anda kosong. Cobalah menggunakan kata kunci umum lain atau reset filter era.
+                      </p>
+                      {(searchQuery || eraFilter !== 'semua') && (
+                        <button
+                          onClick={() => { setSearchQuery(""); setEraFilter("semua"); }}
+                          className="mt-4 px-4 py-1.5 bg-emerald-50 dark:bg-emerald-950/50 hover:bg-emerald-100 text-emerald-700 dark:text-emerald-300 font-extrabold text-xs rounded-xl cursor-pointer"
+                        >
+                          Mulai Ulang Filter
+                        </button>
+                      )}
+                    </motion.div>
+                  ) : (
+                    <div className="grid gap-5">
+                      {filteredEvents.map((event) => {
+                        const eraStyle = getEventBadgeStyle(event.era);
+                        const striking = getStrikingEventStyle(event.iconType);
+                        
+                        return (
+                          <motion.div
+                            layout
+                            initial={{ opacity: 0, y: 15 }}
+                            animate={{ opacity: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.95 }}
+                            transition={{ type: "spring", damping: 25, stiffness: 350 }}
+                            key={event.id}
+                            className={`relative ${striking.bg} ${striking.border} ${striking.leftBorder} p-5.5 rounded-2xl flex flex-col sm:flex-row gap-4.5 group shadow-sm hover:shadow-[0_4px_16px_rgba(0,0,0,0.06)] border-solid transition-all`}
+                          >
+                            {/* Event icon box */}
+                            <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 ${getIconColorStyle(event.iconType)} shadow-3xs`}>
+                              {event.iconType === 'birth' && <Heart className="w-5 h-5 fill-current" />}
+                              {event.iconType === 'death' && <Info className="w-5 h-5 font-bold" />}
+                              {event.iconType === 'victory' && <Award className="w-5 h-5 font-bold animate-pulse" />}
+                              {event.iconType === 'struggle' && <Swords className="w-5 h-5" />}
+                              {event.iconType === 'miracle' && <Sparkles className="w-5 h-5" />}
+                              {event.iconType === 'diplomacy' && <BookOpen className="w-5 h-5" />}
+                            </div>
+
+                            {/* Content text block */}
+                            <div className="min-w-0 flex-grow text-left space-y-2">
+                              <div className="flex flex-wrap items-center gap-2">
+                                <span className={`px-2.5 py-0.5 rounded-lg border text-[9px] font-black uppercase tracking-wider ${eraStyle.bg}`}>
+                                  {eraStyle.label}
+                                </span>
+                                <span className="text-[9.5px] font-black text-rose-650 dark:text-rose-400 bg-rose-50/50 dark:bg-rose-955/20 px-2 py-0.5 rounded-lg border border-rose-100/30">
+                                  📅 {event.hijriDate}
+                                </span>
+                                {viewMode === 'search-all' && (
+                                  <span className="text-[9.5px] font-black text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/30 px-2 py-0.5 rounded-lg">
+                                    🌙 Bulan { (event as any).monthName }
+                                  </span>
+                                )}
+                              </div>
+
+                              <h3 className="font-serif font-black text-base md:text-lg text-slate-850 dark:text-slate-100 transition-colors leading-tight">
+                                {event.title}
+                              </h3>
+
+                              <p className="text-xs text-slate-655 dark:text-emerald-200/90 leading-relaxed text-justify font-sans">
+                                {event.summary}
+                              </p>
+
+                              {/* Authentic reference citation block */}
+                              <div className="pt-2.5 border-t border-slate-200/60 dark:border-slate-800/65 flex flex-col md:flex-row md:items-center justify-between text-[11px] text-slate-400 font-semibold gap-2">
+                                <span className="inline-flex items-center gap-1.5 font-mono text-[9px] text-slate-455 dark:text-emerald-500/80">
+                                  📚 RUJUKAN SHAHIH: <strong className="text-slate-600 dark:text-emerald-300 font-sans tracking-tight">{event.reference}</strong>
+                                </span>
+                                
+                                {/* Read details button */}
+                                <button
+                                  onClick={() => setSelectedEvent(event)}
+                                  className="px-3.5 py-1 bg-white/80 hover:bg-emerald-50 hover:text-emerald-700 dark:bg-slate-900 dark:hover:bg-slate-950/80 text-slate-600 dark:text-emerald-400 font-extrabold rounded-lg border border-slate-200 dark:border-slate-800 transition-all text-left flex items-center justify-center gap-1 active:scale-95 ml-auto md:ml-0 cursor-pointer"
+                                >
+                                  <span>Baca Selengkapnya</span>
+                                  <ChevronRight className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        );
+                      })}
+                    </div>
+                  )}
+                </AnimatePresence>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       {/* Modal Dialog: Event Details for deep storytelling */}
       <AnimatePresence>

@@ -602,7 +602,10 @@ export default function App() {
               <div className="w-full h-px bg-slate-150 dark:bg-slate-800/40" />
 
               {/* Baris 3: Pengatur Ukuran Teks Arab, Latin & Terjemahan */}
-              <div id="arabic-resizer-control" className="flex items-center justify-center gap-3">
+              <div 
+                id="arabic-resizer-control" 
+                className="flex items-center justify-center gap-3 p-1.5 px-3.5 rounded-2xl border border-transparent transition-all duration-300 ease-in-out hover:bg-emerald-50/20 dark:hover:bg-emerald-950/10 hover:border-emerald-500/15 hover:shadow-[0_0_15px_rgba(16,185,129,0.12)] focus-within:bg-emerald-50/40 dark:focus-within:bg-emerald-950/15 focus-within:border-emerald-500/35 focus-within:shadow-[0_0_20px_rgba(16,185,129,0.22)]"
+              >
                 <div className="flex flex-col items-end leading-tight text-right select-none">
                   <span className="text-[10px] sm:text-[11px] font-black uppercase tracking-wider text-slate-600 dark:text-emerald-400">
                     Ukuran Teks Arab:
