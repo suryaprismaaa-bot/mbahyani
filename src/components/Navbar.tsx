@@ -31,6 +31,7 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
     { id: 'masjid', label: 'Masjid Terdekat', desc: 'Cari masjid terdekat via GPS', icon: MapPin, group: 'Ibadah Harian' },
     { id: 'tilawati', label: 'Belajar Tilawati', desc: 'Pembelajaran mengaji anak-anak', icon: GraduationCap, group: "Belajar & Qur'an" },
     { id: 'tajwid', label: 'Belajar Tajwid', desc: 'Panduan hukum membaca fashih', icon: BookMarked, group: "Belajar & Qur'an" },
+    { id: 'hadith', label: 'Kumpulan Hadits', desc: 'Hadits Shahih sunnah Rasulullah', icon: BookOpen, group: 'Khazanah & Syiar' },
     { id: 'doa', label: 'Doa Harian', desc: 'Kumpulan doa pilihan islami', icon: BookHeart, group: 'Khazanah & Syiar' },
     { id: 'asmaul', label: 'Asmaul Husna', desc: '99 nama Allah luar biasa', icon: Sparkles, group: 'Khazanah & Syiar' },
     { id: 'makkah', label: 'Live Makkah', desc: 'Streaming Masjidil Haram realtime', icon: Tv, group: 'Khazanah & Syiar' },
@@ -57,6 +58,7 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
     {
       groupName: '✨ Khazanah & Syiar',
       items: [
+        { id: 'hadith', label: 'Kumpulan Hadits', desc: 'Hadits Shahih sunnah Rasulullah', icon: BookOpen },
         { id: 'doa', label: 'Doa Harian', desc: 'Kumpulan doa pilihan islami', icon: BookHeart },
         { id: 'asmaul', label: 'Asmaul Husna', desc: '99 nama Allah luar biasa', icon: Sparkles },
         { id: 'makkah', label: 'Live Makkah', desc: 'Streaming Masjidil Haram realtime', icon: Tv },
@@ -233,26 +235,26 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
               <button
                 id="mobile-menu-toggle"
                 onClick={() => setIsOpen(!isOpen)}
-                className={`relative flex items-center gap-1.5 px-3.5 py-2 rounded-xl border cursor-pointer transition-all duration-300 select-none ${
+                className={`relative flex items-center gap-1.5 px-3 py-1.5 rounded-lg border cursor-pointer transition-all duration-300 select-none ${
                   isOpen
-                    ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 dark:border-emerald-700 text-white shadow-md shadow-emerald-600/20'
-                    : 'bg-amber-500 dark:bg-amber-600 border-amber-400 dark:border-amber-500 text-slate-950 dark:text-white shadow-[0_0_15px_rgba(245,158,11,0.5)] dark:shadow-[0_0_15px_rgba(217,119,6,0.35)] active:scale-95 hover:bg-amber-400 dark:hover:bg-amber-500'
+                    ? 'bg-emerald-600 hover:bg-emerald-700 border-emerald-600 dark:border-emerald-700 text-white shadow-md'
+                    : 'bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 border-amber-400 dark:border-amber-500 text-slate-950 font-black animate-pulse shadow-[0_0_12px_rgba(245,158,11,0.7)] hover:shadow-lg active:scale-95'
                 }`}
                 aria-label="Open menu"
               >
                 {isOpen ? (
                   <>
-                    <X className="w-4 h-4 text-white" />
-                    <span className="text-xs font-black tracking-wide uppercase text-white font-sans">Tutup</span>
+                    <X className="w-3.5 h-3.5 text-white" />
+                    <span className="text-[10px] font-black tracking-wider uppercase text-white font-sans">Tutup</span>
                   </>
                 ) : (
                   <>
-                    <span className="relative flex h-2 w-2 mr-0.5">
-                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 dark:bg-rose-400 opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-rose-600 dark:bg-rose-500"></span>
+                    <span className="relative flex h-1.5 w-1.5 mr-0.5">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-500 opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-rose-600"></span>
                     </span>
-                    <span className="text-xs font-black tracking-wide uppercase font-sans text-slate-900 dark:text-white">Pilih Menu</span>
-                    <Menu className="w-4.5 h-4.5 font-extrabold text-slate-900 dark:text-white" />
+                    <span className="text-[10px] font-black tracking-wider uppercase font-sans text-slate-950">Pilih Menu</span>
+                    <Menu className="w-3.5 h-3.5 font-extrabold text-slate-950" />
                   </>
                 )}
               </button>
@@ -269,26 +271,35 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
             {/* Primary Section */}
             <div>
               <div className="px-3 pb-1 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">
-                Menu Utama
+                Menu Utama Nusantara
               </div>
               <div className="space-y-1 mt-1">
-                {primaryItems.map((item) => {
+                {primaryItems.map((item, idx) => {
                   const Icon = item.icon;
                   const isActive = activeTab === item.id;
+                  const itemNumber = String(idx + 1).padStart(2, '0');
                   return (
-                    <button
-                      key={item.id}
-                      id={`nav-mobile-${item.id}`}
-                      onClick={() => handleNavClick(item.id)}
-                      className={`flex items-center w-full px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer ${
-                        isActive
-                          ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md'
-                          : 'text-slate-600 dark:text-emerald-250 hover:bg-emerald-50 dark:hover:bg-blue-950/20'
-                      }`}
-                    >
-                      <Icon className="w-4.5 h-4.5 mr-3 shrink-0" />
-                      {item.label}
-                    </button>
+                    <div key={item.id}>
+                      {idx > 0 && (
+                        <div className="my-1.5 mx-3 border-t border-dashed border-slate-100 dark:border-slate-900/30" />
+                      )}
+                      <button
+                        key={item.id}
+                        id={`nav-mobile-${item.id}`}
+                        onClick={() => handleNavClick(item.id)}
+                        className={`flex items-center w-full px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                          isActive
+                            ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md'
+                            : 'text-slate-600 dark:text-emerald-250 hover:bg-emerald-50/50 dark:hover:bg-blue-950/20'
+                        }`}
+                      >
+                        <span className="font-mono text-[10px] font-black opacity-50 mr-2.5 shrink-0 text-slate-400 dark:text-emerald-300">
+                          {itemNumber}
+                        </span>
+                        <Icon className="w-4 h-4 mr-2.5 shrink-0" />
+                        <span className="font-bold">{item.label}</span>
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -300,38 +311,55 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                 Layanan & Amalan Utama
               </div>
               <div className="space-y-4">
-                {categorizedDropdown.map((cat, catIdx) => (
-                  <div key={catIdx} className="space-y-1 pl-2">
-                    <div className="px-3 text-[8.5px] font-black uppercase tracking-wider text-slate-400 dark:text-emerald-500/60 flex items-center gap-1">
-                      <span className="w-1 h-1 rounded-full bg-emerald-500 shrink-0" />
-                      {cat.groupName}
-                    </div>
-                    <div className="space-y-0.5">
-                      {cat.items.map((item) => {
-                        const Icon = item.icon;
-                        const isActive = activeTab === item.id;
-                        return (
-                          <button
-                            key={item.id}
-                            id={`nav-mobile-${item.id}`}
-                            onClick={() => handleNavClick(item.id)}
-                            className={`flex items-center w-full px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                              isActive
-                                ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md'
-                                : 'text-slate-600 dark:text-emerald-250 hover:bg-emerald-50/60 dark:hover:bg-blue-950/20'
-                            }`}
-                          >
-                            <Icon className={`w-4 h-4 mr-2.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-650 dark:text-emerald-450'}`} />
-                            <div className="text-left w-full">
-                              <span className="block">{item.label}</span>
-                              <span className={`block text-[9px] -mt-0.5 ${isActive ? 'text-amber-200' : 'text-slate-450 dark:text-emerald-400/50'}`}>{item.desc}</span>
+                {(() => {
+                  let overallIndex = 4; // Start from 4 since primaryItems are 1, 2, 3
+                  return categorizedDropdown.map((cat, catIdx) => (
+                    <div key={catIdx} className="space-y-1.5 pl-2">
+                      <div className="px-3 py-1 text-[8.5px] font-black uppercase tracking-wider text-slate-400 dark:text-emerald-500/60 flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                        {cat.groupName}
+                      </div>
+                      
+                      <div className="space-y-1">
+                        {cat.items.map((item, itemIdx) => {
+                          const Icon = item.icon;
+                          const isActive = activeTab === item.id;
+                          const currentNumStr = String(overallIndex++).padStart(2, '0');
+                          return (
+                            <div key={item.id}>
+                              {itemIdx > 0 && (
+                                <div className="my-1.5 mx-3 border-t border-dashed border-slate-100 dark:border-slate-900/30" />
+                              )}
+                              <button
+                                key={item.id}
+                                id={`nav-mobile-${item.id}`}
+                                onClick={() => handleNavClick(item.id)}
+                                className={`flex items-center w-full px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                                  isActive
+                                    ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md'
+                                    : 'text-slate-600 dark:text-emerald-250 hover:bg-emerald-50/50 dark:hover:bg-blue-950/20'
+                                }`}
+                              >
+                                <span className="font-mono text-[9.5px] font-bold opacity-50 mr-2.5 shrink-0 text-slate-400 dark:text-emerald-300">
+                                  {currentNumStr}
+                                </span>
+                                <Icon className={`w-4 h-4 mr-2.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-650 dark:text-emerald-450'}`} />
+                                <div className="text-left w-full leading-snug">
+                                  <span className={`block font-extrabold ${isActive ? 'text-white' : 'text-slate-800 dark:text-emerald-100'}`}>
+                                    {item.label}
+                                  </span>
+                                  <span className={`block text-[9px] ${isActive ? 'text-blue-100' : 'text-slate-455 dark:text-emerald-400/50'}`}>
+                                    {item.desc}
+                                  </span>
+                                </div>
+                              </button>
                             </div>
-                          </button>
-                        );
-                      })}
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                ))}
+                  ));
+                })()}
               </div>
             </div>
 

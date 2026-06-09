@@ -449,15 +449,15 @@ export default function HijriCalendarHistory() {
   const getEventBadgeStyle = (era: string) => {
     switch(era) {
       case 'pra_kerasulan': 
-        return { bg: 'bg-purple-100 dark:bg-purple-950/60 text-purple-800 dark:text-purple-300 border-2 border-purple-400 dark:border-purple-805', label: 'Zaman Pra-Kerasulan' };
+        return { bg: 'bg-purple-100 dark:bg-purple-950 text-purple-950 dark:text-purple-200 border border-purple-400 dark:border-purple-800', label: 'Zaman Pra-Kerasulan' };
       case 'kerasulan': 
-        return { bg: 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 border-2 border-emerald-400 dark:border-emerald-805', label: 'Zaman Kerasulan Nabi' };
+        return { bg: 'bg-emerald-100 dark:bg-emerald-950 text-emerald-950 dark:text-emerald-200 border border-emerald-400 dark:border-emerald-800', label: 'Zaman Kerasulan Nabi' };
       case 'kekhalifahan': 
-        return { bg: 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-300 border-2 border-blue-400 dark:border-blue-805', label: 'Khulafaur Rasyidin' };
+        return { bg: 'bg-blue-100 dark:bg-blue-950 text-blue-950 dark:text-blue-200 border border-blue-400 dark:border-blue-800', label: 'Khulafaur Rasyidin' };
       case 'pasca_sahabat': 
-        return { bg: 'bg-rose-100 dark:bg-rose-955/40 text-rose-800 dark:text-rose-300 border-2 border-rose-400 dark:border-rose-850', label: 'Pasca Sahabat / Kekhalifahan' };
+        return { bg: 'bg-rose-100 dark:bg-rose-950 text-rose-950 dark:text-rose-200 border border-rose-400 dark:border-rose-800', label: 'Pasca Sahabat / Kekhalifahan' };
       default: 
-        return { bg: 'bg-slate-100 dark:bg-slate-900 text-slate-805 border-2 border-slate-400', label: 'Sejarah Islam' };
+        return { bg: 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-400 dark:border-slate-700', label: 'Sejarah Islam' };
     }
   };
 
@@ -763,15 +763,15 @@ export default function HijriCalendarHistory() {
                     <select
                       value={eraFilter}
                       onChange={(e) => setEraFilter(e.target.value as any)}
-                      className="w-full sm:w-48 py-2 pl-3.5 pr-8 bg-slate-50 dark:bg-slate-955 border border-slate-205 dark:border-slate-800 rounded-xl text-xs font-bold text-slate-705 dark:text-emerald-200 cursor-pointer focus:outline-none appearance-none"
+                      className="w-full sm:w-48 py-2 pl-3.5 pr-8 bg-white dark:bg-slate-950 border border-slate-300 dark:border-slate-700 rounded-xl text-xs font-bold text-slate-900 dark:text-emerald-100 cursor-pointer focus:outline-none appearance-none"
                     >
-                      <option value="semua">⏳ Semua Era Sejarah</option>
-                      <option value="pra_kerasulan">⏳ Zaman Pra-Kerasulan</option>
-                      <option value="kerasulan">🕌 Zaman Kerasulan Nabi</option>
-                      <option value="kekhalifahan">📜 Khulafaur Rasyidin</option>
-                      <option value="pasca_sahabat">⚔️ Pasca Sahabat / Dinasti</option>
+                      <option value="semua" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-emerald-100">⏳ Semua Era Sejarah</option>
+                      <option value="pra_kerasulan" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-emerald-100">⏳ Zaman Pra-Kerasulan</option>
+                      <option value="kerasulan" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-emerald-100">🕌 Zaman Kerasulan Nabi</option>
+                      <option value="kekhalifahan" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-emerald-100">📜 Khulafaur Rasyidin</option>
+                      <option value="pasca_sahabat" className="bg-white dark:bg-slate-950 text-slate-900 dark:text-emerald-100">⚔️ Pasca Sahabat / Dinasti</option>
                     </select>
-                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-550">
+                    <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-500">
                       <ChevronRight className="w-4 h-4 rotate-90" />
                     </div>
                   </div>

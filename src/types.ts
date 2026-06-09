@@ -81,4 +81,4 @@ export interface GlobalAudioState {
   playingAudioUrl: string | null;
 }
 
-export type ActiveTab = 'home' | 'qibla' | 'quran' | 'tasbih' | 'doa' | 'jadwal' | 'asmaul' | 'makkah' | 'tilawati' | 'tajwid' | 'zakat' | 'masjid' | 'hijriah';
+export type ActiveTab = 'home' | 'qibla' | 'quran' | 'tasbih' | 'doa' | 'jadwal' | 'asmaul' | 'makkah' | 'tilawati' | 'tajwid' | 'zakat' | 'masjid' | 'hijriah' | 'hadith';

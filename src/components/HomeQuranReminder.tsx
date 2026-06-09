@@ -264,11 +264,11 @@ export default function HomeQuranReminder({ theme = 'emerald', arabicFontSize = 
       </div>
 
       <div className={`rounded-3xl p-5.5 relative overflow-hidden transition-all duration-300 border-2 flex flex-col justify-between min-h-[220px] ${currentStyle.border} ${currentStyle.bg}`}>
-        {/* Thick dynamic color left bar */}
-        <div className={`absolute top-0 left-0 w-2 h-full transition-colors duration-300 ${currentStyle.accentBar}`} />
+        {/* Thick dynamic color left bar - with blinking animation */}
+        <div className={`absolute top-0 left-0 w-2.5 h-full transition-colors duration-300 animate-pulse ${currentStyle.accentBar}`} />
 
         <div className={`transition-all duration-200 ${fade ? 'opacity-100' : 'opacity-0'}`}>
-          <div className="flex flex-wrap justify-between items-center gap-2 mb-4">
+          <div className="flex flex-wrap justify-between items-center gap-2 mb-3">
             <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full border transition-all duration-300 ${currentStyle.badgeBg} ${currentStyle.badgeTextColor} ${currentStyle.btnBorder}`}>
               <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin-slow animate-pulse" />
               Ayat & Pengingat Hari Ini
@@ -277,6 +277,9 @@ export default function HomeQuranReminder({ theme = 'emerald', arabicFontSize = 
               📍 {activeQuote.category}
             </span>
           </div>
+
+          {/* Elegant Blinking Line Indicator for premium focus */}
+          <div className={`h-1 w-20 mb-4 rounded-full animate-pulse transition-all duration-300 ${currentStyle.accentBar}`} />
 
           {/* Large Arabic text */}
           <div 

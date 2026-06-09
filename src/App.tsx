@@ -21,6 +21,7 @@ import HomeQuranReminder from './components/HomeQuranReminder';
 import TajweedLearning from './components/TajweedLearning';
 import ZakatCalculator from './components/ZakatCalculator';
 import HijriCalendarHistory from './components/HijriCalendarHistory';
+import HadithCollection from './components/HadithCollection';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
@@ -720,59 +721,9 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Grid Menu Section - Tampilkan layanan utama dengan sangat sederhana & hemat ruang */}
-              <div className="space-y-6">
-                
-                {/* Centered and Highly Polished Layout Title */}
-                <div className="border-b border-emerald-100 dark:border-emerald-950 pb-4 text-center max-w-2xl mx-auto mb-6 animate-in fade-in slide-in-from-bottom-3 duration-500">
-                  <div className="flex flex-col items-center">
-                    <div className="w-11 h-11 bg-emerald-50 dark:bg-emerald-950/45 rounded-full flex items-center justify-center text-emerald-600 dark:text-emerald-400 mb-2 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-                      <Sparkles className="w-5.5 h-5.5 animate-pulse" />
-                    </div>
-                    <h2 className="text-xl sm:text-2xl font-serif font-bold text-slate-900 dark:text-emerald-50 tracking-tight leading-tight">
-                      Layanan Portal Islami Nusantara
-                    </h2>
-                  </div>
-                </div>
-
-                {/* Ayat & Pengingat Hari Ini */}
+              {/* Ayat & Pengingat Hari Ini untuk melengkapi beranda yang bersih */}
+              <div className="mt-8">
                 <HomeQuranReminder theme={theme} arabicFontSize={arabicFontSize} />
-
-                {/* Highly compact, sleek, responsive bento grid of all 11 core services */}
-                <div className="grid grid-cols-2 xs:grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pt-2">
-                  {[
-                    { id: 'quran', icon: BookOpen, label: "Al-Qur'an", color: 'bg-emerald-55 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-300' },
-                    { id: 'jadwal', icon: Calendar, label: 'Jadwal Sholat', color: 'bg-blue-55 dark:bg-blue-950/60 text-blue-600 dark:text-blue-300' },
-                    { id: 'masid', icon: MapPin, label: 'Masjid Terdekat', color: 'bg-orange-55 dark:bg-orange-950/60 text-orange-605 dark:text-orange-405', actualId: 'masjid' },
-                    { id: 'qibla', icon: Compass, label: 'Arah Kiblat', color: 'bg-sky-55 dark:bg-sky-950/60 text-sky-600 dark:text-sky-350' },
-                    { id: 'doa', icon: BookHeart, label: 'Doa Harian', color: 'bg-rose-55 dark:bg-rose-950/60 text-rose-600 dark:text-rose-350' },
-                    { id: 'tasbih', icon: HeartHandshake, label: 'Tasbih Digital', color: 'bg-teal-55 dark:bg-teal-950/60 text-teal-600 dark:text-teal-350' },
-                    { id: 'asmaul', icon: Sparkles, label: 'Asmaul Husna', color: 'bg-amber-55 dark:bg-amber-950/60 text-amber-600 dark:text-amber-350' },
-                    { id: 'tilawati', icon: GraduationCap, label: 'Kajian Tilawati', color: 'bg-indigo-55 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-350' },
-                    { id: 'tajwid', icon: BookMarked, label: 'Hukum Tajwid', color: 'bg-purple-55 dark:bg-purple-950/60 text-purple-600 dark:text-purple-355' },
-                    { id: 'makkah', icon: Tv, label: 'Kamera Makkah', color: 'bg-red-55 dark:bg-red-950/60 text-red-600 dark:text-red-350' },
-                    { id: 'zakat', icon: Scale, label: 'Takar Zakat', color: 'bg-cyan-55 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-350' },
-                    { id: 'hijriah', icon: History, label: 'Bulan Hijriah', color: 'bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-300' },
-                  ].map((item) => {
-                    const Icon = item.icon;
-                    const destinationId = item.actualId || item.id;
-                    return (
-                      <button
-                        key={item.id}
-                        id={`menu-${item.id}`}
-                        onClick={() => setActiveTab(destinationId as any)}
-                        className="flex flex-col items-center justify-center p-3 bg-white dark:bg-slate-900 border border-slate-150/80 dark:border-slate-800/80 hover:border-emerald-500/50 dark:hover:border-emerald-600 rounded-2xl text-center shadow-3xs hover:shadow-sm transition-all active:scale-95 duration-200 cursor-pointer group"
-                      >
-                        <div className={`w-9 h-9 ${item.color} rounded-xl flex items-center justify-center mb-2 group-hover:scale-105 transition-transform shrink-0`}>
-                          <Icon className="w-5 h-5" />
-                        </div>
-                        <span className="text-[11px] font-black tracking-tight text-slate-800 dark:text-slate-100 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors">
-                          {item.label}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
               </div>
             </div>
           )}
@@ -802,6 +753,7 @@ export default function App() {
           {activeTab === 'tajwid' && <TajweedLearning />}
           {activeTab === 'zakat' && <ZakatCalculator />}
           {activeTab === 'hijriah' && <HijriCalendarHistory />}
+          {activeTab === 'hadith' && <HadithCollection theme={theme} arabicFontSize={arabicFontSize} />}
             </motion.div>
           </AnimatePresence>
         </main>
