@@ -22,7 +22,6 @@ import TajweedLearning from './components/TajweedLearning';
 import ZakatCalculator from './components/ZakatCalculator';
 import HijriCalendarHistory from './components/HijriCalendarHistory';
 import HadithCollection from './components/HadithCollection';
-import FamilyAgenda from './components/FamilyAgenda';
 import { AnimatePresence, motion } from 'motion/react';
 
 export default function App() {
@@ -752,11 +751,6 @@ export default function App() {
               {/* Ayat & Pengingat Hari Ini untuk melengkapi beranda yang bersih */}
               <div className="mt-8">
                 <HomeQuranReminder theme={theme} arabicFontSize={arabicFontSize} />
-              </div>
-
-              {/* Agenda / Kegiatan Keluarga */}
-              <div className="mt-8">
-                <FamilyAgenda />
               </div>
             </div>
           )}
