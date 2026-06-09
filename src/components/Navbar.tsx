@@ -76,6 +76,34 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
     setIsDropdownOpen(false);
   };
 
+  const [openMobileGroups, setOpenMobileGroups] = useState<Record<string, boolean>>({
+    '🕌 Ibadah Harian': true,
+    "📖 Belajar & Qur'an": false,
+    '✨ Khazanah & Syiar': false,
+  });
+
+  const toggleMobileGroup = (groupName: string) => {
+    setOpenMobileGroups(prev => ({
+      ...prev,
+      [groupName]: !prev[groupName]
+    }));
+  };
+
+  // Auto-expand group of active tab when mobile menu opens
+  useEffect(() => {
+    if (isOpen) {
+      const activeGroup = categorizedDropdown.find(cat => 
+        cat.items.some(item => item.id === activeTab)
+      );
+      if (activeGroup) {
+        setOpenMobileGroups(prev => ({
+          ...prev,
+          [activeGroup.groupName]: true
+        }));
+      }
+    }
+  }, [isOpen, activeTab]);
+
   // Close dropdown on click outside
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -313,52 +341,65 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
               <div className="space-y-4">
                 {(() => {
                   let overallIndex = 4; // Start from 4 since primaryItems are 1, 2, 3
-                  return categorizedDropdown.map((cat, catIdx) => (
-                    <div key={catIdx} className="space-y-1.5 pl-2">
-                      <div className="px-3 py-1 text-[8.5px] font-black uppercase tracking-wider text-slate-400 dark:text-emerald-500/60 flex items-center gap-1.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
-                        {cat.groupName}
-                      </div>
-                      
-                      <div className="space-y-1">
-                        {cat.items.map((item, itemIdx) => {
-                          const Icon = item.icon;
-                          const isActive = activeTab === item.id;
-                          const currentNumStr = String(overallIndex++).padStart(2, '0');
-                          return (
-                            <div key={item.id}>
-                              {itemIdx > 0 && (
-                                <div className="my-1.5 mx-3 border-t border-dashed border-slate-100 dark:border-slate-900/30" />
-                              )}
-                              <button
-                                key={item.id}
-                                id={`nav-mobile-${item.id}`}
-                                onClick={() => handleNavClick(item.id)}
-                                className={`flex items-center w-full px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
-                                  isActive
-                                    ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md'
-                                    : 'text-slate-600 dark:text-emerald-250 hover:bg-emerald-50/50 dark:hover:bg-blue-950/20'
-                                }`}
-                              >
-                                <span className="font-mono text-[9.5px] font-bold opacity-50 mr-2.5 shrink-0 text-slate-400 dark:text-emerald-300">
-                                  {currentNumStr}
-                                </span>
-                                <Icon className={`w-4 h-4 mr-2.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-650 dark:text-emerald-450'}`} />
-                                <div className="text-left w-full leading-snug">
-                                  <span className={`block font-extrabold ${isActive ? 'text-white' : 'text-slate-800 dark:text-emerald-100'}`}>
-                                    {item.label}
-                                  </span>
-                                  <span className={`block text-[9px] ${isActive ? 'text-blue-100' : 'text-slate-455 dark:text-emerald-400/50'}`}>
-                                    {item.desc}
-                                  </span>
+                  return categorizedDropdown.map((cat, catIdx) => {
+                    const isGroupOpen = !!openMobileGroups[cat.groupName];
+                    return (
+                      <div key={catIdx} className="space-y-1 pl-1">
+                        {/* Collapsible Category Header Button */}
+                        <button
+                          onClick={() => toggleMobileGroup(cat.groupName)}
+                          className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-900/35 rounded-xl transition-all duration-200 cursor-pointer group"
+                        >
+                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-705 dark:text-emerald-400/80 flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                            {cat.groupName}
+                          </div>
+                          <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-300 ${isGroupOpen ? 'rotate-180 text-emerald-500' : ''}`} />
+                        </button>
+                        
+                        {/* Collapsible Area with Smooth Transition */}
+                        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isGroupOpen ? 'max-h-[400px] opacity-100 mt-1' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+                          <div className="space-y-1 pt-1 border-l-2 border-dashed border-emerald-100/50 dark:border-blue-950/40 ml-3.5 pl-2.5">
+                            {cat.items.map((item, itemIdx) => {
+                              const Icon = item.icon;
+                              const isActive = activeTab === item.id;
+                              const currentNumStr = String(overallIndex++).padStart(2, '0');
+                              return (
+                                <div key={item.id}>
+                                  {itemIdx > 0 && (
+                                    <div className="my-1.5 border-t border-dashed border-slate-100 dark:border-slate-900/35" />
+                                  )}
+                                  <button
+                                    key={item.id}
+                                    id={`nav-mobile-${item.id}`}
+                                    onClick={() => handleNavClick(item.id)}
+                                    className={`flex items-center w-full px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                                      isActive
+                                        ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md'
+                                        : 'text-slate-600 dark:text-emerald-250 hover:bg-emerald-50/50 dark:hover:bg-blue-950/20'
+                                    }`}
+                                  >
+                                    <span className="font-mono text-[9.5px] font-bold opacity-50 mr-2.5 shrink-0 text-slate-400 dark:text-emerald-300">
+                                      {currentNumStr}
+                                    </span>
+                                    <Icon className={`w-4 h-4 mr-2.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-650 dark:text-emerald-450'}`} />
+                                    <div className="text-left w-full leading-snug">
+                                      <span className={`block font-extrabold ${isActive ? 'text-white' : 'text-slate-800 dark:text-emerald-100'}`}>
+                                        {item.label}
+                                      </span>
+                                      <span className={`block text-[9px] ${isActive ? 'text-blue-100' : 'text-slate-455 dark:text-emerald-400/50'}`}>
+                                        {item.desc}
+                                      </span>
+                                    </div>
+                                  </button>
                                 </div>
-                              </button>
-                            </div>
-                          );
-                        })}
+                              );
+                            })}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ));
+                    );
+                  });
                 })()}
               </div>
             </div>
