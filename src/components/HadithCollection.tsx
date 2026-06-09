@@ -237,9 +237,17 @@ export default function HadithCollection({ theme = 'emerald', arabicFontSize = 3
                 }`}
               >
                 {/* Accordion Trigger Header */}
-                <button
+                <div
                   onClick={() => toggleExpand(cardKey)}
-                  className="w-full flex items-center justify-between p-3.5 sm:p-4 text-left cursor-pointer transition-colors hover:bg-slate-50/40 dark:hover:bg-slate-850/20"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      toggleExpand(cardKey);
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="w-full flex items-center justify-between p-3.5 sm:p-4 text-left cursor-pointer transition-colors hover:bg-slate-50/40 dark:hover:bg-slate-850/20 select-none outline-none focus-visible:bg-slate-50 dark:focus-visible:bg-slate-850/30"
                 >
                   <div className="flex items-center gap-2.5 min-w-0 pr-2">
                     {/* Compact list badge */}
@@ -291,7 +299,7 @@ export default function HadithCollection({ theme = 'emerald', arabicFontSize = 3
                       <ChevronDown className="w-4 h-4" />
                     </div>
                   </div>
-                </button>
+                </div>
 
                 {/* Collapsible Details Body */}
                 {isExpanded && (
