@@ -944,13 +944,30 @@ export default function App() {
               className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs"
             />
 
-            {/* Glowing minimalist modal card */}
+            {/* Glowing minimalist modal card that blinks/glows keyframes */}
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 40 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
+              animate={{ 
+                opacity: 1, 
+                scale: 1, 
+                y: 0,
+                borderColor: ["#020617", "#f59e0b", "#10b981", "#020617"],
+                boxShadow: [
+                  "0 25px 60px -15px rgba(0,0,0,0.18)", 
+                  "0 0 35px rgba(245, 158, 11, 0.45)",
+                  "0 0 35px rgba(16, 185, 129, 0.45)", 
+                  "0 25px 60px -15px rgba(0,0,0,0.18)"
+                ]
+              }}
               exit={{ opacity: 0, scale: 0.95, y: 30 }}
-              transition={{ type: "spring", damping: 30, stiffness: 350 }}
-              className="relative w-full max-w-[340px] bg-white border-2 border-slate-950 rounded-[24px] p-6.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.18)] overflow-hidden text-center z-130 flex flex-col justify-between"
+              transition={{ 
+                type: "spring", 
+                damping: 30, 
+                stiffness: 350,
+                borderColor: { repeat: Infinity, duration: 2, ease: "easeInOut" },
+                boxShadow: { repeat: Infinity, duration: 2, ease: "easeInOut" }
+              }}
+              className="relative w-full max-w-[340px] bg-white border-4 rounded-[28px] p-6 overflow-hidden text-center z-130 flex flex-col justify-between min-h-[500px]"
             >
               {/* Top corner close button */}
               <button
@@ -966,10 +983,26 @@ export default function App() {
                 <X className="w-5 h-5 font-black" />
               </button>
 
-              {/* Large Animated Circular Countdown Timer Ring */}
-              <div className="relative w-28 h-28 mx-auto mb-5 flex items-center justify-center">
+              {/* Top Greeting Header */}
+              <div className="mb-3">
+                <span className="inline-flex items-center px-3.5 py-1 bg-slate-950 text-white font-extrabold text-xs uppercase tracking-widest rounded-full mb-2">
+                  ✨ Assalamu&apos;alaikum! 👋
+                </span>
+                <h3 className="font-serif font-black text-lg text-slate-950 tracking-tight leading-tight">
+                  Portal Panduan Ibadah
+                </h3>
+              </div>
+
+              {/* Message Header Paragraph */}
+              <p className="text-xs font-bold text-slate-700 leading-relaxed font-sans mb-3 text-center">
+                Selamat datang di portal panduan ibadah harian. Portal ini terus disempurnakan demi kebaikan bersama.
+              </p>
+
+              {/* Large Animated Circular Countdown Timer Ring placed in the MIDDLE of the popup */}
+              <div className="relative w-28 h-28 mx-auto my-3 flex items-center justify-center">
                 {/* External pulsing rings for visual feedback */}
-                <span className="absolute inset-0 bg-emerald-500/10 rounded-full animate-ping duration-1500 opacity-60"></span>
+                <span className="absolute inset-0 bg-emerald-500/15 rounded-full animate-ping duration-1500 opacity-60"></span>
+                <span className="absolute -inset-1 bg-amber-500/10 rounded-full animate-pulse opacity-50"></span>
                 <div className="absolute -inset-2 bg-gradient-to-tr from-emerald-500/10 to-amber-500/10 rounded-full blur-sm opacity-50 animate-pulse"></div>
                 
                 {/* Solid Countdown Disk */}
@@ -991,40 +1024,25 @@ export default function App() {
                 </div>
               </div>
 
-              {/* Greeting Header */}
-              <div className="mb-4">
-                <span className="inline-flex items-center px-3.5 py-1 bg-slate-950 text-white font-extrabold text-xs uppercase tracking-widest rounded-full mb-2">
-                  ✨ Assalamu&apos;alaikum! 👋
-                </span>
-                <h3 className="font-serif font-black text-lg text-slate-950 tracking-tight leading-tight">
-                  Portal Panduan Ibadah
-                </h3>
+              {/* Feature info highlight box */}
+              <div className="bg-emerald-100/90 text-slate-950 font-black py-2.5 px-3 rounded-xl border-2 border-slate-950 text-[11px] leading-normal shadow-sm mb-4">
+                Fitur Al-Qur'an Digital, Jadwal Shalat, Hadits, & Kalkulator Zakat sudah bisa digunakan sepenuhnya! 🤲✨
               </div>
 
-              {/* Warm Message Body - highly compact & direct */}
-              <div className="space-y-2.5 text-xs text-slate-950 leading-relaxed font-sans mb-5 px-1 text-center">
-                <p className="font-black text-black">
-                  Selamat datang di portal panduan ibadah harian. Portal ini masih terus dalam tahap pengembangan berkala demi menyempurnakan setiap layanannya.
-                </p>
-                <div className="bg-emerald-100/90 text-slate-950 font-black py-2 px-3 rounded-xl border-2 border-slate-950 text-[11px] leading-normal shadow-sm">
-                  Beberapa fitur utama seperti Al-Qur'an Digital, Jadwal Shalat, Hadits, serta Kalkulator Zakat sudah bisa digunakan secara lancar dan sepenuhnya! 🤲✨
-                </div>
-              </div>
-
-              {/* Action Buttons: Tutup & Timer information */}
+              {/* Action Buttons with the requested "Klik Lanjutkan ke aplikasi" button */}
               <div className="space-y-2.5 w-full">
                 <button
-                  id="close-dev-modal"
+                  id="btn-lanjutkan-aplikasi"
                   onClick={() => {
                     try {
                       sessionStorage.setItem('portal_dev_alert_closed', 'true');
                     } catch (e) {}
                     setShowDevModal(false);
                   }}
-                  className="w-full py-3 px-5 bg-slate-950 hover:bg-slate-900 text-white font-black text-xs rounded-xl shadow-md active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2 border-2 border-slate-950"
+                  className="w-full py-3 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-[0_4px_14px_rgba(16,185,129,0.35)] active:scale-97 transition-all cursor-pointer flex items-center justify-center gap-2 border-2 border-emerald-500 animate-pulse"
                 >
-                  <span>Tutup Notifikasi ({modalTimeLeft}s)</span>
-                  <MoveRight className="w-4 h-4 animate-pulse stroke-[3px]" />
+                  <span>Klik Lanjutkan ke Aplikasi</span>
+                  <MoveRight className="w-4 h-4 stroke-[3px]" />
                 </button>
                 
                 <div className="text-[10px] text-slate-950 text-center font-black">
