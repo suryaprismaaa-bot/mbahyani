@@ -5,21 +5,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Compass, Navigation, MapPin, RefreshCw, AlertCircle, Info, MoveRight, Smartphone, CheckCircle2 } from 'lucide-react';
-
-interface CityPreset {
-  nama: string;
-  lat: number;
-  lng: number;
-}
-
-const CITY_PRESETS: CityPreset[] = [
-  { nama: 'Durenan / Trenggalek (Kediaman Mbah Yani)', lat: -8.0827, lng: 111.8021 },
-  { nama: 'Yogyakarta (Keluarga Besar Yogya)', lat: -7.7956, lng: 110.3695 },
-  { nama: 'Jakarta (Keluarga Besar Jakarta)', lat: -6.2088, lng: 106.8456 },
-  { nama: 'Surabaya (Keluarga Besar Surabaya)', lat: -7.2575, lng: 112.75213 },
-  { nama: 'Malang', lat: -7.9829, lng: 112.6308 },
-  { nama: 'Semarang', lat: -6.9667, lng: 110.4167 }
-];
+import { motion } from 'motion/react';
 
 const KabahLogo = ({ precision }: { precision: number }) => {
   const isPerfect = precision >= 90;
@@ -154,17 +140,6 @@ export default function QiblaFinder() {
     );
   };
 
-  // Preset location chooser
-  const handleSelectPreset = (preset: CityPreset) => {
-    setLat(preset.lat);
-    setLng(preset.lng);
-    setCityName(preset.nama);
-    const angle = calculateQibla(preset.lat, preset.lng);
-    setQiblaAngle(angle);
-    setAccuracy("Sangat Baik (Koordinat Preset)");
-    setErrorMsg(null);
-  };
-
   // Set up device orientation listeners
   useEffect(() => {
     const handleOrientation = (event: DeviceOrientationEvent) => {
@@ -253,8 +228,16 @@ export default function QiblaFinder() {
           
           <div className="relative w-72 h-72 my-4 flex items-center justify-center">
             {/* outer glowing ring */}
-            <div className="absolute inset-0 rounded-full border-4 border-emerald-500/10 dark:border-emerald-500/5 animate-pulse" />
-            <div className="absolute inset-2 rounded-full border border-emerald-500/20 dark:border-emerald-500/10" />
+            <div className={`absolute inset-0 rounded-full border-4 transition-all duration-500 ${
+              precisionPercent >= 90 
+                ? 'border-amber-400 bg-amber-400/10 shadow-[0_0_30px_rgba(245,158,11,0.4)] animate-pulse' 
+                : 'border-emerald-500/10 dark:border-emerald-500/5 animate-pulse'
+            }`} />
+            <div className={`absolute inset-2 rounded-full border transition-colors duration-500 ${
+              precisionPercent >= 90
+                ? 'border-amber-400/60'
+                : 'border-emerald-500/20 dark:border-emerald-500/10'
+            }`} />
 
             {/* Comppas Face - Rotates matching "alignedCompassBearing" (which aligns North) */}
             <div 
@@ -312,32 +295,52 @@ export default function QiblaFinder() {
             )}
           </div>
 
-          {/* Blinking alignment banner when 90-100% precision is met */}
+          {/* Blinking alignment banner when 90-100% precision is met - styled very beautifully & prominently */}
           {precisionPercent >= 90 && (
-            <div className="w-full max-w-xs px-4 py-3 mb-4 bg-amber-500/15 dark:bg-amber-400/10 rounded-2xl border border-amber-300/50 text-center animate-pulse">
-              <span className="font-extrabold text-[11px] uppercase text-amber-600 dark:text-amber-400 tracking-widest block">
-                ✨ POSISI TERBAIK SEJAJAR KIBLAT ✨
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0, y: 10 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              className="w-full max-w-xs px-5 py-4 mb-4 bg-gradient-to-br from-amber-500/20 via-amber-400/10 to-emerald-500/5 dark:from-amber-400/10 dark:via-emerald-950/30 dark:to-emerald-900/10 rounded-2xl border-2 border-amber-400 dark:border-amber-500/60 text-center shadow-[0_8px_30px_rgba(245,158,11,0.2)] animate-pulse"
+            >
+              <span className="font-black text-xs uppercase text-amber-700 dark:text-amber-400 tracking-wider block flex items-center justify-center gap-1.5">
+                ✨ TERKONEKSI SEMPURNA ✨
               </span>
-              <span className="block text-xs font-bold text-slate-700 dark:text-emerald-250 mt-1 leading-normal">
-                Sajadah lurus memproyeksikan Ka&apos;bah ({precisionPercent}% Presisi)
+              <span className="block text-xs font-bold text-slate-800 dark:text-emerald-50 mt-1.5 leading-relaxed">
+                Sajadah Anda sudah tepat searah kiblat ({precisionPercent}% Presisi)!
               </span>
-            </div>
+            </motion.div>
           )}
 
           {/* Precision percentage indicator */}
-          <div className="w-full max-w-xs mb-1 px-4 py-3 bg-slate-50 dark:bg-emerald-950/10 rounded-2xl border border-emerald-100 dark:border-emerald-900/60 flex items-center justify-between shadow-inner">
+          <div className={`w-full max-w-xs mb-1 px-4 py-3 rounded-2xl border transition-all duration-300 flex items-center justify-between shadow-inner ${
+            precisionPercent >= 90
+              ? 'bg-amber-400/10 dark:bg-amber-950/30 border-amber-400 dark:border-amber-600 shadow-[0_4px_20px_rgba(245,158,11,0.15)] scale-[1.02]'
+              : 'bg-slate-50 dark:bg-emerald-950/10 border-emerald-100 dark:border-emerald-900/60'
+          }`}>
             <div className="text-left">
               <span className="block text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-emerald-400/50">AKURASI PENYEARAHAN</span>
-              <span className="block text-xs font-bold text-slate-700 dark:text-emerald-100">Presisi Posisi Sajadah</span>
+              <span className={`block text-xs font-bold transition-colors ${
+                precisionPercent >= 90 ? 'text-amber-600 dark:text-amber-450 font-black' : 'text-slate-700 dark:text-emerald-100'
+              }`}>Presisi Posisi Sajadah</span>
             </div>
-            <div className={`px-3 py-1.5 rounded-xl font-mono text-sm font-black flex items-center gap-1 border ${
-              precisionPercent >= 90
-                ? 'bg-amber-100 dark:bg-amber-950/40 text-amber-600 dark:text-amber-300 border-amber-300 dark:border-amber-850 animate-pulse'
-                : precisionPercent >= 70
-                  ? 'bg-emerald-100 dark:bg-emerald-100/40 text-emerald-650 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50'
-                  : 'bg-slate-100 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-emerald-900/20'
-            }`}>
-              {precisionPercent}%
+            <div className="flex items-center gap-1 shrink-0">
+              {/* Hand pointer animation pointing precisely at the percent box */}
+              <motion.span
+                animate={{ x: [-4, 2, -4] }}
+                transition={{ repeat: Infinity, duration: 0.9, ease: "easeInOut" }}
+                className="text-base select-none inline-block filter drop-shadow-sm"
+              >
+                👉
+              </motion.span>
+              <div className={`px-3 py-1.5 rounded-xl font-mono text-sm font-black flex items-center gap-1 border transition-colors ${
+                precisionPercent >= 90
+                  ? 'bg-gradient-to-r from-amber-500 to-amber-400 text-slate-950 border-amber-300 shadow-[0_0_10px_rgba(245,158,11,0.5)]'
+                  : precisionPercent >= 70
+                    ? 'bg-emerald-100 dark:bg-emerald-100/40 text-emerald-650 dark:text-emerald-400 border-emerald-200 dark:border-emerald-900/50'
+                    : 'bg-slate-100 dark:bg-slate-800/40 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-emerald-900/20'
+              }`}>
+                {precisionPercent}%
+              </div>
             </div>
           </div>
 
@@ -445,33 +448,6 @@ export default function QiblaFinder() {
                   {distanceToMecca().toLocaleString('id-ID')} km
                 </span>
               </div>
-            </div>
-          </div>
-
-          {/* Presets List */}
-          <div className="bg-white dark:bg-emerald-950/25 p-5 rounded-3xl border border-emerald-100 dark:border-emerald-900 shadow-sm">
-            <h3 className="text-sm font-bold text-slate-700 dark:text-emerald-200 mb-3 uppercase tracking-wider flex items-center">
-              <Info className="w-4 h-4 mr-1.5 text-amber-500" />
-              Pilih Wilayah Keluarga Mbah Yani
-            </h3>
-            <p className="text-xs text-slate-500 dark:text-emerald-300/50 mb-3">
-              Tidak ingin mengaktifkan GPS? Pilih preset kediaman keluarga di bawah untuk mementaskan koordinat dan arah kiblat secara instan:
-            </p>
-            <div className="grid grid-cols-2 gap-2">
-              {CITY_PRESETS.map((preset) => (
-                <button
-                  key={preset.nama}
-                  id={`preset-${preset.nama.split(' ')[0]}`}
-                  onClick={() => handleSelectPreset(preset)}
-                  className={`px-3 py-2 text-left rounded-xl text-xs font-semibold cursor-pointer border transition-colors ${
-                    cityName === preset.nama
-                      ? 'bg-emerald-100 dark:bg-emerald-900/50 text-emerald-800 dark:text-emerald-100 border-emerald-300 dark:border-emerald-700'
-                      : 'bg-slate-50 dark:bg-emerald-900/10 border-emerald-100/30 dark:border-emerald-900/20 text-slate-600 dark:text-emerald-300 hover:bg-emerald-50'
-                  }`}
-                >
-                  {preset.nama.split(' ')[0]}
-                </button>
-              ))}
             </div>
           </div>
 

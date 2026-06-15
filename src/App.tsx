@@ -531,8 +531,8 @@ export default function App() {
                   
                   <span className="text-slate-300 dark:text-slate-705 font-bold text-xs shrink-0">|</span>
                   
-                  <div className="text-[11px] sm:text-xs font-black text-emerald-700 dark:text-amber-400 shrink-0 bg-emerald-50 dark:bg-amber-950/30 px-2.5 py-0.5 rounded-lg border border-emerald-100/80 dark:border-amber-900/20 flex items-center gap-1">
-                    <span>🌙</span>
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-655 dark:text-slate-305 shrink-0 flex items-center gap-1">
+                    <span className="opacity-75">🌙</span>
                     <span>{hijriString || "Memuat..."}</span>
                   </div>
                 </div>
@@ -647,29 +647,29 @@ export default function App() {
                 </div>
 
                 {/* Adjuster Buttons: Up/Down Buttons */}
-                <div className="flex items-center bg-slate-50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-750 p-1 rounded-xl shrink-0">
+                <div className="flex items-center bg-transparent border border-slate-300/40 dark:border-slate-750 p-0.5 rounded-xl shrink-0">
                   <button
                     id="arabic-zoom-down"
                     onClick={() => setArabicFontSize(prev => Math.max(1, prev - 1))}
                     disabled={arabicFontSize === 1}
-                    className="w-8 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-emerald-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus:outline-hidden"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-300/30 dark:hover:bg-slate-700/35 text-slate-600 dark:text-emerald-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus:outline-hidden"
                     title="Perkecil Ukuran Teks"
                     aria-label="Perkecil Ukuran Teks"
                   >
-                    <ChevronDown className="w-4 h-4 font-bold" />
+                    <ChevronDown className="w-3.5 h-3.5 font-bold" />
                   </button>
-                  <span className="px-3.5 text-[10.5px] font-black font-mono text-emerald-800 dark:text-emerald-200 select-none bg-white dark:bg-slate-900 py-0.5 rounded-md border border-slate-100 dark:border-slate-800/80 shadow-3xs min-w-[50px] text-center">
+                  <span className="px-2 text-[10.5px] font-black font-mono text-slate-800 dark:text-emerald-100 select-none bg-transparent min-w-[38px] text-center">
                     Lv {arabicFontSize}
                   </span>
                   <button
                     id="arabic-zoom-up"
                     onClick={() => setArabicFontSize(prev => Math.min(5, prev + 1))}
                     disabled={arabicFontSize === 5}
-                    className="w-8 h-7 flex items-center justify-center rounded-lg hover:bg-slate-200 dark:hover:bg-slate-755 text-slate-600 dark:text-emerald-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus:outline-hidden"
+                    className="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-slate-300/30 dark:hover:bg-slate-700/35 text-slate-600 dark:text-emerald-300 transition-colors disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer focus:outline-hidden"
                     title="Perbesar Ukuran Teks"
                     aria-label="Perbesar Ukuran Teks"
                   >
-                    <ChevronUp className="w-4 h-4 font-bold" />
+                    <ChevronUp className="w-3.5 h-3.5 font-bold" />
                   </button>
                 </div>
               </div>

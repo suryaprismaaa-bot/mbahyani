@@ -450,6 +450,21 @@ export default function PrayerSchedule() {
     }, 5000);
   };
 
+  const getCleanCityName = () => {
+    let city = detectedCity || locationName || "Surabaya";
+    if (city.toLowerCase().includes("surabaya")) {
+      return "Surabaya";
+    }
+    if (city.includes("(")) {
+      city = city.split("(")[0].trim();
+    }
+    if (city.toLowerCase().startsWith("kota ")) {
+      city = city.substring(5).trim();
+    }
+    return city;
+  };
+  const activeCity = getCleanCityName();
+
   return (
     <div className="max-w-4xl mx-auto px-4 py-8">
       {/* Schedule Header */}
@@ -465,58 +480,36 @@ export default function PrayerSchedule() {
         </p>
       </div>
 
-      {/* Banner Informasi Lokasi Default Surabaya / GPS */}
-      {(!detectedCity || locationName.toLowerCase().includes("surabaya")) ? (
-        <div className="bg-gradient-to-r from-blue-50 to-emerald-50 dark:from-blue-950/20 dark:to-slate-900/60 p-4 rounded-2xl border-l-4 border-l-emerald-600 border-r-4 border-r-blue-600 border-t border-b border-emerald-100/30 dark:border-blue-900/10 text-xs mb-8 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-sm animate-in fade-in duration-300">
-          <div className="flex items-start gap-3 text-slate-700 dark:text-emerald-250">
-            <Info className="w-5 h-5 text-blue-600 dark:text-blue-400 shrink-0 mt-0.5" />
-            <div>
-              <p className="font-extrabold text-sm text-slate-800 dark:text-emerald-100 mb-0.5">Jadwal Aktif: Kota Surabaya</p>
-              <p className="leading-relaxed font-medium">
-                Jadwal di bawah adalah untuk wilayah Surabaya. Jika posisi Anda di luar Surabaya, silakan klik <span className="font-bold text-emerald-700 dark:text-emerald-300">"Sesuaikan GPS"</span> agar waktu shalat otomatis menyesuaikan lokasi Anda saat ini.
-              </p>
-            </div>
+      {/* Banner Informasi Lokasi - Ultra Clean High-Contrast White Background */}
+      <div className="bg-white dark:bg-white text-slate-950 border-[3.5px] border-slate-950 rounded-3xl p-6.5 mb-8 shadow-[8px_8px_0px_rgba(15,23,42,1)] transition-all duration-300">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="space-y-2 text-left">
+            <h3 className="text-base sm:text-lg font-black tracking-tight text-slate-950 flex items-center gap-2">
+              <span className="text-xl">📍</span> Jadwal Aktif: {activeCity}
+            </h3>
+            <p className="text-xs sm:text-sm font-extrabold text-slate-900 leading-relaxed max-w-2xl">
+              Jadwal di bawah ini adalah untuk {activeCity}. Jika posisi Anda tidak di sana, silakan klik tombol <span className="underline decoration-2 decoration-slate-950 font-black">Sesuaikan GPS</span> untuk menyesuaikan waktu sholat otomatis.
+            </p>
+            {detectedCity && !detectedCity.toLowerCase().includes("surabaya") && (
+              <button 
+                onClick={handleRestoreSurabaya}
+                className="mt-2 text-[11px] font-black uppercase text-slate-600 hover:text-black hover:underline cursor-pointer flex items-center gap-1"
+                id="btn-restore-surabaya"
+              >
+                ← Kembali ke Surabaya
+              </button>
+            )}
           </div>
           <button
             onClick={handleRequestGps}
             disabled={isGpsLoading}
-            className="shrink-0 px-4.5 py-2.5 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-700 hover:to-blue-700 text-white font-extrabold rounded-xl shadow-md cursor-pointer transition-all whitespace-nowrap self-start sm:self-center text-xs active:scale-97"
+            id="btn-sesuaikan-gps"
+            className="shrink-0 px-5.5 py-3.5 bg-slate-950 text-white font-black hover:bg-slate-900 text-xs uppercase tracking-wider rounded-xl border border-slate-900 cursor-pointer transition-all active:scale-95 shadow-md flex items-center gap-2 justify-center"
           >
-            {isGpsLoading ? "Menyesuaikan..." : "Sesuaikan GPS"}
+            {isGpsLoading ? "MENYESUAIKAN..." : "SESUAIKAN GPS"}
           </button>
         </div>
-      ) : null}
-
-      {/* Real-time Location alerts (Jakarta or other detected city) */}
-      {detectedCity && (detectedCity.toLowerCase().includes("jakarta") || locationName.toLowerCase().includes("jakarta")) ? (
-        <div className="bg-gradient-to-r from-blue-50 to-blue-100/50 dark:from-blue-950/30 dark:to-blue-900/20 border-l-4 border-l-blue-600 rounded-r-2xl p-4 mb-8 flex items-start gap-3.5 text-slate-700 dark:text-emerald-250 animate-in fade-in slide-in-from-top-3">
-          <MapPin className="w-5.5 h-5.5 shrink-0 text-blue-600 dark:text-blue-400 mt-0.5 animate-bounce" />
-          <div className="text-xs">
-            <span className="font-extrabold text-sm block mb-1 text-slate-800 dark:text-white">📍 Lokasi Terdeteksi di Jakarta!</span>
-            Waktu jadwal sholat saat ini disinkronisasikan secara real-time mengacu pada perhitungan Kemenag RI untuk zona waktu Jakarta dan sekitarnya.
-            <button 
-              onClick={handleRestoreSurabaya}
-              className="mt-2 block text-[11px] font-bold uppercase text-blue-600 dark:text-blue-400 hover:underline"
-            >
-              ← RESET KE SURABAYA (DEFAULT)
-            </button>
-          </div>
-        </div>
-      ) : detectedCity && !detectedCity.toLowerCase().includes("surabaya") ? (
-        <div className="bg-gradient-to-r from-emerald-50 to-emerald-100/50 dark:from-emerald-950/30 dark:to-emerald-900/20 border-l-4 border-l-emerald-600 rounded-r-2xl p-4 mb-8 flex items-start gap-3.5 text-slate-700 dark:text-emerald-250 animate-in fade-in slide-in-from-top-3">
-          <MapPin className="w-5.5 h-5.5 shrink-0 text-emerald-600 dark:text-emerald-400 mt-0.5" />
-          <div className="text-xs">
-            <span className="font-extrabold text-sm block mb-1 text-slate-800 dark:text-white">📍 Lokasi Terdeteksi: {detectedCity}</span>
-            Jadwal sholat otomatis disesuaikan secara real-time berdasarkan posisi geografis Anda di <strong>{detectedCity}</strong> sesuai hisab Kemenag RI.
-            <button 
-              onClick={handleRestoreSurabaya}
-              className="mt-2 block text-[11px] font-bold uppercase text-emerald-600 dark:text-emerald-400 hover:underline"
-            >
-              ← KEMBALI KE SURABAYA (DEFAULT)
-            </button>
-          </div>
-        </div>
-      ) : null}
+      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left pane: Active Countdown Panel */}
