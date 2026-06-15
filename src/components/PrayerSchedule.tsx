@@ -473,7 +473,7 @@ export default function PrayerSchedule() {
             <div>
               <p className="font-extrabold text-sm text-slate-800 dark:text-emerald-100 mb-0.5">Jadwal Aktif: Kota Surabaya</p>
               <p className="leading-relaxed font-medium">
-                Jadwal di bawah ini adalah untuk <span className="font-bold text-emerald-700 dark:text-emerald-300">Kota Surabaya</span>. Jika posisi Anda tidak di Surabaya, silakan klik tombol <span className="luxury-highlight text-blue-800 dark:text-blue-300">"Sesuaikan GPS"</span> agar waktu shalat otomatis menyesuaikan lokasi Anda saat ini.
+                Jadwal di bawah adalah untuk wilayah Surabaya. Jika posisi Anda di luar Surabaya, silakan klik <span className="font-bold text-emerald-700 dark:text-emerald-300">"Sesuaikan GPS"</span> agar waktu shalat otomatis menyesuaikan lokasi Anda saat ini.
               </p>
             </div>
           </div>
@@ -521,19 +521,6 @@ export default function PrayerSchedule() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
         {/* Left pane: Active Countdown Panel */}
         <div className="lg:col-span-4 space-y-4">
-          {/* Sederhana hanya menampilkan jam saja agar hemat ruang */}
-          <div className="bg-gradient-to-r from-emerald-600 to-teal-700 dark:from-emerald-950 dark:to-teal-900 rounded-2xl p-4 text-white text-center shadow-md select-none border border-white/10 flex items-center justify-between gap-2.5">
-            <div className="flex items-center gap-2">
-              <Clock className="w-4 h-4 text-emerald-100 animate-pulse shrink-0" />
-              <span className="text-[10px] font-black uppercase tracking-wider text-emerald-100 font-sans">
-                Jam Realtime ({getTzLabel()})
-              </span>
-            </div>
-            <div className="text-xl font-mono font-black tracking-widest bg-emerald-900/45 px-3 py-1 rounded-lg border border-white/10">
-              {systemTime.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </div>
-          </div>
-
           {/* Target count clock banner */}
           <div className="bg-white dark:bg-emerald-950/20 rounded-2xl p-5 border border-emerald-100 dark:border-emerald-900 shadow-xxs text-center">
             <span className="text-[10px] font-black text-slate-400 dark:text-emerald-450 uppercase block tracking-wider mb-0.5">

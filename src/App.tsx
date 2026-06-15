@@ -506,7 +506,10 @@ export default function App() {
       <div>
         {/* Main Header / Navigation - Combined Sticky Container with Custom Distinct Color and Animated Divider */}
         {!quranFocusMode && (
-          <div className="sticky top-0 z-50 w-full shadow-md bg-[#f4fcf8]/98 backdrop-blur-md transition-all duration-300">
+          <div 
+            className="sticky top-0 z-50 w-full shadow-md backdrop-blur-md transition-all duration-300 border-b-2 border-slate-900/10"
+            style={{ backgroundColor: 'var(--color-emerald-100)' }}
+          >
           <Navbar 
             activeTab={activeTab} 
             setActiveTab={setActiveTab} 
@@ -518,18 +521,26 @@ export default function App() {
           <div className="bg-transparent border-t border-emerald-100/35 dark:border-slate-800/45 py-2.5 px-4 transition-all duration-300">
             <div className="max-w-7xl mx-auto flex flex-col gap-2.5">
               
-              {/* Baris 1: Tanggal Masehi & Tanggal Hijriyah Sejajar */}
-              <div className="flex items-center justify-center gap-3 text-center whitespace-nowrap overflow-x-auto scrollbar-none w-full py-0.5">
-                <div className="text-[11px] sm:text-xs font-semibold text-slate-655 dark:text-slate-305 shrink-0 flex items-center gap-1">
-                  <span className="opacity-75">📅</span>
-                  <span>{gregorianString || "Memuat..."}</span>
+              {/* Baris 1: Tanggal Masehi & Tanggal Hijriyah Sejajar + Jam Realtime di Bawahnya */}
+              <div className="flex flex-col items-center justify-center gap-1.5 w-full py-0.5">
+                <div className="flex items-center justify-center gap-3 text-center whitespace-nowrap overflow-x-auto scrollbar-none w-full">
+                  <div className="text-[11px] sm:text-xs font-semibold text-slate-655 dark:text-slate-305 shrink-0 flex items-center gap-1">
+                    <span className="opacity-75">📅</span>
+                    <span>{gregorianString || "Memuat..."}</span>
+                  </div>
+                  
+                  <span className="text-slate-300 dark:text-slate-705 font-bold text-xs shrink-0">|</span>
+                  
+                  <div className="text-[11px] sm:text-xs font-black text-emerald-700 dark:text-amber-400 shrink-0 bg-emerald-50 dark:bg-amber-950/30 px-2.5 py-0.5 rounded-lg border border-emerald-100/80 dark:border-amber-900/20 flex items-center gap-1">
+                    <span>🌙</span>
+                    <span>{hijriString || "Memuat..."}</span>
+                  </div>
                 </div>
-                
-                <span className="text-slate-300 dark:text-slate-705 font-bold text-xs shrink-0">|</span>
-                
-                <div className="text-[11px] sm:text-xs font-black text-emerald-700 dark:text-amber-400 shrink-0 bg-emerald-50 dark:bg-amber-950/30 px-2.5 py-0.5 rounded-lg border border-emerald-100/80 dark:border-amber-900/20 flex items-center gap-1">
-                  <span>🌙</span>
-                  <span>{hijriString || "Memuat..."}</span>
+
+                {/* Jam Realtime */}
+                <div className="text-[11px] sm:text-xs font-bold text-slate-950 dark:text-slate-100 shrink-0 bg-white/70 dark:bg-slate-900/40 px-3 py-0.5 rounded-full border border-slate-300/80 dark:border-slate-800 flex items-center justify-center gap-1.5 shadow-xxs">
+                  <span>⏰</span>
+                  <span className="font-mono tracking-wider">{timeString || "00:00:00"}</span>
                 </div>
               </div>
 
@@ -979,10 +990,10 @@ export default function App() {
               {/* Warm Message Body - highly compact & direct */}
               <div className="space-y-2.5 text-xs text-slate-950 leading-relaxed font-sans mb-5 px-1 text-center">
                 <p className="font-black text-black">
-                  Selamat datang di layanan panduan ibadah harian. Aplikasi ini mempermudah pencarian & amalan Quran digital, jadwal shalat akurat, hadits pilihan, hingga kalkulator zakat.
+                  Selamat datang di portal panduan ibadah harian. Portal ini masih terus dalam tahap pengembangan berkala demi menyempurnakan setiap layanannya.
                 </p>
                 <div className="bg-emerald-100/90 text-slate-950 font-black py-2 px-3 rounded-xl border-2 border-slate-950 text-[11px] leading-normal shadow-sm">
-                  Seluruh fitur siap diakses dan digunakan sepenuhnya! Semoga berkah dan bernilai ibadah. 🤲✨
+                  Beberapa fitur utama seperti Al-Qur'an Digital, Jadwal Shalat, Hadits, serta Kalkulator Zakat sudah bisa digunakan secara lancar dan sepenuhnya! 🤲✨
                 </div>
               </div>
 

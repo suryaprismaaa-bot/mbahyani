@@ -152,7 +152,7 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                   onClick={() => handleNavClick(item.id)}
                   className={`flex items-center px-4 py-2 rounded-xl text-sm font-black transition-all duration-200 cursor-pointer glow-on-click ${
                     isActive
-                      ? 'bg-gradient-to-r from-emerald-700 to-blue-700 text-white shadow-md scale-102 font-black border border-emerald-800'
+                      ? 'bg-emerald-600 text-white shadow-md scale-102 font-black border-2 border-emerald-700'
                       : 'text-slate-950 dark:text-emerald-100 hover:bg-emerald-100/90 dark:hover:bg-blue-950/40 hover:text-emerald-950 dark:hover:text-white border-2 border-transparent'
                   }`}
                 >
@@ -169,7 +169,7 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                 className={`flex items-center px-4 py-2 rounded-xl text-sm font-black transition-all duration-200 cursor-pointer ${
                   isDropdownActive
-                    ? 'bg-slate-950 text-white border-2 border-slate-950 dark:bg-emerald-950 dark:border-emerald-850'
+                    ? 'bg-emerald-600 text-white border-2 border-emerald-700 dark:bg-emerald-600 dark:border-emerald-700'
                     : 'text-slate-950 dark:text-emerald-100 hover:bg-emerald-100/90 dark:hover:bg-blue-950/45 hover:text-emerald-950 dark:hover:text-white border-2 border-transparent'
                 }`}
               >
@@ -202,7 +202,7 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                                 onClick={() => handleNavClick(item.id)}
                                 className={`flex items-center gap-3 w-full text-left p-2.5 rounded-xl transition-all duration-150 cursor-pointer hover:bg-emerald-100/90 dark:hover:bg-blue-950/30 group glow-on-click ${
                                   isActive
-                                    ? 'bg-slate-950 text-white border-2 border-slate-950 dark:bg-emerald-950 dark:border-emerald-800 shadow-[0_0_12px_rgba(0,0,0,0.15)] scale-101'
+                                    ? 'bg-emerald-600 text-white border-2 border-emerald-700 dark:bg-emerald-600 dark:border-emerald-750 shadow-[0_0_12px_rgba(0,0,0,0.15)] scale-101'
                                     : 'text-slate-950 dark:text-emerald-250 border border-transparent'
                                 }`}
                               >
@@ -297,7 +297,7 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                         onClick={() => handleNavClick(item.id)}
                         className={`flex items-center w-full px-4 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer border ${
                           isActive
-                            ? 'bg-slate-950 text-white border-slate-950 shadow-md font-bold'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md font-bold'
                             : 'text-slate-950 dark:text-emerald-250 hover:bg-slate-100 border-transparent'
                         }`}
                       >
@@ -322,60 +322,53 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                 {(() => {
                   let overallIndex = 4; // Start from 4 since primaryItems are 1, 2, 3
                   return categorizedDropdown.map((cat, catIdx) => {
-                    const isGroupOpen = !!openMobileGroups[cat.groupName];
                     return (
                       <div key={catIdx} className="space-y-1 pl-1">
-                        {/* Collapsible Category Header Button */}
-                        <button
-                          onClick={() => toggleMobileGroup(cat.groupName)}
-                          className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-900/35 rounded-xl transition-all duration-200 cursor-pointer group border border-slate-200/80"
-                        >
+                        {/* Static Category Header (No collapse toggle required anymore) */}
+                        <div className="w-full flex items-center justify-between px-3 py-2 text-left bg-slate-50 dark:bg-slate-900/10 rounded-xl border border-slate-200/80">
                           <div className="text-xs font-black uppercase tracking-wider text-slate-950 dark:text-emerald-400/80 flex items-center gap-1.5">
                             <span className="w-1.5 h-1.5 rounded-full bg-emerald-700 shrink-0" />
                             {cat.groupName}
                           </div>
-                          <ChevronDown className={`w-3.5 h-3.5 text-slate-950 font-black transition-transform duration-300 ${isGroupOpen ? 'rotate-180 text-emerald-705' : ''}`} />
-                        </button>
+                        </div>
                         
-                        {/* Collapsible Area with Smooth Transition */}
-                        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isGroupOpen ? 'max-h-[500px] opacity-100 mt-1' : 'max-h-0 opacity-0 pointer-events-none'}`}>
-                          <div className="space-y-1 pt-1 border-l-2 border-dashed border-slate-300 dark:border-blue-950/40 ml-3.5 pl-2.5">
-                            {cat.items.map((item, itemIdx) => {
-                              const Icon = item.icon;
-                              const isActive = activeTab === item.id;
-                              const currentNumStr = String(overallIndex++).padStart(2, '0');
-                              return (
-                                <div key={item.id}>
-                                  {itemIdx > 0 && (
-                                    <div className="my-1.5 border-t border-dashed border-slate-200 dark:border-slate-800" />
-                                  )}
-                                  <button
-                                    key={item.id}
-                                    id={`nav-mobile-${item.id}`}
-                                    onClick={() => handleNavClick(item.id)}
-                                    className={`flex items-center w-full px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border ${
-                                      isActive
-                                        ? 'bg-slate-950 text-white border-slate-950 shadow-md font-bold'
-                                        : 'text-slate-950 dark:text-emerald-250 hover:bg-slate-100 border-transparent'
-                                    }`}
-                                  >
-                                    <span className="font-mono text-[9.5px] font-black mr-2.5 shrink-0 text-slate-950 dark:text-emerald-300">
-                                      {currentNumStr}
+                        {/* Flat Area fully visible downwards */}
+                        <div className="space-y-1 pt-1 border-l-2 border-dashed border-slate-300 dark:border-blue-950/40 ml-3.5 pl-2.5">
+                          {cat.items.map((item, itemIdx) => {
+                            const Icon = item.icon;
+                            const isActive = activeTab === item.id;
+                            const currentNumStr = String(overallIndex++).padStart(2, '0');
+                            return (
+                              <div key={item.id}>
+                                {itemIdx > 0 && (
+                                  <div className="my-1.5 border-t border-dashed border-slate-200 dark:border-slate-800" />
+                                )}
+                                <button
+                                  key={item.id}
+                                  id={`nav-mobile-${item.id}`}
+                                  onClick={() => handleNavClick(item.id)}
+                                  className={`flex items-center w-full px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border ${
+                                    isActive
+                                      ? 'bg-emerald-600 text-white border-emerald-700 shadow-md font-bold'
+                                      : 'text-slate-950 dark:text-emerald-250 hover:bg-slate-100 border-transparent'
+                                  }`}
+                                >
+                                  <span className="font-mono text-[9.5px] font-black mr-2.5 shrink-0 text-slate-950 dark:text-emerald-300">
+                                    {currentNumStr}
+                                  </span>
+                                  <Icon className={`w-4 h-4 mr-2.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-950 dark:text-emerald-450'}`} />
+                                  <div className="text-left w-full leading-snug">
+                                    <span className={`block font-black text-xs ${isActive ? 'text-white' : 'text-slate-950 dark:text-emerald-100'}`}>
+                                      {item.label}
                                     </span>
-                                    <Icon className={`w-4 h-4 mr-2.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-950 dark:text-emerald-450'}`} />
-                                    <div className="text-left w-full leading-snug">
-                                      <span className={`block font-black text-xs ${isActive ? 'text-white' : 'text-slate-950 dark:text-emerald-100'}`}>
-                                        {item.label}
-                                      </span>
-                                      <span className={`block text-[10px] font-bold ${isActive ? 'text-slate-200' : 'text-slate-800 dark:text-emerald-400/50'}`}>
-                                        {item.desc}
-                                      </span>
-                                    </div>
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </div>
+                                    <span className={`block text-[10px] font-bold ${isActive ? 'text-slate-205' : 'text-slate-800 dark:text-emerald-400/50'}`}>
+                                      {item.desc}
+                                    </span>
+                                  </div>
+                                </button>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
                     );

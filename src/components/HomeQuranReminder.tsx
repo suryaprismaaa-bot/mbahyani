@@ -263,13 +263,20 @@ export default function HomeQuranReminder({ theme = 'emerald', arabicFontSize = 
         <Quote className="w-10 h-10 transform rotate-180" />
       </div>
 
-      <div className={`rounded-3xl p-5.5 relative overflow-hidden transition-all duration-300 border-2 flex flex-col justify-between min-h-[220px] ${currentStyle.border} ${currentStyle.bg}`}>
+      <div 
+        className="rounded-3xl p-5.5 relative overflow-hidden transition-all duration-300 border-[3.5px] flex flex-col justify-between min-h-[220px]"
+        style={{
+          backgroundColor: '#ffffff',
+          borderColor: 'var(--color-emerald-500)',
+          boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05)'
+        }}
+      >
         {/* Thick dynamic color left bar - with blinking animation */}
         <div className={`absolute top-0 left-0 w-2.5 h-full transition-colors duration-300 animate-pulse ${currentStyle.accentBar}`} />
 
         <div className={`transition-all duration-200 ${fade ? 'opacity-100' : 'opacity-0'}`}>
           <div className="flex flex-wrap justify-between items-center gap-2 mb-3">
-            <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full border transition-all duration-300 ${currentStyle.badgeBg} ${currentStyle.badgeTextColor} ${currentStyle.btnBorder}`}>
+            <span className={`inline-flex items-center gap-1.5 px-3 py-1 text-[10px] font-black uppercase tracking-wider rounded-full border-2 transition-all duration-300 ${currentStyle.badgeBg} ${currentStyle.badgeTextColor} ${currentStyle.btnBorder}`}>
               <Sparkles className="w-3.5 h-3.5 text-amber-500 animate-spin-slow animate-pulse" />
               Ayat & Pengingat Hari Ini
             </span>
@@ -284,25 +291,25 @@ export default function HomeQuranReminder({ theme = 'emerald', arabicFontSize = 
           {/* Large Arabic text */}
           <div 
             dir="rtl" 
-            className={`text-right font-serif text-slate-900 dark:text-slate-50 font-bold leading-loose mb-3.5 tracking-wide drop-shadow-sm transition-all duration-250 ${getArabicFontSizeClass(arabicFontSize)}`}
+            className={`text-right font-serif text-slate-950 font-black leading-loose mb-3.5 tracking-wide drop-shadow-sm transition-all duration-250 ${getArabicFontSizeClass(arabicFontSize)}`}
           >
             {activeQuote.arabic}
           </div>
 
           {/* Latin & translation */}
-          <p className={`italic font-medium px-3 py-1.5 rounded-xl inline-block mb-3 border transition-all duration-250 ${getLatinFontSizeClass(arabicFontSize)} ${currentStyle.latinBg} ${currentStyle.latinText} ${currentStyle.btnBorder}`}>
+          <p className={`italic font-extrabold px-3 py-1.5 rounded-xl inline-block mb-3 border-[1.5px] transition-all duration-250 ${getLatinFontSizeClass(arabicFontSize)} ${currentStyle.latinBg} ${currentStyle.latinText} ${currentStyle.btnBorder}`}>
             {activeQuote.latin}
           </p>
 
-          <p className={`font-semibold text-slate-805 dark:text-slate-100 mt-1 lines-relaxed bg-white/40 dark:bg-black/20 p-3.5 rounded-2xl border border-slate-205/50 dark:border-slate-800/40 shadow-xs transition-all duration-250 ${getTranslationFontSizeClass(arabicFontSize)}`}>
+          <p className={`font-black text-slate-900 mt-1 leading-relaxed bg-slate-50/90 p-3.5 rounded-2xl border-[1.5px] border-slate-200/90 shadow-xs transition-all duration-250 ${getTranslationFontSizeClass(arabicFontSize)}`}>
             &ldquo;{activeQuote.text}&rdquo;
           </p>
 
-          <div className="flex justify-between items-center mt-5 border-t border-slate-200/60 dark:border-slate-800/60 pt-4 text-[11px] font-extrabold uppercase tracking-wide text-slate-505 dark:text-slate-400">
+          <div className="flex justify-between items-center mt-5 border-t-[1.5px] border-slate-100 pt-4 text-[11px] font-black uppercase tracking-wide text-slate-800">
             <span>📚 {activeQuote.reference}</span>
             <button
               onClick={handleManualNext}
-              className={`px-3.5 py-1.5 text-xs font-black rounded-xl border flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-xxs ${currentStyle.btnBg} ${currentStyle.btnBorder} ${currentStyle.btnText}`}
+              className={`px-3.5 py-1.5 text-xs font-black rounded-xl border-2 flex items-center gap-1.5 cursor-pointer transition-all active:scale-95 shadow-xxs ${currentStyle.btnBg} ${currentStyle.btnBorder} ${currentStyle.btnText}`}
             >
               Lanjut
               <ChevronRight className="w-3.5 h-3.5 font-bold" />

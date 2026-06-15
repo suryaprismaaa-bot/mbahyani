@@ -504,6 +504,26 @@ h1, h2, h3, h4, h5, h6 {
   border-style: dashed !important;
 }
 
+/* 7. FORCE SELECTED MENU ITEMS WITH ACTIVE PORTAL THEME COLOR TO HAVE INTENSE HIGH-CONTRAST WHITE TEXT & ICONS */
+[class*="bg-emerald-600"],
+[class*="bg-emerald-600"] *,
+[class*="bg-emerald-700"],
+[class*="bg-emerald-700"] *,
+[class*="bg-emerald-750"],
+[class*="bg-emerald-750"] * {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+
+/* Allow the active label subtitle description to be a bright contrasting white-cream */
+[class*="bg-emerald-600"] .text-slate-200,
+[class*="bg-emerald-600"] [class*="text-slate-200"],
+[class*="bg-emerald-700"] .text-slate-200,
+[class*="bg-emerald-700"] [class*="text-slate-200"] {
+  color: #f1f5f9 !important;
+  opacity: 0.9 !important;
+}
+
 
 
 
