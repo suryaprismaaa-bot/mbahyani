@@ -18,6 +18,7 @@ import MakkahLive from './components/MakkahLive';
 import MosqueFinder from './components/MosqueFinder';
 import TilawatiLearning from './components/TilawatiLearning';
 import HomeQuranReminder from './components/HomeQuranReminder';
+import HomeIslamicAffirmation from './components/HomeIslamicAffirmation';
 import TajweedLearning from './components/TajweedLearning';
 import ZakatCalculator from './components/ZakatCalculator';
 import HijriCalendarHistory from './components/HijriCalendarHistory';
@@ -717,6 +718,18 @@ export default function App() {
                  <div className="relative z-10 animate-in fade-in duration-500">
                   {/* Expanded majestic text layout */}
                   <div className="w-full text-left max-w-3xl">
+                    {/* Tulisan Berjalan (Marquee) Afirmasi Islami */}
+                    <div className="w-full mb-5 bg-emerald-500/10 dark:bg-slate-900/60 p-3 rounded-2xl border border-emerald-500/20 dark:border-slate-800/80 overflow-hidden flex flex-col gap-2">
+                      <div className="flex items-center">
+                        <span className="bg-emerald-600 text-[10px] md:text-[10.5px] text-white px-2.5 py-0.5 rounded-lg font-black uppercase tracking-wider flex items-center gap-1 shadow-2xs">
+                          📢 AFIRMASI HARI INI
+                        </span>
+                      </div>
+                      <marquee scrollamount="3.5" direction="left" className="text-xs font-bold text-emerald-800 dark:text-emerald-300 font-sans tracking-wide w-full">
+                        Setiap detak jantung adalah bukti kasih sayang Allah (Umar bin Khattab) &nbsp;&bull;&nbsp; Jangan berduka, apa pun yang hilang darimu pasti akan kembali dalam bentuk lain yang jauh lebih baik atas kehendak-Nya (Jalaluddin Rumi) &nbsp;&bull;&nbsp; Keyakinan yang paling indah adalah percaya sepenuhnya bahwa takdir Allah selalu lebih baik dari semua skenario rencana kita &nbsp;&bull;&nbsp; Sabar bukanlah sekadar cara menunggu, melainkan bagaimana kita menjaga ucapan dan prasangka baik selagi menanti keputusan-Nya &nbsp;&bull;&nbsp; Ketika Allah menuntunmu untuk berdoa, ketahuilah bahwa sesungguhnya Dia telah rindu untuk mencurahkan jawaban kepadamu (Ibnu Qayyim) &nbsp;&bull;&nbsp; Lelahmu dalam bekerja mencari rezeki halal dan taat beribadah adalah guguran dosa yang berharga di hadapan Allah Ta’ala &nbsp;&bull;&nbsp; Allah sedang mempersiapkan hal besar untukmu melewati jalan kesabaran yang hari ini sedang kamu tempuh dengan tabah.
+                      </marquee>
+                    </div>
+
                     <span className="inline-flex items-center px-4 py-1.5 bg-emerald-500/10 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-emerald-800 border border-emerald-150 mb-6">
                       🌟 Pusat Kajian & Ibadah Sinergi Umat Nusantara
                     </span>
@@ -752,8 +765,9 @@ export default function App() {
               </div>
 
               {/* Ayat & Pengingat Hari Ini untuk melengkapi beranda yang bersih */}
-              <div className="mt-8">
+              <div className="mt-8 space-y-6">
                 <HomeQuranReminder theme={theme} arabicFontSize={arabicFontSize} />
+                <HomeIslamicAffirmation theme={theme} />
               </div>
             </div>
           )}
