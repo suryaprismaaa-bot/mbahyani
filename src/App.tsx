@@ -932,11 +932,11 @@ export default function App() {
 
             {/* Glowing minimalist modal card */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              initial={{ opacity: 0, scale: 0.95, y: 40 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 10 }}
-              transition={{ type: "spring", damping: 28, stiffness: 400 }}
-              className="relative w-full max-w-[340px] bg-white border-2 border-slate-950 rounded-[24px] p-6.5 shadow-2xl overflow-hidden text-center z-130 flex flex-col justify-between"
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              transition={{ type: "spring", damping: 30, stiffness: 350 }}
+              className="relative w-full max-w-[340px] bg-white border-2 border-slate-950 rounded-[24px] p-6.5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.18)] overflow-hidden text-center z-130 flex flex-col justify-between"
             >
               {/* Top corner close button */}
               <button
