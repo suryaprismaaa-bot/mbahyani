@@ -125,14 +125,14 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
               className="flex items-center space-x-2.5 text-left focus:outline-none cursor-pointer group"
               onClick={() => handleNavClick('home')}
             >
-              <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 via-teal-600 to-blue-600 rounded-xl flex items-center justify-center shadow-emerald-250 dark:shadow-blue-950/45 shadow-md text-white transition-transform group-hover:scale-105">
+              <div className="w-10 h-10 bg-gradient-to-br from-emerald-600 via-teal-700 to-blue-700 rounded-xl flex items-center justify-center shadow-emerald-250 dark:shadow-blue-950/45 shadow-md text-white transition-transform group-hover:scale-105">
                 <Compass className="w-5 h-5 animate-pulse" />
               </div>
               <div>
-                <span className="block font-sans font-extrabold text-lg text-slate-800 dark:text-emerald-100 tracking-tight leading-tight">
+                <span className="block font-sans font-black text-lg text-slate-950 dark:text-emerald-100 tracking-tight leading-tight">
                   Portal Islami
                 </span>
-                <span className="block font-sans font-extrabold text-[12px] text-slate-700 dark:text-emerald-200/90 tracking-tight leading-normal mt-0.5">
+                <span className="block font-sans font-extrabold text-[12px] text-slate-900 dark:text-emerald-200 tracking-tight leading-normal mt-0.5">
                   Keluarga Mbah Yani
                 </span>
               </div>
@@ -150,10 +150,10 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                   key={item.id}
                   id={`nav-desktop-${item.id}`}
                   onClick={() => handleNavClick(item.id)}
-                  className={`flex items-center px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer glow-on-click ${
+                  className={`flex items-center px-4 py-2 rounded-xl text-sm font-black transition-all duration-200 cursor-pointer glow-on-click ${
                     isActive
-                      ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md shadow-emerald-600/10 scale-102 shadow-[0_0_15px_rgba(16,185,129,0.5)]'
-                      : 'text-slate-600 dark:text-emerald-200 hover:bg-emerald-50/65 dark:hover:bg-blue-950/20 hover:text-emerald-700 dark:hover:text-emerald-100'
+                      ? 'bg-gradient-to-r from-emerald-700 to-blue-700 text-white shadow-md scale-102 font-black border border-emerald-800'
+                      : 'text-slate-950 dark:text-emerald-100 hover:bg-emerald-100/90 dark:hover:bg-blue-950/40 hover:text-emerald-950 dark:hover:text-white border-2 border-transparent'
                   }`}
                 >
                   <Icon className="w-4 h-4 mr-1.5 shrink-0" />
@@ -167,10 +167,10 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
               <button
                 id="desktop-dropdown-toggle"
                 onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                className={`flex items-center px-4 py-2 rounded-xl text-sm font-semibold transition-all duration-200 cursor-pointer ${
+                className={`flex items-center px-4 py-2 rounded-xl text-sm font-black transition-all duration-200 cursor-pointer ${
                   isDropdownActive
-                    ? 'bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-950/30 dark:to-blue-950/30 text-emerald-700 dark:text-blue-300 border border-emerald-200/50 dark:border-blue-900/50'
-                    : 'text-slate-600 dark:text-emerald-200 hover:bg-emerald-50/65 dark:hover:bg-blue-950/20 hover:text-emerald-700 dark:hover:text-emerald-100'
+                    ? 'bg-slate-950 text-white border-2 border-slate-950 dark:bg-emerald-950 dark:border-emerald-850'
+                    : 'text-slate-950 dark:text-emerald-100 hover:bg-emerald-100/90 dark:hover:bg-blue-950/45 hover:text-emerald-950 dark:hover:text-white border-2 border-transparent'
                 }`}
               >
                 <Sparkles className="w-4 h-4 mr-1.5 text-amber-550 dark:text-amber-350 animate-pulse shrink-0" />
@@ -180,18 +180,18 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
 
               {/* Luxurious Dropdown Panel */}
               {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-slate-900 rounded-2xl border border-emerald-100/90 dark:border-blue-900/40 shadow-2xl p-3.5 z-50 transition-all duration-200 animate-in fade-in slide-in-from-top-3 max-h-[85vh] overflow-y-auto scrollbar-none">
-                  <div className="px-2 pb-2 mr-1 mb-2.5 text-[10px] font-black uppercase tracking-widest bg-gradient-to-r from-emerald-600 to-blue-600 bg-clip-text text-transparent border-b border-slate-100 dark:border-slate-800/60">
+                <div className="absolute right-0 mt-2 w-96 bg-white dark:bg-slate-900 rounded-2xl border-2 border-slate-950 dark:border-blue-900/40 shadow-2xl p-3.5 z-50 transition-all duration-200 animate-in fade-in slide-in-from-top-3 max-h-[85vh] overflow-y-auto scrollbar-none">
+                  <div className="px-2 pb-2 mr-1 mb-2.5 text-xs font-black uppercase tracking-widest text-slate-950 border-b-2 border-slate-950 dark:text-emerald-400 dark:border-slate-800/60 pb-1 mt-0.5">
                     Kategori Layanan & Amalan
                   </div>
                   <div className="space-y-4">
                     {categorizedDropdown.map((cat, catIdx) => (
                       <div key={catIdx} className="space-y-1">
-                        <div className="px-2 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-emerald-400/70 flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                        <div className="px-2 text-[10px] font-black uppercase tracking-widest text-slate-950 dark:text-emerald-400/70 flex items-center gap-1.5 pt-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-700 shrink-0" />
                           {cat.groupName}
                         </div>
-                        <div className="grid gap-0.5">
+                        <div className="grid gap-1">
                           {cat.items.map((item) => {
                             const Icon = item.icon;
                             const isActive = activeTab === item.id;
@@ -200,29 +200,29 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                                 key={item.id}
                                 id={`nav-dropdown-${item.id}`}
                                 onClick={() => handleNavClick(item.id)}
-                                className={`flex items-center gap-3 w-full text-left p-2 rounded-xl transition-all duration-150 cursor-pointer hover:bg-emerald-50/60 dark:hover:bg-blue-950/30 group glow-on-click ${
+                                className={`flex items-center gap-3 w-full text-left p-2.5 rounded-xl transition-all duration-150 cursor-pointer hover:bg-emerald-100/90 dark:hover:bg-blue-950/30 group glow-on-click ${
                                   isActive
-                                    ? 'bg-gradient-to-r from-emerald-50 to-blue-50 dark:from-emerald-950/30 dark:to-blue-950/30 text-emerald-700 dark:text-blue-100 border border-emerald-100/40 dark:border-blue-900/30 shadow-[0_0_10px_rgba(16,185,129,0.15)]'
-                                    : 'text-slate-700 dark:text-emerald-250'
+                                    ? 'bg-slate-950 text-white border-2 border-slate-950 dark:bg-emerald-950 dark:border-emerald-800 shadow-[0_0_12px_rgba(0,0,0,0.15)] scale-101'
+                                    : 'text-slate-950 dark:text-emerald-250 border border-transparent'
                                 }`}
                               >
                                 <div className={`p-1.5 rounded-lg flex items-center justify-center shrink-0 ${
                                   isActive 
-                                    ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-sm' 
-                                    : 'bg-emerald-50/70 dark:bg-blue-950/35 text-emerald-650 dark:text-emerald-450 group-hover:bg-emerald-100 dark:group-hover:bg-blue-900/50'
+                                    ? 'bg-white text-slate-950 shadow-sm' 
+                                    : 'bg-emerald-100/90 dark:bg-blue-950/35 text-slate-950 dark:text-emerald-450 group-hover:bg-slate-950 group-hover:text-white'
                                 }`}>
-                                  <Icon className="w-3.5 h-3.5" />
+                                  <Icon className="w-3.5 h-3.5 font-bold" />
                                 </div>
                                 <div className="min-w-0 flex-1">
-                                  <span className={`block text-xs font-bold ${isActive ? 'text-emerald-700 dark:text-blue-300' : 'text-slate-800 dark:text-emerald-200'}`}>
+                                  <span className={`block text-xs font-black ${isActive ? 'text-white' : 'text-slate-950 dark:text-emerald-200'}`}>
                                     {item.label}
                                   </span>
-                                  <span className="block text-[9.5px] text-slate-450 dark:text-emerald-400/50 font-semibold truncate">
+                                  <span className={`block text-[10px] font-bold truncate ${isActive ? 'text-slate-200/90 dark:text-emerald-400/50' : 'text-slate-800 dark:text-emerald-400'}`}>
                                     {item.desc}
                                   </span>
                                 </div>
                                 {isActive && (
-                                  <div className="w-1.5 h-1.5 rounded-full bg-blue-550 dark:bg-amber-350 animate-pulse mr-1" />
+                                  <div className="w-2 h-2 rounded-full bg-amber-450 dark:bg-amber-350 animate-pulse mr-1 shrink-0" />
                                 )}
                               </button>
                             );
@@ -235,30 +235,10 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
               )}
             </div>
 
-            <div className="h-6 w-px bg-emerald-100 dark:bg-blue-900/40 mx-1.5" />
-
-            {/* Dark Mode Toggle */}
-            <button
-              id="desktop-dark-toggle"
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2.5 rounded-xl border border-emerald-100/60 dark:border-blue-900/30 text-slate-600 dark:text-emerald-300 hover:bg-emerald-50/65 dark:hover:bg-blue-955 cursor-pointer transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? <Sun className="w-4 h-4 text-amber-300 animate-pulse" /> : <Moon className="w-4 h-4 text-blue-800" />}
-            </button>
           </div>
 
-          {/* Mobile menu button & dark mode toggle */}
+          {/* Mobile menu button and navigations */}
           <div className="flex items-center space-x-2 md:hidden">
-            <button
-              id="mobile-dark-toggle"
-              onClick={() => setDarkMode(!darkMode)}
-              className="p-2 rounded-xl border border-emerald-100/60 dark:border-blue-900/30 text-slate-600 dark:text-emerald-300 hover:bg-emerald-50/65 dark:hover:bg-blue-955 cursor-pointer transition-colors"
-              aria-label="Toggle dark mode"
-            >
-              {darkMode ? <Sun className="w-4 h-4 text-amber-300 animate-pulse" /> : <Moon className="w-4 h-4 text-blue-800" />}
-            </button>
-
             <div className="relative">
               <button
                 id="mobile-menu-toggle"
@@ -298,7 +278,7 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
             
             {/* Primary Section */}
             <div>
-              <div className="px-3 pb-1 text-[9px] font-extrabold uppercase tracking-widest text-slate-400">
+              <div className="px-3 pb-1 text-xs font-black uppercase tracking-widest text-slate-950 dark:text-emerald-300">
                 Menu Utama Nusantara
               </div>
               <div className="space-y-1 mt-1">
@@ -309,23 +289,23 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                   return (
                     <div key={item.id}>
                       {idx > 0 && (
-                        <div className="my-1.5 mx-3 border-t border-dashed border-slate-100 dark:border-slate-900/30" />
+                        <div className="my-1.5 mx-3 border-t border-dashed border-slate-200 dark:border-slate-800" />
                       )}
                       <button
                         key={item.id}
                         id={`nav-mobile-${item.id}`}
                         onClick={() => handleNavClick(item.id)}
-                        className={`flex items-center w-full px-4 py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer ${
+                        className={`flex items-center w-full px-4 py-2.5 rounded-xl text-xs font-black transition-all cursor-pointer border ${
                           isActive
-                            ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md'
-                            : 'text-slate-600 dark:text-emerald-250 hover:bg-emerald-50/50 dark:hover:bg-blue-950/20'
+                            ? 'bg-slate-950 text-white border-slate-950 shadow-md font-bold'
+                            : 'text-slate-950 dark:text-emerald-250 hover:bg-slate-100 border-transparent'
                         }`}
                       >
-                        <span className="font-mono text-[10px] font-black opacity-50 mr-2.5 shrink-0 text-slate-400 dark:text-emerald-300">
+                        <span className="font-mono text-[10.5px] font-black mr-2.5 shrink-0 text-slate-950 dark:text-emerald-350">
                           {itemNumber}
                         </span>
                         <Icon className="w-4 h-4 mr-2.5 shrink-0" />
-                        <span className="font-bold">{item.label}</span>
+                        <span className="font-black">{item.label}</span>
                       </button>
                     </div>
                   );
@@ -334,8 +314,8 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
             </div>
 
             {/* Dropdown/Other items Grouped Mobile */}
-            <div className="border-t border-slate-100 dark:border-blue-900/20 pt-3">
-              <div className="px-3 pb-2 text-[9px] font-extrabold uppercase tracking-widest text-slate-400 dark:text-emerald-400/50">
+            <div className="border-t border-slate-200 dark:border-blue-900/20 pt-3">
+              <div className="px-3 pb-2 text-xs font-black uppercase tracking-widest text-slate-950 dark:text-emerald-400">
                 Layanan & Amalan Utama
               </div>
               <div className="space-y-4">
@@ -348,18 +328,18 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                         {/* Collapsible Category Header Button */}
                         <button
                           onClick={() => toggleMobileGroup(cat.groupName)}
-                          className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-50 dark:hover:bg-slate-900/35 rounded-xl transition-all duration-200 cursor-pointer group"
+                          className="w-full flex items-center justify-between px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-900/35 rounded-xl transition-all duration-200 cursor-pointer group border border-slate-200/80"
                         >
-                          <div className="text-[10px] font-black uppercase tracking-wider text-slate-705 dark:text-emerald-400/80 flex items-center gap-1.5">
-                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                          <div className="text-xs font-black uppercase tracking-wider text-slate-950 dark:text-emerald-400/80 flex items-center gap-1.5">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-700 shrink-0" />
                             {cat.groupName}
                           </div>
-                          <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform duration-300 ${isGroupOpen ? 'rotate-180 text-emerald-500' : ''}`} />
+                          <ChevronDown className={`w-3.5 h-3.5 text-slate-950 font-black transition-transform duration-300 ${isGroupOpen ? 'rotate-180 text-emerald-705' : ''}`} />
                         </button>
                         
                         {/* Collapsible Area with Smooth Transition */}
-                        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isGroupOpen ? 'max-h-[400px] opacity-100 mt-1' : 'max-h-0 opacity-0 pointer-events-none'}`}>
-                          <div className="space-y-1 pt-1 border-l-2 border-dashed border-emerald-100/50 dark:border-blue-950/40 ml-3.5 pl-2.5">
+                        <div className={`overflow-hidden transition-all duration-300 ease-in-out ${isGroupOpen ? 'max-h-[500px] opacity-100 mt-1' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+                          <div className="space-y-1 pt-1 border-l-2 border-dashed border-slate-300 dark:border-blue-950/40 ml-3.5 pl-2.5">
                             {cat.items.map((item, itemIdx) => {
                               const Icon = item.icon;
                               const isActive = activeTab === item.id;
@@ -367,27 +347,27 @@ export default function Navbar({ activeTab, setActiveTab, darkMode, setDarkMode 
                               return (
                                 <div key={item.id}>
                                   {itemIdx > 0 && (
-                                    <div className="my-1.5 border-t border-dashed border-slate-100 dark:border-slate-900/35" />
+                                    <div className="my-1.5 border-t border-dashed border-slate-200 dark:border-slate-800" />
                                   )}
                                   <button
                                     key={item.id}
                                     id={`nav-mobile-${item.id}`}
                                     onClick={() => handleNavClick(item.id)}
-                                    className={`flex items-center w-full px-3 py-2 rounded-xl text-xs font-semibold transition-all cursor-pointer ${
+                                    className={`flex items-center w-full px-3 py-2 rounded-xl text-xs font-black transition-all cursor-pointer border ${
                                       isActive
-                                        ? 'bg-gradient-to-r from-emerald-600 to-blue-600 text-white shadow-md'
-                                        : 'text-slate-600 dark:text-emerald-250 hover:bg-emerald-50/50 dark:hover:bg-blue-950/20'
+                                        ? 'bg-slate-950 text-white border-slate-950 shadow-md font-bold'
+                                        : 'text-slate-950 dark:text-emerald-250 hover:bg-slate-100 border-transparent'
                                     }`}
                                   >
-                                    <span className="font-mono text-[9.5px] font-bold opacity-50 mr-2.5 shrink-0 text-slate-400 dark:text-emerald-300">
+                                    <span className="font-mono text-[9.5px] font-black mr-2.5 shrink-0 text-slate-950 dark:text-emerald-300">
                                       {currentNumStr}
                                     </span>
-                                    <Icon className={`w-4 h-4 mr-2.5 shrink-0 ${isActive ? 'text-white' : 'text-emerald-650 dark:text-emerald-450'}`} />
+                                    <Icon className={`w-4 h-4 mr-2.5 shrink-0 ${isActive ? 'text-white' : 'text-slate-950 dark:text-emerald-450'}`} />
                                     <div className="text-left w-full leading-snug">
-                                      <span className={`block font-extrabold ${isActive ? 'text-white' : 'text-slate-800 dark:text-emerald-100'}`}>
+                                      <span className={`block font-black text-xs ${isActive ? 'text-white' : 'text-slate-950 dark:text-emerald-100'}`}>
                                         {item.label}
                                       </span>
-                                      <span className={`block text-[9px] ${isActive ? 'text-blue-100' : 'text-slate-455 dark:text-emerald-400/50'}`}>
+                                      <span className={`block text-[10px] font-bold ${isActive ? 'text-slate-200' : 'text-slate-800 dark:text-emerald-400/50'}`}>
                                         {item.desc}
                                       </span>
                                     </div>

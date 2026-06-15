@@ -615,7 +615,7 @@ export default function PrayerSchedule() {
                 id="calc-method-select"
                 value={calcMethod}
                 onChange={(e) => handleCalcMethodChange(e.target.value as 'kemenag' | 'muhammadiyah')}
-                className="w-full bg-white dark:bg-slate-900 text-slate-100 dark:text-white font-black text-xs py-2.5 px-3.5 pr-10 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-amber-300 cursor-pointer appearance-none shadow-sm"
+                className="w-full bg-white dark:bg-slate-900 text-amber-950 dark:text-white font-black text-xs py-2.5 px-3.5 pr-10 rounded-xl border-none focus:outline-none focus:ring-2 focus:ring-amber-300 cursor-pointer appearance-none shadow-sm"
               >
                 <option value="kemenag">🇮🇩 Kementerian Agama RI (Bimas Islam Kisaran)</option>
                 <option value="muhammadiyah">🕌 Muhammadiyah / Kalender Hijriah Global Tunggal (KHGT)</option>

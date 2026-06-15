@@ -41,23 +41,33 @@
   --color-amber-450: #ffae19;
   --color-amber-500: #e59a00;
   
-  /* Solid professional dark slate */
+  /* Solid professional dark slate with extreme black contrast over white background */
   --color-slate-50: #f8fafc;
   --color-slate-100: #f1f5f9;
-  --color-slate-150: #e2e8f0;
-  --color-slate-200: #cbd5e1;
+  --color-slate-150: #cbd5e1;
+  --color-slate-200: #94a3b8;
   --color-slate-205: #94a3b8;
-  --color-slate-300: #94a3b8;
-  --color-slate-350: #94a3b8;
-  --color-slate-400: #64748b;
-  --color-slate-500: #64748b;
-  --color-slate-600: #475569;
-  --color-slate-650: #334155;
-  --color-slate-700: #334155;
-  --color-slate-750: #1e293b;
-  --color-slate-800: #1e293b;
-  --color-slate-900: #0f172a;
-  --color-slate-950: #0a1120;
+  --color-slate-250: #475569;
+  --color-slate-300: #000000; /* mapping to absolute black for excellent contrast */
+  --color-slate-305: #000000;
+  --color-slate-350: #000000;
+  --color-slate-400: #000000;
+  --color-slate-455: #000000;
+  --color-slate-500: #000000;
+  --color-slate-550: #000000;
+  --color-slate-505: #000000;
+  --color-slate-600: #000000;
+  --color-slate-650: #000000;
+  --color-slate-655: #000000;
+  --color-slate-700: #000000;
+  --color-slate-705: #000000;
+  --color-slate-750: #000000;
+  --color-slate-805: #000000;
+  --color-slate-800: #000000;
+  --color-slate-850: #000000;
+  --color-slate-855: #000000;
+  --color-slate-900: #000000;
+  --color-slate-950: #000000;
 }
 
 /* Sweeping Ray of Light (Sinar Highlight) Keyframes & Classes */
@@ -129,6 +139,12 @@
 /* Elegant custom transitions and scroll smoothing */
 html {
   scroll-behavior: smooth;
+  background-color: #ffffff;
+}
+
+body {
+  background-color: #ffffff;
+  color: #1e293b;
 }
 
 /* Highlights with professional subtle pulse effect */
@@ -331,6 +347,163 @@ html {
 .animate-blink-border {
   animation: blink-border 1s ease-in-out infinite;
 }
+
+/* ========================================================================== */
+/* GLOBAL HIGH-CONTRAST FORCED ACCESSIBILITY OVERRIDES (MANDATORILY APPLIED)   */
+/* ========================================================================== */
+
+/* 1. MAKE ALL CARD COLUMNS, PANELS AND COUNDS STAND OUT NEATLY AND SIMPLY */
+/* Keep background white and text absolutely legible, but without cluttered thick borders and shadows */
+.bg-white,
+.bg-slate-50,
+.bg-slate-100,
+.bg-emerald-50,
+.bg-emerald-105,
+.bg-emerald-100,
+.bg-amber-50,
+.bg-blue-50,
+.bg-blue-100,
+.bg-indigo-50,
+.bg-sky-50,
+.bg-orange-50,
+div[class*="bg-white"],
+div[class*="bg-slate-50"],
+div[class*="bg-emerald-50"],
+div[class*="bg-emerald-100"],
+button[class*="bg-white"],
+button[class*="bg-slate-50"],
+article[class*="bg-white"],
+section[class*="bg-white"] {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  /* Soft, simple subtle shadow and border for a clean professional look instead of heavy black frames */
+  border: 1px solid #e2e8f0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03) !important;
+}
+
+/* 2. SOLID CONTRAST FOR ENTRY FIELDS, SELECTIONS AND DROPDOWNS WITHOUT CLUTTER */
+input,
+select,
+textarea {
+  border-color: #475569 !important;
+  color: #000000 !important;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="search"],
+select,
+textarea {
+  border: 1.5px solid #000000 !important;
+  background-color: #ffffff !important;
+  color: #000000 !important;
+  font-weight: 800 !important;
+  box-shadow: none !important; /* Removed busy offset shadow */
+}
+
+/* 3. COMFORTABLE CONTRAST FOR ALL BUTTONS WITHOUT EXTRA FORCED THICK BORDERS */
+button,
+[role="button"] {
+  font-weight: 950 !important;
+}
+
+/* 4. PREVENT THE COMBINATION OF WHITE AND YELLOW/AMBER (ILLEGIBLE SCREEN ELEMENTS) */
+/* Force absolute black text and black icons on all yellow background panels */
+.bg-amber-500,
+.bg-amber-450,
+.bg-amber-400,
+.bg-amber-300,
+.bg-yellow-500,
+.bg-yellow-400,
+.bg-yellow-300,
+[class*="bg-amber-"],
+[class*="bg-yellow-"] {
+  background-color: #ffc439 !important; /* Standout Rich Ochre Yellow */
+  color: #000000 !important;
+  border: 1px solid #d97706 !important; /* Much cleaner simple border */
+}
+
+/* Ensure ALL child items (icons, labels, paragraphs, buttons) inside a yellow panel render in solid black */
+.bg-amber-500 *,
+.bg-amber-450 *,
+.bg-amber-400 *,
+.bg-amber-300 *,
+.bg-yellow-500 *,
+.bg-yellow-400 *,
+[class*="bg-amber-"] *,
+[class*="bg-yellow-"] * {
+  color: #000000 !important;
+  stroke: #000000 !important;
+  fill: #000000 !important;
+  font-weight: 900 !important;
+}
+
+/* Overrule yellow/amber texts on white/light background to be a rich dark bronze-brown with extremely high contrast */
+.text-amber-500,
+.text-amber-450,
+.text-amber-350,
+.text-amber-300,
+.text-yellow-500,
+.text-yellow-400,
+[class*="text-amber-"],
+[class*="text-yellow-"] {
+  color: #7c2d12 !important; /* Ultra contrasting Dark Red-Amber (WCAG Compliant) */
+  font-weight: 900 !important; /* Thick text */
+}
+
+/* 5. MAKE PARAGRAPHS, SPANS, HEADINGS AND SLATE/GRAY TEXT MUCH THICKER AND ABSOLUTELY DARK */
+body,
+p,
+span,
+a,
+li,
+td,
+th,
+label,
+time {
+  font-weight: 700 !important; /* Thicken body texts globally for superb visibility */
+  color: #000000 !important; /* Absolute deep dark */
+}
+
+/* Catch standard faint colors like gray/slate/emerald light texts and lift them to bold black */
+.text-slate-400,
+.text-slate-500,
+.text-slate-600,
+.text-slate-700,
+.text-slate-800,
+.text-slate-900,
+.text-emerald-600,
+.text-emerald-700,
+.text-emerald-800,
+[class*="text-slate-"],
+[class*="text-emerald-300/"],
+[class*="text-emerald-400/"] {
+  color: #000000 !important;
+  font-weight: 800 !important; /* Extra strong readability */
+}
+
+/* Boost titles weight to absolute bold screen elements */
+h1, h2, h3, h4, h5, h6 {
+  font-weight: 900 !important;
+  color: #000000 !important;
+}
+
+/* 6. THIN CLEAN DIVIDERS AND BORDERS TO PREVENT BUSY CLUTTERED SCREENS */
+.border,
+.border-t,
+.border-b,
+.border-l,
+.border-r {
+  border-width: 1px !important;
+  border-color: #e2e8f0 !important; /* Clean, lightweight borders that keep everything beautifully simple */
+}
+
+.border-dashed {
+  border-width: 1px !important;
+  border-color: #cbd5e1 !important;
+  border-style: dashed !important;
+}
+
 
 
 

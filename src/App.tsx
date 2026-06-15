@@ -27,14 +27,7 @@ import { AnimatePresence, motion } from 'motion/react';
 export default function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
   const [menuCategory, setMenuCategory] = useState<'all' | 'ibadah' | 'pembelajaran' | 'kajian'>('all');
-  const [darkMode, setDarkMode] = useState<boolean>(() => {
-    try {
-      const saved = localStorage.getItem('portal_dark_mode');
-      return saved !== null ? saved === 'true' : true;
-    } catch (e) {
-      return true;
-    }
-  });
+  const [darkMode, setDarkMode] = useState<boolean>(false);
   const [theme, setTheme] = useState<'emerald' | 'merah' | 'orange' | 'biru' | 'ungu' | 'coklat' | 'putih' | 'birutua' | 'merahmuda'>(() => {
     try {
       return (localStorage.getItem('portal_theme') as any) || 'orange';
@@ -509,11 +502,11 @@ export default function App() {
   }, [darkMode]);
 
   return (
-    <div className={`min-h-screen bg-gradient-to-br from-emerald-50/45 via-white to-emerald-100/25 dark:from-slate-950 dark:via-slate-950 dark:to-slate-950 text-slate-800 dark:text-emerald-50 font-sans transition-all duration-300 flex flex-col justify-between theme-${theme}`}>
+    <div className={`min-h-screen bg-gradient-to-br from-emerald-50/45 via-white to-emerald-100/25 text-slate-800 font-sans transition-all duration-300 flex flex-col justify-between theme-${theme}`}>
       <div>
         {/* Main Header / Navigation - Combined Sticky Container with Custom Distinct Color and Animated Divider */}
         {!quranFocusMode && (
-          <div className="sticky top-0 z-50 w-full shadow-md bg-[#f4fcf8]/98 dark:bg-slate-950/98 backdrop-blur-md transition-all duration-300">
+          <div className="sticky top-0 z-50 w-full shadow-md bg-[#f4fcf8]/98 backdrop-blur-md transition-all duration-300">
           <Navbar 
             activeTab={activeTab} 
             setActiveTab={setActiveTab} 
@@ -611,8 +604,8 @@ export default function App() {
                             }}
                             className={`px-3 py-2 rounded-xl text-[10.5px] sm:text-xs font-bold cursor-pointer transition-all border flex items-center gap-2.5 w-full text-left ${
                               isActive
-                                ? 'bg-slate-900 border-slate-900 text-white dark:bg-emerald-600 dark:border-emerald-600 dark:text-white shadow-sm'
-                                : 'bg-transparent border-transparent text-slate-705 dark:text-emerald-150 hover:bg-slate-100 dark:hover:bg-slate-800'
+                                ? 'bg-emerald-600 border-emerald-600 text-white shadow-sm'
+                                : 'bg-transparent border-transparent text-slate-700 hover:bg-slate-100'
                             }`}
                           >
                             <span className={`w-2.5 h-2.5 rounded-full ${swatch.color} border border-white/20`} />
@@ -691,38 +684,37 @@ export default function App() {
             >
               {activeTab === 'home' && (
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-              
               {/* Majestic Modern Islamic Hero Section */}
-              <div className="relative bg-gradient-to-br from-emerald-600 via-teal-800 to-blue-700 rounded-3xl p-8 md:p-12 text-white shadow-2xl overflow-hidden mb-12 border border-blue-500/20">
+              <div className="relative bg-gradient-to-br from-emerald-50 via-white to-emerald-100 rounded-3xl p-8 md:p-12 text-slate-850 shadow-xl overflow-hidden mb-12 border border-emerald-250/60">
                 {/* Decorative CSS patterns background */}
-                <div className="absolute right-0 bottom-0 top-0 w-full md:w-1/2 opacity-10 pointer-events-none select-none flex items-center justify-center">
+                <div className="absolute right-0 bottom-0 top-0 w-full md:w-1/2 opacity-15 pointer-events-none select-none flex items-center justify-center">
                   {/* Styled scalable vector dome silhouette */}
-                  <svg viewBox="0 0 400 400" className="w-4/5 h-4/5 fill-current text-white transform translate-y-12 translate-x-12">
+                  <svg viewBox="0 0 400 400" className="w-4/5 h-4/5 fill-current text-emerald-500/10 transform translate-y-12 translate-x-12">
                     <path d="M200,40 C280,40 330,120 330,220 L330,360 L70,360 L70,220 C70,120 120,40 200,40 Z" />
                     <line x1="200" y1="10" x2="200" y2="40" stroke="currentColor" strokeWidth="4" />
                     <circle cx="200" cy="10" r="4" />
                   </svg>
                 </div>
 
-                <div className="absolute left-6 top-6 opacity-45 animate-pulse">
-                  <Star className="w-5 h-5 text-amber-300 fill-current" />
+                <div className="absolute left-6 top-6 opacity-35 animate-pulse">
+                  <Star className="w-5 h-5 text-amber-500 fill-current" />
                 </div>
-                <div className="absolute right-12 top-10 opacity-35 animate-ping">
-                  <Star className="w-8 h-8 text-amber-200 fill-current" />
+                <div className="absolute right-12 top-10 opacity-25 animate-ping">
+                  <Star className="w-8 h-8 text-amber-500 fill-current" />
                 </div>
 
                  <div className="relative z-10 animate-in fade-in duration-500">
                   {/* Expanded majestic text layout */}
                   <div className="w-full text-left max-w-3xl">
-                    <span className="inline-flex items-center px-4 py-1.5 bg-gradient-to-r from-emerald-950/60 to-blue-900/60 backdrop-blur-md rounded-full text-[10px] font-extrabold uppercase tracking-widest text-emerald-100 border border-white/10 mb-6">
+                    <span className="inline-flex items-center px-4 py-1.5 bg-emerald-500/10 rounded-full text-[10px] font-extrabold uppercase tracking-widest text-emerald-800 border border-emerald-150 mb-6">
                       🌟 Pusat Kajian & Ibadah Sinergi Umat Nusantara
                     </span>
                     
-                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-bold leading-tight mb-4">
-                      Temani Ibadah Keluarga <span className="block text-transparent bg-clip-text bg-gradient-to-r from-amber-300 to-amber-450 mt-1 font-extrabold">Setiap Hari</span>
+                    <h1 className="text-4xl md:text-5xl lg:text-6xl font-serif font-black leading-tight text-slate-800 mb-4">
+                      Temani Ibadah Keluarga <span className="block text-emerald-600 mt-1 font-extrabold">Setiap Hari</span>
                     </h1>
                     
-                    <p className="text-sm md:text-base text-blue-50/90 leading-relaxed mb-8 max-w-xl">
+                    <p className="text-sm md:text-base text-slate-600 leading-relaxed mb-8 max-w-xl">
                       Portal terpadu untuk mempermudah rutinitas ibadah, amalan fardhu & sunnah bagi Bapak, Ibu, Anak, dan seluruh cucu cicit Keluarga Mbah Yani dalam satu genggaman digital.
                     </p>
 
@@ -730,7 +722,7 @@ export default function App() {
                       <button
                         id="hero-quran"
                         onClick={() => setActiveTab('quran')}
-                        className="px-8 py-3.5 bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-450 hover:to-amber-550 text-slate-950 font-extrabold rounded-xl shadow-lg shadow-amber-500/10 active:scale-98 transition-all flex items-center cursor-pointer text-sm"
+                        className="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-md shadow-emerald-500/10 active:scale-98 transition-all flex items-center cursor-pointer text-sm"
                       >
                         Buka Al-Qur&apos;an Digital
                         <MoveRight className="w-4.5 h-4.5 ml-2 shrink-0" />
@@ -739,7 +731,7 @@ export default function App() {
                       <button
                         id="hero-jadwal"
                         onClick={() => setActiveTab('jadwal')}
-                        className="px-7 py-3.5 bg-white/10 hover:bg-white/15 text-white font-bold rounded-xl border border-white/20 active:scale-98 transition-all cursor-pointer text-sm"
+                        className="px-7 py-3.5 bg-slate-50 hover:bg-slate-100/90 text-slate-700 font-bold rounded-xl border border-slate-200/95 active:scale-98 transition-all cursor-pointer text-sm"
                       >
                         Lihat Jadwal Sholat
                       </button>

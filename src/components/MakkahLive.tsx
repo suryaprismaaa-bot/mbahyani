@@ -177,34 +177,34 @@ export default function MakkahLive() {
         <div className="lg:col-span-8 space-y-5">
           
           {/* Main Player Card */}
-          <div className="bg-black dark:bg-black rounded-3xl border border-emerald-900/20 dark:border-blue-900/10 overflow-hidden shadow-2xl relative">
+          <div className="bg-white rounded-3xl border border-emerald-100 overflow-hidden shadow-lg relative">
             
             {/* Header Stream Bar */}
-            <div className="bg-slate-900/90 text-white px-5 py-3.5 flex flex-wrap justify-between items-center border-b border-emerald-950/30">
+            <div className="bg-emerald-50 text-slate-800 px-5 py-3.5 flex flex-wrap justify-between items-center border-b border-emerald-100">
               <div className="flex items-center space-x-2.5">
                 <span className="flex h-2.5 w-2.5 relative">
                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
                   <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500"></span>
                 </span>
-                <span className="text-[11px] font-black tracking-widest text-rose-400 uppercase">
+                <span className="text-[11px] font-black tracking-widest text-rose-600 uppercase">
                   LIVE STREAMING
                 </span>
-                <span className="text-xs text-slate-350 font-medium">
+                <span className="text-xs text-slate-500 font-medium">
                   | {selectedStream.location}
                 </span>
               </div>
 
               {/* Saudi Arabia AST clock */}
-              <div className="bg-slate-950/90 px-3/5 py-1 border border-white/5 rounded-xl flex items-center space-x-1.5 mt-1 sm:mt-0">
-                <Clock className="w-3.5 h-3.5 text-amber-300 animate-pulse" />
-                <span className="text-[11px] font-mono font-bold text-amber-300 tracking-wider">
+              <div className="bg-amber-100/90 px-3.5 py-1 border border-amber-200 rounded-xl flex items-center space-x-1.5 mt-1 sm:mt-0">
+                <Clock className="w-3.5 h-3.5 text-amber-800 animate-pulse" />
+                <span className="text-[11px] font-mono font-bold text-amber-900 tracking-wider">
                   {ksaTimeStr || "MEMUAT WAKTU KSA..."}
                 </span>
               </div>
             </div>
 
             {/* Video Iframe Frame */}
-            <div className="relative aspect-video bg-slate-950 w-full flex items-center justify-center">
+            <div className="relative aspect-video bg-slate-100 w-full flex items-center justify-center">
               {isStreamPlaying ? (
                 activeStreamId ? (
                   <iframe
@@ -220,8 +220,8 @@ export default function MakkahLive() {
                   ></iframe>
                 ) : (
                   <div className="flex flex-col items-center justify-center text-center space-y-3 p-4">
-                    <RefreshCw className="w-8 h-8 text-emerald-400 animate-spin" />
-                    <span className="text-xs text-slate-400 font-mono">Menyegarkan feed siaran luar jaringan...</span>
+                    <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
+                    <span className="text-xs text-slate-600 font-mono">Menyegarkan feed siaran luar jaringan...</span>
                   </div>
                 )
               ) : (
@@ -254,13 +254,13 @@ export default function MakkahLive() {
             </div>
 
             {/* Action Bar Sub-player */}
-            <div className="bg-slate-900 text-white p-4.5 flex flex-wrap justify-between items-center gap-3">
+            <div className="bg-slate-50 text-slate-800 p-4.5 flex flex-wrap justify-between items-center gap-3 border-t border-slate-100">
               <div className="flex-1 min-w-0">
-                <h3 className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5">
-                  <Sparkles className="w-4 h-4 text-amber-400 shrink-0" />
+                <h3 className="text-sm font-bold text-slate-800 tracking-tight flex items-center gap-1.5">
+                  <Sparkles className="w-4 h-4 text-amber-500 shrink-0" />
                   {selectedStream.title}
                 </h3>
-                <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                <p className="text-[11px] text-slate-500 mt-1 leading-relaxed">
                   {selectedStream.description}
                 </p>
               </div>
@@ -270,7 +270,7 @@ export default function MakkahLive() {
                 id="btn-refresh-stream"
                 onClick={handleRefreshStream}
                 disabled={isRefreshing}
-                className="px-3 border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 dark:hover:bg-white/5 text-slate-200 text-xs py-2 rounded-xl flex items-center cursor-pointer font-bold transition-all shrink-0 active:scale-95 disabled:opacity-50"
+                className="px-3 border border-emerald-200/60 hover:border-emerald-300 bg-white hover:bg-emerald-50/50 text-emerald-800 text-xs py-2 rounded-xl flex items-center cursor-pointer font-bold transition-all shrink-0 active:scale-95 disabled:opacity-50"
               >
                 <RefreshCw className="w-3.5 h-3.5 mr-1.5" />
                 Refresh Siaran
