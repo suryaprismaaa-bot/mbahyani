@@ -79,6 +79,18 @@ export default function App() {
   const [activeSurahNum, setActiveSurahNum] = useState<number | null>(null);
   const [quranFocusMode, setQuranFocusMode] = useState<boolean>(false);
 
+  const [pendingTab, setPendingTab] = useState<ActiveTab | null>(null);
+  const [showMaintenanceModal, setShowMaintenanceModal] = useState<boolean>(false);
+
+  const handleSetActiveTab = (tab: ActiveTab) => {
+    if (tab === 'masjid' || tab === 'jadwal') {
+      setPendingTab(tab);
+      setShowMaintenanceModal(true);
+    } else {
+      setActiveTab(tab);
+    }
+  };
+
   useEffect(() => {
     setQuranFocusMode(false);
   }, [activeTab]);
@@ -513,7 +525,7 @@ export default function App() {
           >
           <Navbar 
             activeTab={activeTab} 
-            setActiveTab={setActiveTab} 
+            setActiveTab={handleSetActiveTab} 
             darkMode={darkMode} 
             setDarkMode={setDarkMode} 
           />
@@ -745,7 +757,7 @@ export default function App() {
                     <div className="flex flex-wrap gap-4">
                       <button
                         id="hero-quran"
-                        onClick={() => setActiveTab('quran')}
+                        onClick={() => handleSetActiveTab('quran')}
                         className="px-8 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-extrabold rounded-xl shadow-md shadow-emerald-500/10 active:scale-98 transition-all flex items-center cursor-pointer text-sm"
                       >
                         Buka Al-Qur&apos;an Digital
@@ -754,7 +766,7 @@ export default function App() {
                       
                       <button
                         id="hero-jadwal"
-                        onClick={() => setActiveTab('jadwal')}
+                        onClick={() => handleSetActiveTab('jadwal')}
                         className="px-7 py-3.5 bg-slate-50 hover:bg-slate-100/90 text-slate-700 font-bold rounded-xl border border-slate-200/95 active:scale-98 transition-all cursor-pointer text-sm"
                       >
                         Lihat Jadwal Sholat
@@ -1048,6 +1060,89 @@ export default function App() {
                 <div className="text-[10px] text-slate-950 text-center font-black">
                   Tutup otomatis dalam {modalTimeLeft} detik • Khazanah Islami v2.0
                 </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Maintenance Info Modal */}
+      <AnimatePresence>
+        {showMaintenanceModal && (
+          <div className="fixed inset-0 z-[120] flex items-center justify-center p-4">
+            {/* Blurry Background Backdrop */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => {
+                setShowMaintenanceModal(false);
+              }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-xs"
+            />
+
+            {/* Premium, High-Contrast Maintenance Modal Card */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 35 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 30 }}
+              transition={{ type: "spring", damping: 28, stiffness: 350 }}
+              className="relative w-full max-w-[360px] bg-white dark:bg-slate-900 border-4 border-amber-500 rounded-[28px] p-6.5 text-center z-130 flex flex-col justify-between shadow-2xl"
+            >
+              {/* Close Button top-right */}
+              <button
+                onClick={() => setShowMaintenanceModal(false)}
+                className="absolute top-4 right-4 p-1.5 rounded-full text-slate-700 dark:text-slate-300 hover:text-black dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer transition-colors"
+                aria-label="Tutup"
+              >
+                <X className="w-5 h-5 font-black" />
+              </button>
+
+              {/* Maintenance Warning Icon Header */}
+              <div className="mb-4">
+                <div className="w-14 h-14 bg-amber-100 dark:bg-amber-950/45 rounded-2xl flex items-center justify-center mx-auto mb-3 border-2 border-amber-450 animate-pulse text-amber-600 dark:text-amber-400">
+                  <Clock className="w-8 h-8 stroke-[2.5px]" />
+                </div>
+                <span className="inline-flex items-center px-4 py-1 bg-amber-500 text-slate-950 font-black text-[10px] uppercase tracking-widest rounded-full shadow-xs">
+                  ⚠️ SEDANG MAINTENANCE
+                </span>
+                <h3 className="font-serif font-black text-xl text-slate-950 dark:text-white tracking-tight mt-3">
+                  Pemberitahuan Sistem
+                </h3>
+              </div>
+
+              {/* Message Details */}
+              <div className="space-y-3.5 text-sm mb-6 text-slate-700 dark:text-slate-200">
+                <p className="font-bold text-slate-950 dark:text-white text-md leading-snug">
+                  Halaman <span className="text-emerald-700 dark:text-emerald-400 font-extrabold">{pendingTab === 'masjid' ? 'Cari Masjid Terdekat' : 'Jadwal Shalat'}</span> sedang dalam perbaikan (maintenance) berkala.
+                </p>
+                <p className="text-xs leading-relaxed opacity-95">
+                  Mohon maaf jika hasil kemungkinan tidak akurat atau mengalami penyesuaian saat ini. Kami terus berupaya menyempurnakan setiap fitur demi kenyamanan ibadah Anda.
+                </p>
+              </div>
+
+              {/* Action Buttons: Proceed button to open the aimed tab */}
+              <div className="space-y-3">
+                <button
+                  id="confirm-maintenance-proceed"
+                  onClick={() => {
+                    if (pendingTab) {
+                      setActiveTab(pendingTab);
+                    }
+                    setShowMaintenanceModal(false);
+                  }}
+                  className="w-full py-3 px-5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider rounded-2xl shadow-[0_4px_12px_rgba(16,185,129,0.3)] active:scale-97 transition-all cursor-pointer flex items-center justify-center gap-2 border-2 border-emerald-500"
+                >
+                  <span>Tutup & Buka Halaman</span>
+                  <MoveRight className="w-4 h-4 stroke-[2.5px]" />
+                </button>
+
+                <button
+                  onClick={() => setShowMaintenanceModal(false)}
+                  className="w-full py-2 px-4 hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 font-extrabold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer"
+                >
+                  Batal
+                </button>
               </div>
             </motion.div>
           </div>
